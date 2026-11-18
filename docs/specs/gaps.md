@@ -190,7 +190,7 @@ no values) and finishes with a check that no email outside `example.com`/the pro
 ## 4. NFR-PERF-02 — Server response from Japan: page cache and purge (Must) — partial gap
 
 **Target [Doc]:** cached HTML TTFB ≤ 800 ms p75 from Tokyo/Osaka (gate), ⟦target ≤ 600 ms⟧; uncached ≤ 1.8 s p75.
-Supporting budgets [Doc TRD §6.12]: ≤ 60 DB queries per uncached front-end page, ≤ 100 per admin page; no queries in
+Supporting budgets [Doc TRD §5]: ≤ 60 DB queries per uncached front-end page, ≤ 100 per admin page; no queries in
 template loops (prime caches with `update_meta_cache` / `_prime_post_caches`); momos-core JS ≤ 40 KB gzip on the
 reservation page (excl. Turnstile), ≤ 10 KB elsewhere; > 20 % regression blocks a release. Measurement: `qa.md`
 TC-PERF-002.
@@ -241,7 +241,7 @@ TC-DIET-019 (no stale claims); Query Monitor budget check on staging; GATE-08.
 
 ## 5. NFR-MNT-01 — Maintainability (Must) — partial gap
 
-**Statement [Doc 04 §15 / TRD §6.12]:** pinned versions (`composer.lock`); monthly updates via staging; README per
+**Statement [Doc 04 §15 / TRD §5]:** pinned versions (`composer.lock`); monthly updates via staging; README per
 momos-core module; WPCS + PSR-4; ⟦≥ 70 %⟧ line coverage for Reservation and Access; PHPStan level 6 with 0 errors.
 
 | Item | Implementation rule |

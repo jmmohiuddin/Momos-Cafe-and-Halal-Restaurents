@@ -320,3 +320,36 @@ Every feature has at least one requirement in the registry and at least one spec
 | F-PRV-01 Privacy notices & consent | Must | FR-PRV-001, FR-PRV-002, FR-PRV-005 | access-security-privacy.md, content-strings.md, i18n-seo-analytics.md, screens.md, qa.md |
 | F-PRV-02 Retention job | Must | FR-PRV-003, BR-PRV-02 | access-security-privacy.md, notifications.md |
 | F-PRV-03 Data-subject request tools | Should | FR-PRV-004, BR-PRV-03 | access-security-privacy.md, notifications.md, screens.md |
+
+## 3. Spec gaps
+
+Method: every requirement ID was searched in the ten area specs (`branch`, `menu-dietary`, `reservation`,
+`notifications`, `access-security-privacy`, `i18n-seo-analytics`, `ui-design-system`, `screens`, `content-strings`,
+`qa`); rows with few or test-only references were then read in context to check that a developer gets implementable
+detail (data, rules, mechanism), not just a traceability line. Features of Doc 03 §2.7 and the Appendix A items were
+cross-checked the same way (§2.1–2.2). Only Must/Should rows are listed. The missing detail is written in
+[`docs/specs/gaps.md`](specs/gaps.md).
+
+| ID | Priority | Gap | Why | Covered now in |
+|---|---|---|---|---|
+| FR-FND-003 | Must | Full | Not referenced by any spec: mu-loader, module set + README, theme-independence, migration runner, job registry/cron, heartbeats (AC-FND-01-04/05/06) | gaps.md §1 |
+| FR-FND-006 | Must | Full | Not referenced by any spec: plugin register, ≤ 15 cap, SCR-A15 read-only list, approval rule (AC-FND-01-09) | gaps.md §2 |
+| FR-FND-002 | Must | Partial | Staging rules covered (access-security-privacy §9.3); environment matrix, deploy-by-tag steps and the production→staging sanitisation script (AC-FND-01-08) missing | gaps.md §3 |
+| NFR-PERF-02 | Must | Partial | Only measured in qa.md; page-cache rules, cache tags, `Kernel\Cache\CacheInvalidator` and purge adapters undefined — and the TRD mechanism (LiteSpeed Cache plugin) is removed by IMPL-004 | gaps.md §4 |
+| NFR-MNT-01 | Must | Partial | Only tested in qa.md; README-per-module, version pinning, PHPCS/PHPStan config and the 70 % coverage gate not specified for implementers | gaps.md §5 |
+
+No Should-priority gaps were found. Could rows (FR-CORP-005 News, FR-CORP-012 Gallery, FR-RES-021 CSV export) and the
+Could API-17 are covered by screens/content-strings/reservation/access-security-privacy specs.
+
+## 4. Documentation conflicts noted during the review
+
+Conflicts already recorded inside the area specs (each spec ends with its own conflict list) are not repeated. New ones:
+
+| # | Conflict | Resolution used |
+|---|---|---|
+| 1 | `momo_trading_name` length: TRD G1 / content-strings ≤ 100 vs Doc 06 / ui-design-system ≤ 80 | Store ≤ 100; layout must cope |
+| 2 | Logo upload: Doc 04 FR-FND-005 + TRD (no SVG uploads) vs ui-design-system (SVG sanitised) — also screens C-13 | No SVG uploads; theme wordmark SVG ships as code |
+| 3 | Page cache via LiteSpeed Cache plugin (TRD §2.9.5, Doc 11 SEC-060) vs IMPL-004 | Adapter design in gaps.md §4 |
+| 4 | Test clock: `momos_test_clock` (SDD/TRD) vs `momos_frozen_now` / `MOMOS_FROZEN_NOW` (kernel, qa.md) | Kernel names |
+| 5 | Hash pepper constant `MOMOS_HASH_PEPPER` (docs) vs `MOMOS_HMAC_KEY` (production config sample) | Kernel name; alias documented |
+| 6 | Plugin inventory of 14 incl. premium (TRD §1.3, Doc 11 SEC-060) vs IMPL-001/004 | Inventory = momos-core + theme (gaps.md §2) |
