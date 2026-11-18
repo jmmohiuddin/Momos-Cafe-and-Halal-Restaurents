@@ -17,6 +17,9 @@ final class I18nModule implements ModuleInterface {
 		OptionsPage::boot();
 		Router::register();
 		Admin\TranslationEditor::register();
+		\Momos\Kernel\Cache\CacheInvalidator::register();
+		\Momos\Kernel\Monitoring\StatusPanel::register();
+		\Momos\Kernel\DependencyCheck::register();
 
 		// Native content types: pages and news posts translate title, content and excerpt.
 		$core = [

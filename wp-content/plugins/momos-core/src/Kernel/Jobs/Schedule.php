@@ -18,6 +18,8 @@ final class Schedule {
 	/** Register a recurring job (idempotent). $interval in seconds. */
 	public static function recurring( string $hook, int $interval, array $args = [] ): void {
 		self::$recurring[ $hook ] = [ 'interval' => $interval, 'args' => $args ];
+		// Heartbeat after all handlers of the job completed without throwing (FR-FND-003(f)).
+		add_action( $hook, static fn() => self::beat( $hook ), PHP_INT_MAX, 0 );
 		if ( ! self::$hooked ) {
 			self::$hooked = true;
 			add_action( 'init', [ self::class, 'ensure' ], 30 );
@@ -43,6 +45,44 @@ final class Schedule {
 			}
 		}
 		update_option( 'momos_jobs_signature', $signature, true );
+	}
+
+	/** Record a heartbeat and ping the external monitor (dead-man's switch, NFR-OBS-01). */
+	public static function beat( string $hook ): void {
+		$beats          = (array) get_option( 'momos_heartbeat', [] );
+		$beats[ $hook ] = gmdate( 'c' );
+		update_option( 'momos_heartbeat', $beats, false );
+		$key = 'MOMOS_HEARTBEAT_URL_' . strtoupper( (string) preg_replace( '/^momos_job_/', '', $hook ) );
+		$url = defined( $key ) ? (string) constant( $key ) : ( defined( 'MOMOS_HEARTBEAT_URL' ) ? (string) MOMOS_HEARTBEAT_URL : '' );
+		if ( '' !== $url ) {
+			wp_remote_get( $url, [ 'timeout' => 2, 'blocking' => false ] );
+		}
+	}
+
+	/**
+	 * Job health for the monitoring panel: hook => [interval, last (ISO|null), state ok|late|never].
+	 *
+	 * @return array<string, array{interval:int,last:?string,state:string}>
+	 */
+	public static function health(): array {
+		$beats = (array) get_option( 'momos_heartbeat', [] );
+		$out   = [];
+		foreach ( self::$recurring as $hook => $def ) {
+			$last = $beats[ $hook ] ?? null;
+			$age  = $last ? time() - (int) strtotime( (string) $last ) : null;
+			$out[ $hook ] = [
+				'interval' => $def['interval'],
+				'last'     => $last,
+				'state'    => null === $age ? 'never' : ( $age <= 2 * $def['interval'] + 120 ? 'ok' : 'late' ),
+			];
+		}
+		return $out;
+	}
+
+	/** Force (re)registration of all recurring actions (deploy step `wp momos jobs sync`). */
+	public static function sync(): void {
+		delete_option( 'momos_jobs_signature' );
+		self::ensure();
 	}
 
 	/** One-off action at a time (e.g. break-glass expiry). */

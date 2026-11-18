@@ -29,12 +29,35 @@ final class Runner {
 		if ( get_option( 'momos_migrations_signature' ) === $signature ) {
 			return;
 		}
+		// Production/staging: migrations run only from the deploy step (`wp momos migrate`), never on a
+		// web request (FR-FND-003(d)); show an SA notice instead.
+		if ( 'development' !== \Momos\Kernel\Env::name() && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			add_action( 'admin_notices', static function (): void {
+				if ( current_user_can( 'manage_options' ) ) {
+					echo '<div class="notice notice-error"><p>' . esc_html__( 'Database update required — run: wp momos migrate', 'momos-core' ) . '</p></div>';
+				}
+			} );
+			return;
+		}
 		self::run();
 		update_option( 'momos_migrations_signature', $signature, true );
 	}
 
 	/** @return list<string> IDs applied in this run. */
 	public static function run( bool $force = false ): array {
+		if ( ! \Momos\Kernel\Db\NamedLock::acquire( 'momos_migrate', 0 ) ) {
+			Logger::warning( 'migration.locked', [] );
+			return [];
+		}
+		try {
+			return self::run_locked( $force );
+		} finally {
+			\Momos\Kernel\Db\NamedLock::release( 'momos_migrate' );
+		}
+	}
+
+	/** @return list<string> */
+	private static function run_locked( bool $force ): array {
 		$applied = (array) get_option( self::OPTION, [] );
 		$ran     = [];
 		foreach ( self::migrations() as $migration ) {
@@ -52,6 +75,7 @@ final class Runner {
 			}
 		}
 		update_option( self::OPTION, array_values( array_unique( $applied ) ), true );
+		update_option( 'momos_migrations_signature', MOMOS_CORE_VERSION . ':' . count( self::migrations() ), true );
 		if ( $ran ) {
 			flush_rewrite_rules( false );
 		}
