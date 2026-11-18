@@ -1,0 +1,24 @@
+{
+  "name": "momos/platform",
+  "description": "Momo's Cafe & Halal Restaurant — multilingual website and reservation-request platform (WordPress).",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.3"
+  },
+  "require-dev": {
+    "johnpbloch/wordpress-core": "7.1.5",
+    "wp-cli/wp-cli-bundle": "^2.11",
+    "phpunit/phpunit": "^9.6",
+    "yoast/phpunit-polyfills": "^2.0",
+    "wp-phpunit/wp-phpunit": "*"
+  },
+  "config": {
+    "allow-plugins": true,
+    "sort-packages": true,
+    "platform": { "php": "8.3.6" }
+  },
+  "scripts": {
+    "test": "phpunit -c phpunit.xml.dist"
+  }
+}

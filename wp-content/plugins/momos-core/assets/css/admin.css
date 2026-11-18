@@ -1,0 +1,13 @@
+/* momos-core admin styles — logical properties only (RTL-safe). */
+.momos-fields .momos-req { color: #b32d2e; }
+.momos-readonly { padding-block: 6px; color: #50575e; }
+.momos-media__preview img { inline-size: 80px; block-size: 80px; object-fit: cover; margin-inline-end: 6px; border-radius: 4px; }
+.momos-repeater__table td { vertical-align: top; }
+.momos-choice { display: inline-block; margin-inline-end: 12px; }
+.momos-admin .momos-badge { display: inline-block; padding-inline: 8px; padding-block: 2px; border-radius: 999px; font-size: 12px; line-height: 18px; background: #f0f0f1; }
+.momos-admin .momos-badge--pending { background: #fcf0d0; color: #6b4b00; }
+.momos-admin .momos-badge--confirmed { background: #d7f0dd; color: #0a5c2a; }
+.momos-admin .momos-badge--rejected, .momos-admin .momos-badge--cancelled, .momos-admin .momos-badge--expired { background: #f6e1e1; color: #8a1f1f; }
+.momos-admin .momos-badge--completed { background: #e1ecf6; color: #13466e; }
+.momos-admin .momos-badge--no_show { background: #ece1f6; color: #4b1f6e; }
+.momos-field-errors ul { margin-block: 0.5em; padding-inline-start: 1.2em; list-style: disc; }

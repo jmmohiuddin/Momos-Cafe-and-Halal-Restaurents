@@ -1,0 +1,1 @@
+<?php // Theme bootstrap placeholder.

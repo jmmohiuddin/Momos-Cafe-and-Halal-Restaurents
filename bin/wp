@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# WP-CLI against the development install.
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+exec php -d memory_limit=512M "$ROOT/vendor/wp-cli/wp-cli/php/boot-fs.php" --allow-root --path="$ROOT/.wp" "$@"

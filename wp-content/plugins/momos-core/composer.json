@@ -1,0 +1,13 @@
+{
+  "name": "momos/momos-core",
+  "description": "Business logic for the Momo's platform: branches, menu, dietary claims, reservations, notifications, access, audit, API, presentation, privacy.",
+  "type": "wordpress-plugin",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.3",
+    "woocommerce/action-scheduler": "^3.9",
+    "giggsey/libphonenumber-for-php-lite": "^8.13"
+  },
+  "autoload": { "psr-4": { "Momos\\": "src/" } },
+  "config": { "optimize-autoloader": true, "sort-packages": true, "platform": { "php": "8.3.6" } }
+}

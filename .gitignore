@@ -1,0 +1,13 @@
+/.wp/
+/vendor/
+/wp-content/plugins/momos-core/vendor/
+/node_modules/
+/tests/e2e/node_modules/
+/test-results/
+/playwright-report/
+/tests/e2e/.auth/
+/build/
+*.log
+.DS_Store
+.env
+.phpunit.result.cache
