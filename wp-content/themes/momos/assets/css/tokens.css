@@ -1,0 +1,150 @@
+/* themes/momos/assets/css/tokens.css — Doc 08 §2 (provisional until DEC-046). Components use semantic tokens only. */
+:root {
+  color-scheme: light;
+
+  /* ---- Primitive palette (Doc 08 §2.2.1) ---- */
+  --momo-c-cream-100:#FAF3EB; --momo-c-cream-050:#FDF8F3; --momo-c-white:#FFFFFF;
+  --momo-c-peach-100:#FBEADE; --momo-c-peach-300:#EED0B8; --momo-c-peach-glow:#FDE3CF;
+  --momo-c-orange-600:#C64F0E; --momo-c-orange-800:#A03B00;
+  --momo-c-gold-400:#D99B43;   --momo-c-gold-700:#97651F;
+  --momo-c-emerald-800:#1E3D34; --momo-c-emerald-700:#2B5A4B; --momo-c-emerald-100:#E6EFEA;
+  --momo-c-ink-900:#221A17; --momo-c-ink-600:#6E625D; --momo-c-taupe-500:#8C7167;
+  --momo-c-red-700:#BA1A1A; --momo-c-red-900:#8F1D14; --momo-c-red-050:#FBE9E7;
+  --momo-c-amber-050:#FDF1DC; --momo-c-amber-900:#6B4410; --momo-c-amber-950:#5C3A08; --momo-c-amber-400:#FBBF24;
+  --momo-c-stone-100:#EFE9E5; --momo-c-stone-700:#4A3F3A; --momo-c-mint-200:#C9D6D1;
+  --momo-c-wp-blue:#2271B1; /* admin primary only (Doc 08 §3.8) */
+
+  /* ---- Semantic colour (Doc 08 §2.2.2) ---- */
+  --momo-color-canvas:var(--momo-c-cream-100);          /* page background */
+  --momo-color-surface:var(--momo-c-white);             /* cards, menus, dialogs */
+  --momo-color-surface-raised:var(--momo-c-cream-050);  /* header, sheets, field fill */
+  --momo-color-tint:var(--momo-c-peach-100);            /* icon discs, chip hover, skeleton */
+  --momo-color-text:var(--momo-c-ink-900);
+  --momo-color-text-muted:var(--momo-c-ink-600);
+  --momo-color-text-on-dark:var(--momo-c-white);
+  --momo-color-text-on-dark-muted:var(--momo-c-mint-200);
+  --momo-color-action:var(--momo-c-orange-600);         /* FILL ONLY (never text) */
+  --momo-color-action-hover:var(--momo-c-orange-800);
+  --momo-color-accent-text:var(--momo-c-orange-800);    /* eyebrows, small orange text */
+  --momo-color-link:var(--momo-c-orange-800);           /* always underlined */
+  --momo-color-brand:var(--momo-c-emerald-800);
+  --momo-color-brand-2:var(--momo-c-emerald-700);       /* gradient end only */
+  --momo-color-brand-tint:var(--momo-c-emerald-100);
+  --momo-color-decor:var(--momo-c-gold-400);            /* decoration only, never text */
+  --momo-color-gold-text:var(--momo-c-gold-700);        /* gold text on surface/canvas only */
+  --momo-color-border:var(--momo-c-peach-300);          /* decorative; never sole control boundary */
+  --momo-color-border-field:var(--momo-c-taupe-500);    /* inputs, checkboxes, unselected choice chips */
+  --momo-color-disabled-text:var(--momo-c-taupe-500);
+  --momo-color-error:var(--momo-c-red-700);
+  --momo-color-error-strong:var(--momo-c-red-900);
+  --momo-color-error-tint:var(--momo-c-red-050);
+  --momo-color-warning-tint:var(--momo-c-amber-050);
+  --momo-color-warning-text:var(--momo-c-amber-950);
+  --momo-color-pending-text:var(--momo-c-amber-900);
+  --momo-color-neutral-tint:var(--momo-c-stone-100);
+  --momo-color-neutral-text:var(--momo-c-stone-700);
+  --momo-color-success:var(--momo-c-emerald-800);
+  --momo-color-overlay:rgba(34,26,23,.5);               /* dialog scrim */
+  --momo-color-focus:var(--momo-c-emerald-800);         /* ring on light surfaces */
+  --momo-color-focus-on-dark:var(--momo-c-amber-400);   /* ring on emerald surfaces */
+  --momo-color-toast-bg:var(--momo-c-ink-900);
+  --momo-gradient-band:linear-gradient(180deg,var(--momo-c-emerald-800),var(--momo-c-emerald-700)); /* direction-neutral [Proposed] */
+  --momo-banner-glow:radial-gradient(760px 280px at 50% 0,var(--momo-c-peach-glow),transparent 70%);
+
+  /* ---- Reservation status (Doc 08 §2.2.4) bg / text / border ---- */
+  --momo-status-pending-bg:#FDF1DC;   --momo-status-pending-fg:#6B4410;   --momo-status-pending-bd:#97651F;
+  --momo-status-confirmed-bg:#E6EFEA; --momo-status-confirmed-fg:#1E3D34; --momo-status-confirmed-bd:#1E3D34;
+  --momo-status-rejected-bg:#FBE9E7;  --momo-status-rejected-fg:#8F1D14;  --momo-status-rejected-bd:#BA1A1A;
+  --momo-status-neutral-bg:#EFE9E5;   --momo-status-neutral-fg:#4A3F3A;   --momo-status-neutral-bd:#8C7167; /* cancelled, expired, no_show */
+
+  /* ---- Allergen state icon colours (Doc 08 §2.2.5) ---- */
+  --momo-allergen-contains:#BA1A1A; --momo-allergen-may:#97651F; --momo-allergen-not:#1E3D34; --momo-allergen-unverified:#6E625D;
+
+  /* ---- Typography: families (Latin default = en) ---- */
+  --momo-font-heading-latin:"Epilogue","Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;
+  --momo-font-text-latin:"Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;
+  --momo-font-heading:var(--momo-font-heading-latin);
+  --momo-font-text:var(--momo-font-text-latin);
+  --momo-font-price:var(--momo-font-heading);           /* Epilogue in en; script text family elsewhere */
+  --momo-font-scale:1; --momo-lh-body:1.6; --momo-lh-heading:1.15; --momo-fw-heading:800; --momo-fw-heading-sub:700;
+  --momo-eyebrow-transform:uppercase; --momo-eyebrow-track:.12em; --momo-eyebrow-size:.75rem; --momo-track-body:0;
+
+  /* ---- Type scale (Doc 08 §2.3.2) size / line-height / weight / tracking ---- */
+  --momo-type-display:clamp(2.25rem,1.6rem + 2.6vw,3.5rem);  --momo-lh-display:1.12; --momo-track-display:-.02em;
+  --momo-type-h1:clamp(2rem,1.5rem + 2vw,2.75rem);           --momo-lh-h1:1.15;      --momo-track-h1:-.015em;
+  --momo-type-h2:clamp(1.625rem,1.3rem + 1.4vw,2.25rem);     --momo-lh-h2:1.2;       --momo-track-h2:-.01em;
+  --momo-type-h3:1.375rem;   --momo-lh-h3:1.3;    --momo-track-h3:-.005em;  /* weight 700 */
+  --momo-type-title:1.125rem; --momo-lh-title:1.35;                          /* weight 700 */
+  --momo-type-lead:1.125rem;  --momo-lh-lead:1.6;                            /* weight 400 */
+  --momo-type-body:1rem;                                                     /* lh = --momo-lh-body */
+  --momo-type-body-sm:.875rem; --momo-lh-body-sm:1.5;
+  --momo-type-label:.875rem;   --momo-lh-label:1.25; --momo-track-label:.01em; /* weight 700 */
+  --momo-type-price:1.125rem;  --momo-lh-price:1.2;                          /* weight 800 (700 non-Latin) */
+  --momo-type-micro:.75rem;    --momo-lh-micro:1.35; --momo-track-micro:.02em; /* Latin only; weight 700 (see §15 C5) */
+  --momo-fs-body:calc(var(--momo-type-body) * var(--momo-font-scale));
+  --momo-fs-body-sm:calc(var(--momo-type-body-sm) * var(--momo-font-scale));
+  --momo-fs-label:calc(var(--momo-type-label) * var(--momo-font-scale));
+  --momo-fs-lead:calc(var(--momo-type-lead) * var(--momo-font-scale));
+  --momo-fs-title:calc(var(--momo-type-title) * var(--momo-font-scale));
+
+  /* ---- Spacing (4 px base, Doc 08 §2.4) ---- */
+  --momo-space-1:4px; --momo-space-2:8px; --momo-space-3:12px; --momo-space-4:16px; --momo-space-5:20px;
+  --momo-space-6:24px; --momo-space-8:32px; --momo-space-10:40px; --momo-space-12:48px; --momo-space-16:64px; --momo-space-18:72px;
+  --momo-section-y:clamp(48px,6vw,72px);
+
+  /* ---- Sizing / touch targets ---- */
+  --momo-target-min:24px; --momo-target-primary:44px; --momo-target-bar:48px;
+  --momo-control-h:48px; --momo-btn-h-lg:52px; --momo-btn-h-sm:40px;
+  --momo-chip-h:40px; --momo-chip-choice-h:44px;
+  --momo-icon-sm:16px; --momo-icon:20px; --momo-icon-lg:24px;
+  --momo-dish-plate:130px; --momo-dish-plate-tablet:104px; --momo-dish-plate-list:88px; --momo-dish-plate-related:96px;
+  --momo-dish-plate-overlap:58px; --momo-plate-ring:5px;
+  --momo-tile-img:96px; --momo-tile-img-hub:120px; --momo-hero-img-mobile-max:240px; --momo-admin-thumb:48px;
+
+  /* ---- Radii and borders (Doc 08 §2.5) ---- */
+  --momo-radius-pill:999px; --momo-radius-card:24px; --momo-radius-sheet:28px; --momo-radius-media:20px;
+  --momo-radius-field:14px; --momo-radius-tile:18px; --momo-radius-admin:8px; --momo-radius-circle:50%;
+  --momo-border-w:1px; --momo-border-w-field:1.5px; --momo-border-w-selected:2px; --momo-accent-bar-w:4px;
+  --momo-focus-w:2px; --momo-focus-offset:2px;
+
+  /* ---- Layout (Doc 08 §2.6) — mobile values; overridden at breakpoints in momos-ui.css ---- */
+  --momo-container:1200px; --momo-container-pad:24px; --momo-reading:720px; --momo-reading-tablet:640px; --momo-wide:1280px;
+  --momo-gutter:16px; --momo-margin:16px;
+  --momo-header-h:60px; --momo-bar-h:64px;
+
+  /* ---- Elevation (Doc 08 §2.7) ---- */
+  --momo-shadow-none:none;
+  --momo-shadow-soft:0 10px 30px -12px rgba(74,40,20,.22);
+  --momo-shadow-plate:0 10px 22px -8px rgba(60,30,10,.45);
+  --momo-shadow-primary:0 8px 18px -8px rgba(198,79,14,.7);
+  --momo-shadow-header:0 10px 28px -16px rgba(74,40,20,.4);
+  --momo-shadow-overlay:0 0 60px rgba(0,0,0,.3);
+  --momo-z-content:0; --momo-z-sticky:40; --momo-z-header:50; --momo-z-bar:60; --momo-z-scrim:90;
+  --momo-z-dialog:100; --momo-z-toast:120; --momo-z-skip:200;
+
+  /* ---- Motion (Doc 08 §2.8) — used only inside prefers-reduced-motion:no-preference ---- */
+  --momo-dur-fast:150ms; --momo-dur-base:200ms; --momo-dur-slow:300ms; --momo-ease:cubic-bezier(.2,.8,.2,1);
+  --momo-lift:-4px; --momo-press-scale:.97;
+
+  /* ---- Imagery (Doc 08 §2.10) ---- */
+  --momo-ratio-branch:4/3; --momo-ratio-offer:4/3; --momo-ratio-branch-hero:16/9; --momo-ratio-map:16/9; --momo-ratio-gallery:1/1;
+}
+
+/* ---- Per-script overrides (Doc 08 §2.3.1/2.3.3; keyed off <html lang>) ---- */
+:root:lang(ja){ --momo-font-heading:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif; --momo-font-text:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --momo-font-price:var(--momo-font-text); --momo-lh-body:1.8; --momo-lh-heading:1.35; --momo-fw-heading:700; --momo-track-body:.02em;
+  --momo-eyebrow-transform:none; --momo-eyebrow-track:0; --momo-eyebrow-size:.875rem; }
+:root:lang(ar){ --momo-font-heading:"Noto Naskh Arabic","Segoe UI",Tahoma,serif; --momo-font-text:"Noto Naskh Arabic","Plus Jakarta Sans","Segoe UI",Tahoma,serif;
+  --momo-font-price:var(--momo-font-text); --momo-font-scale:1.1; --momo-lh-body:1.8; --momo-lh-heading:1.4; --momo-fw-heading:700;
+  --momo-eyebrow-transform:none; --momo-eyebrow-track:0; --momo-eyebrow-size:.875rem; }
+:root:lang(ur){ --momo-font-heading:"Noto Nastaliq Urdu","Noto Naskh Arabic",serif; --momo-font-text:"Noto Nastaliq Urdu","Plus Jakarta Sans","Noto Naskh Arabic",serif;
+  --momo-font-price:var(--momo-font-text); --momo-font-scale:1.15; --momo-lh-body:2; --momo-lh-heading:1.7; --momo-fw-heading:700;
+  --momo-lh-h1:1.7; --momo-lh-h2:1.7; --momo-lh-h3:1.7; --momo-lh-title:1.9; --momo-lh-label:1.9; --momo-lh-body-sm:2;
+  --momo-control-h:52px; --momo-btn-h-lg:56px; --momo-chip-h:48px; --momo-chip-choice-h:48px;
+  --momo-eyebrow-transform:none; --momo-eyebrow-track:0; --momo-eyebrow-size:1rem; }
+:root:lang(hi){ --momo-font-heading:"Noto Sans Devanagari","Nirmala UI",sans-serif; --momo-font-text:"Noto Sans Devanagari","Plus Jakarta Sans","Nirmala UI",sans-serif;
+  --momo-font-price:var(--momo-font-text); --momo-font-scale:1.05; --momo-lh-body:1.7; --momo-lh-heading:1.4; --momo-fw-heading:700;
+  --momo-eyebrow-transform:none; --momo-eyebrow-track:0; --momo-eyebrow-size:.875rem; }
+:root:lang(bn){ --momo-font-heading:"Noto Sans Bengali","Nirmala UI",sans-serif; --momo-font-text:"Noto Sans Bengali","Plus Jakarta Sans","Nirmala UI",sans-serif;
+  --momo-font-price:var(--momo-font-text); --momo-font-scale:1.05; --momo-lh-body:1.7; --momo-lh-heading:1.4; --momo-fw-heading:700;
+  --momo-eyebrow-transform:none; --momo-eyebrow-track:0; --momo-eyebrow-size:.875rem; }

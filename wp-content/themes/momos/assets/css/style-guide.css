@@ -1,0 +1,21 @@
+/* Living style guide only (staff, noindex). Per-panel script tokens so an RTL/LTR panel can be previewed inside a page
+   of the other direction (mirrors tokens.css :root:lang() overrides). */
+.momo-sg-nav{position:sticky;inset-block-start:var(--momo-header-h);z-index:var(--momo-z-sticky);background:var(--momo-color-canvas);padding-block:var(--momo-space-2);border-block-end:var(--momo-border-w) solid var(--momo-color-border)}
+.momo-sg-section{padding-block:var(--momo-space-8);border-block-end:var(--momo-border-w) dashed var(--momo-color-border)}
+.momo-sg-section>h2{margin-block-end:var(--momo-space-5)}
+.momo-sg-panels{display:grid;gap:var(--momo-space-6)}
+@media (min-width:1280px){.momo-sg-panels--split{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.momo-sg-panel{border:var(--momo-border-w) solid var(--momo-color-border);border-radius:var(--momo-radius-card);padding:var(--momo-space-5);background:var(--momo-color-canvas);min-inline-size:0;font-family:var(--momo-font-text);line-height:var(--momo-lh-body)}
+.momo-sg-panel>.momo-sg-tag{display:inline-block;margin-block-end:var(--momo-space-4);padding:2px var(--momo-space-3);border-radius:var(--momo-radius-pill);background:var(--momo-color-neutral-tint);color:var(--momo-color-neutral-text);font:700 var(--momo-type-micro)/1.4 system-ui,sans-serif}
+.momo-sg-row{display:flex;flex-wrap:wrap;gap:var(--momo-space-3);align-items:center;margin-block-end:var(--momo-space-4)}
+.momo-sg-stack{display:grid;gap:var(--momo-space-4)}
+.momo-sg-label{display:block;font:700 var(--momo-type-micro)/1.4 system-ui,sans-serif;color:var(--momo-color-text-muted);margin-block:var(--momo-space-4) var(--momo-space-2)}
+.momo-sg-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--momo-space-3)}
+.momo-sg-swatch{border:var(--momo-border-w) solid var(--momo-color-border);border-radius:var(--momo-radius-field);overflow:hidden;background:var(--momo-color-surface);font-size:var(--momo-fs-body-sm)}
+.momo-sg-swatch span{display:block;block-size:56px;border-block-end:var(--momo-border-w) solid var(--momo-color-border)}
+.momo-sg-swatch code{display:block;padding:var(--momo-space-2);overflow-wrap:anywhere}
+.momo-sg-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:var(--momo-space-2);list-style:none;margin:0;padding:0}
+.momo-sg-icons li{display:flex;flex-direction:column;align-items:center;gap:var(--momo-space-1);padding:var(--momo-space-3);border-radius:var(--momo-radius-field);background:var(--momo-color-surface);font-size:var(--momo-type-micro)}
+.momo-sg-panel[lang="ja"]{--momo-font-heading:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;--momo-font-text:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;--momo-font-price:var(--momo-font-text);--momo-lh-body:1.8;--momo-fw-heading:700;--momo-eyebrow-transform:none;--momo-eyebrow-track:0;--momo-eyebrow-size:.875rem}
+.momo-sg-panel[lang="en"]{--momo-font-heading:"Epilogue","Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;--momo-font-text:"Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;--momo-font-price:var(--momo-font-heading);--momo-lh-body:1.6;--momo-fw-heading:800;--momo-eyebrow-transform:uppercase;--momo-eyebrow-track:.12em;--momo-eyebrow-size:.75rem}
+.momo-sg-panel[lang="ar"]{--momo-font-heading:"Noto Naskh Arabic","Segoe UI",Tahoma,serif;--momo-font-text:"Noto Naskh Arabic","Plus Jakarta Sans","Segoe UI",Tahoma,serif;--momo-font-price:var(--momo-font-text);--momo-lh-body:1.8;--momo-fw-heading:700;--momo-eyebrow-transform:none;--momo-eyebrow-track:0;--momo-eyebrow-size:.875rem}

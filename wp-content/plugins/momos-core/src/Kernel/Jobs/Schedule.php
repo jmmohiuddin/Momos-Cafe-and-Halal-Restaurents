@@ -10,10 +10,17 @@ namespace Momos\Kernel\Jobs;
 final class Schedule {
 	public const GROUP = 'momos';
 
-	/** @var array<string, array{interval:int, args:array<mixed>}> */
+	/** @var array<string, array{interval:int, args:array<mixed>, cron?:string}> */
 	private static array $recurring = [];
 
 	private static bool $hooked = false;
+
+	/** Global Action Scheduler settings (TRD §3.14): 30-day log retention, one batch at a time, 50 s per run. */
+	public static function configure_runner(): void {
+		add_filter( 'action_scheduler_retention_period', static fn() => 30 * DAY_IN_SECONDS );
+		add_filter( 'action_scheduler_queue_runner_concurrent_batches', static fn() => 1 );
+		add_filter( 'action_scheduler_queue_runner_time_limit', static fn() => 50 );
+	}
 
 	/** Register a recurring job (idempotent). $interval in seconds. */
 	public static function recurring( string $hook, int $interval, array $args = [] ): void {
@@ -26,7 +33,18 @@ final class Schedule {
 		}
 	}
 
-	/** @return array<string, array{interval:int, args:array<mixed>}> */
+	/**
+	 * Daily job at a fixed Japan time ("H:i" JST, UTC+9 without DST), e.g. offer expiry at 00:05.
+	 * Registered as an Action Scheduler cron action; health treats it as a 24 h interval.
+	 */
+	public static function daily_at( string $hook, string $hm_jst, array $args = [] ): void {
+		[ $h, $m ] = array_map( 'intval', explode( ':', $hm_jst ) + [ 0, 0 ] );
+		$utc_h     = ( $h - 9 + 24 ) % 24;
+		self::recurring( $hook, DAY_IN_SECONDS, $args );
+		self::$recurring[ $hook ]['cron'] = sprintf( '%d %d * * *', $m, $utc_h );
+	}
+
+	/** @return array<string, array{interval:int, args:array<mixed>, cron?:string}> */
 	public static function all(): array {
 		return self::$recurring;
 	}
@@ -39,11 +57,21 @@ final class Schedule {
 		if ( get_option( 'momos_jobs_signature' ) === $signature ) {
 			return;
 		}
+		$previous = (array) get_option( 'momos_jobs_defs', [] );
 		foreach ( self::$recurring as $hook => $def ) {
+			// Definition changed since the last deploy (interval/time) → reschedule.
+			if ( isset( $previous[ $hook ] ) && $previous[ $hook ] !== $def ) {
+				as_unschedule_all_actions( $hook, $def['args'], self::GROUP );
+			}
 			if ( ! as_has_scheduled_action( $hook, $def['args'], self::GROUP ) ) {
-				as_schedule_recurring_action( time() + 60, $def['interval'], $hook, $def['args'], self::GROUP, true );
+				if ( isset( $def['cron'] ) ) {
+					as_schedule_cron_action( time(), $def['cron'], $hook, $def['args'], self::GROUP, true );
+				} else {
+					as_schedule_recurring_action( time() + 60, $def['interval'], $hook, $def['args'], self::GROUP, true );
+				}
 			}
 		}
+		update_option( 'momos_jobs_defs', self::$recurring, false );
 		update_option( 'momos_jobs_signature', $signature, true );
 	}
 

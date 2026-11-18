@@ -27,6 +27,9 @@ final class CacheInvalidator {
 		add_action( 'shutdown', [ self::class, 'flush' ], 0 );
 		add_action( 'momos_cache_purge_retry', [ self::class, 'retry' ] );
 
+		// Generic purge request from any module: do_action( 'momos/cache/purge', [ 'momo-dish-12', … ] ).
+		add_action( 'momos/cache/purge', static fn( $tags ) => self::purge( array_map( 'strval', (array) $tags ) ) );
+
 		// Domain events → purge (SDD §2.5 consumers "cache purge").
 		$branch = static fn( $id ) => self::purge( [ 'momo-branch-' . (int) $id, 'momo-home' ] );
 		add_action( 'momos/branch/schedule_changed', $branch );

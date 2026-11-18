@@ -9,7 +9,11 @@ use Momos\Kernel\Env;
  * Keyed hashes for abuse correlation and audit integrity (DEC-059). Keys come from constants.
  */
 final class Hash {
-	public static function hmac( string $value, string $key_name = 'MOMOS_HMAC_KEY' ): string {
+	/** Keyed hash. Default key: MOMOS_HASH_PEPPER (spec C-15), alias MOMOS_HMAC_KEY. */
+	public static function hmac( string $value, string $key_name = 'MOMOS_HASH_PEPPER' ): string {
+		if ( 'MOMOS_HASH_PEPPER' === $key_name && ! Env::has( 'MOMOS_HASH_PEPPER' ) && Env::has( 'MOMOS_HMAC_KEY' ) ) {
+			$key_name = 'MOMOS_HMAC_KEY';
+		}
 		return hash_hmac( 'sha256', $value, Env::secret( $key_name ) );
 	}
 

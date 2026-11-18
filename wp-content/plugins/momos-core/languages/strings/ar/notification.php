@@ -1,0 +1,80 @@
+<?php
+/**
+ * Notification module customer email strings (ar) — E01–E06 (docs/specs/notifications.md §5.1–5.2).
+ * DRAFT – needs native review (DEC-027, GATE-04): machine-assisted Arabic draft, not approved for
+ * launch. No request-context term (Doc 07 §6.6, e.g. «تأكيد الحجز») in pending-context keys.
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+return [
+	'email.subject.e01'           => '{brand}: تم استلام الطلب — لم يتم التأكيد بعد [{ref}]',
+	'email.subject.e02'           => '{brand}: أكّد الفرع حجزك [{ref}]',
+	'email.subject.e03'           => '{brand}: تعذّر قبول طلبك [{ref}]',
+	'email.subject.e04.pending'   => '{brand}: أُلغي طلبك [{ref}]',
+	'email.subject.e04.confirmed' => '{brand}: أُلغي الحجز [{ref}]',
+	'email.subject.e05'           => '{brand}: تعذّر تأكيد طلبك في الوقت المحدد [{ref}]',
+	'email.subject.e06.pending'   => '{brand}: تم تحديث تفاصيل طلبك [{ref}]',
+	'email.subject.e06.confirmed' => '{brand}: تم تحديث تفاصيل حجزك [{ref}]',
+
+	'status.pending'              => 'تم استلام الطلب — لم يتم التأكيد بعد',
+	'status.confirmed'            => 'أكّده الفرع',
+	'status.rejected'             => 'مرفوض',
+	'status.cancelled'            => 'ملغى',
+	'status.expired'              => 'منتهي — لم يتم التأكيد في الوقت المحدد',
+
+	'res.submitted.reference'     => 'رقمك المرجعي: {ref}',
+	'res.submitted.next'          => 'سيراجع الفرع طلبك ويرد عليك عبر البريد الإلكتروني. لا تُخصَّص لك طاولة إلا بعد أن يقبل الفرع طلبك.',
+	'res.submitted.expiry'        => 'إذا لم يرد الفرع بحلول {time}، تنتهي صلاحية طلبك وسنرسل إليك رسالة بذلك.',
+	'res.submitted.promise'       => 'يرد الفرع عادةً خلال {duration} أثناء ساعات العمل.',
+	'res.submitted.dont_travel'   => 'يُرجى عدم التوجه إلى الفرع بناءً على هذا الطلب وحده.',
+	'res.submitted.status_link'   => 'عرض حالة الطلب',
+	'res.carrier_tip'             => 'لا تصلك رسائلنا؟ إذا كنت تستخدم عنوان بريد من شركة اتصالات يابانية، فاسمح بالرسائل الواردة من ‎@{domain}.',
+
+	'email.confirmed.allergy'     => 'إذا كان لدى أي شخص في مجموعتك حساسية من طعام ما، فيُرجى إخبار موظفينا عند وصولك.',
+	'decline.reason.fully_booked' => 'الفرع ممتلئ بالكامل في ذلك الوقت.',
+	'decline.reason.closed_or_private_event' => 'الفرع مغلق أو محجوز لمناسبة خاصة في ذلك الوقت.',
+	'decline.reason.party_size_not_supported' => 'لا يستطيع الفرع استيعاب مجموعة بهذا العدد في ذلك الوقت.',
+	'decline.reason.incomplete_information' => 'كنا بحاجة إلى مزيد من المعلومات لقبول هذا الطلب.',
+	'decline.reason.other'        => 'تعذّر على الفرع قبول هذا الطلب.',
+	'decline.suggested'           => 'اقترح الفرع هذه الأوقات. وهي غير محجوزة لك — أرسل طلبًا جديدًا إذا كان أحدها يناسبك.',
+	'cta.request_other_time'      => 'اطلب وقتًا آخر',
+	'cta.directions'              => 'الاتجاهات',
+	'ftr.privacy'                 => 'سياسة الخصوصية',
+
+	'email.details.branch'        => 'الفرع',
+	'email.details.date'          => 'التاريخ',
+	'email.details.time'          => 'الوقت',
+	'email.details.party'         => 'عدد الأشخاص',
+	'email.details.party_one'     => 'شخص واحد ({n})',
+	'email.details.party_other'   => '{n} أشخاص',
+	'email.jst'                   => 'بتوقيت اليابان',
+	'email.duration.minutes'      => '{n} دقيقة',
+	'email.duration.hour'         => 'ساعة واحدة',
+	'email.duration.hours'        => '{n} ساعات',
+	'email.branch.address_ja'     => 'العنوان باللغة اليابانية (يمكنك عرضه على سائق سيارة الأجرة)',
+	'email.branch.call'           => 'اتصل بالفرع: {phone}',
+	'email.common.note_received'  => 'لقد استلمنا ملاحظتك.',
+	'email.cta.view_reservation'  => 'عرض الحجز',
+	'email.policy.heading'        => 'سياسة الفرع',
+	'email.e01.cancel_hint'       => 'إذا تغيّرت خططك، يمكنك إلغاء هذا الطلب من صفحة الحالة.',
+	'email.e02.message_heading'   => 'رسالة من الفرع',
+	'email.e02.cancel_hint'       => 'إذا لم يعد بإمكانك الحضور، فيُرجى الإلغاء من صفحة الحجز أو الاتصال بالفرع.',
+	'email.e03.reason_heading'    => 'السبب',
+	'email.e04.by_customer.pending'   => 'لقد ألغيت هذا الطلب.',
+	'email.e04.by_customer.confirmed' => 'لقد ألغيت هذا الحجز.',
+	'email.e04.by_branch.pending'     => 'ألغى الفرع هذا الطلب.',
+	'email.e04.by_branch.confirmed'   => 'ألغى الفرع هذا الحجز.',
+	'email.e04.unexpected'        => 'إذا كان هذا غير متوقع، فيُرجى التواصل مع الفرع: {phone}',
+	'cancel.reason.customer_request_by_phone' => 'أُلغي بناءً على طلبك عبر الهاتف.',
+	'cancel.reason.branch_unable_to_serve'    => 'لا يستطيع الفرع خدمتك في ذلك الوقت.',
+	'cancel.reason.duplicate'     => 'كان هذا تكرارًا لطلب آخر.',
+	'cancel.reason.other'         => 'اضطر الفرع إلى الإلغاء.',
+	'email.e05.apology'           => 'نعتذر — لم يتمكن الفرع من الرد قبل الموعد النهائي، لذا انتهت صلاحية طلبك. لا توجد طاولة محجوزة لك.',
+	'email.e05.walk_in'           => 'لا يزال بإمكانك الاتصال بالفرع أو زيارته دون طلب.',
+	'email.e06.changed'           => '(تم التغيير)',
+	'email.e06.reason'            => 'تم تغيير هذه التفاصيل بالاتفاق معك.',
+	'email.e06.new_link'          => 'إليك رابطك الجديد للتحقق من هذا الطلب. الروابط السابقة لم تعد تعمل.',
+	'email.footer.auto'           => 'هذه رسالة تلقائية بخصوص طلب طاولتك. تصل الردود إلى الفرع.',
+	'email.footer.copyright'      => '© {year} {operator}',
+];

@@ -81,6 +81,14 @@ final class Router {
 				exit;
 			}
 			$_SERVER['REQUEST_URI'] = $base . substr( $rel, strlen( $prefix ) ) . ( str_contains( $uri, '?' ) ? '?' . explode( '?', $uri, 2 )[1] : '' );
+			// PHP's built-in server (and some CGI setups) also expose the path in PATH_INFO, which WP::parse_request prefers.
+			foreach ( [ 'PATH_INFO', 'ORIG_PATH_INFO' ] as $k ) {
+				if ( isset( $_SERVER[ $k ] ) && str_starts_with( (string) $_SERVER[ $k ], $prefix . '/' ) ) {
+					$_SERVER[ $k ] = substr( (string) $_SERVER[ $k ], strlen( $prefix ) );
+				} elseif ( isset( $_SERVER[ $k ] ) && (string) $_SERVER[ $k ] === $prefix ) {
+					$_SERVER[ $k ] = '/';
+				}
+			}
 		}
 		return $do;
 	}

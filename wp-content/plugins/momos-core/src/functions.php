@@ -53,7 +53,7 @@ if ( ! function_exists( 'momos_t' ) ) {
 
 	/** Wrap Latin/number fragments for bidi isolation inside RTL text (FR-I18N-005). */
 	function momos_bdi( string $text ): string {
-		return '<bdi>' . esc_html( $text ) . '</bdi>';
+		return '<bdi dir="ltr">' . esc_html( $text ) . '</bdi>';
 	}
 }
 

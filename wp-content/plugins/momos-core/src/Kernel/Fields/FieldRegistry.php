@@ -548,8 +548,9 @@ final class FieldRegistry {
 
 	public static function admin_notices(): void {
 		$key    = 'momos_field_errors_' . get_current_user_id();
-		$errors = (array) get_transient( $key );
+		$errors = array_filter( array_map( 'strval', (array) get_transient( $key ) ), static fn( $e ) => '' !== trim( $e ) );
 		if ( ! $errors ) {
+			delete_transient( $key );
 			return;
 		}
 		delete_transient( $key );

@@ -10,6 +10,11 @@ cp -R "$ROOT/wp-content/mu-plugins" "$OUT/wp-content/"
 rsync -a --exclude vendor --exclude tests "$ROOT/wp-content/plugins/momos-core" "$OUT/wp-content/plugins/"
 ( cd "$OUT/wp-content/plugins/momos-core" && composer install -q --no-dev --optimize-autoloader --no-interaction )
 rsync -a --exclude node_modules "$ROOT/wp-content/themes/momos" "$OUT/wp-content/themes/"
+# Static maintenance page (SCR-C20) as the WordPress drop-in, shown during `wp maintenance-mode activate`.
+# Regenerate it first with `bin/wp momos maintenance-page` when brand/language settings change.
+if [ -f "$ROOT/wp-content/themes/momos/static/maintenance.php" ]; then
+	cp "$ROOT/wp-content/themes/momos/static/maintenance.php" "$OUT/wp-content/maintenance.php"
+fi
 cp "$ROOT/config/wp-config.production.sample.php" "$OUT/"
 find "$OUT" -name "*.php" -print0 | xargs -0 -n 50 -P 4 php -l >/dev/null
 ( cd "$ROOT/build" && rm -f "momos-$VERSION.zip" && zip -qr "momos-$VERSION.zip" "momos-$VERSION" && sha256sum "momos-$VERSION.zip" > "momos-$VERSION.zip.sha256" )
