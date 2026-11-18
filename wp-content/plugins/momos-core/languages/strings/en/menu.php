@@ -1,0 +1,52 @@
+<?php
+/**
+ * Menu module customer strings — English (Doc 07 §6.4–6.6 keys; [Proposed] keys per spec menu-dietary §6.1).
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+return [
+	'price.tax_incl'                      => '(tax incl.)',
+	'menu.title'                          => 'Menu',
+	'menu.branch_select.label'            => 'Show prices for',
+	'menu.branch_select.all'              => 'All branches — reference prices',
+	'menu.prices_may_differ'              => 'Prices may differ by branch',
+	'menu.price_all_branches'             => '{price} at all branches',
+	'menu.price_at_branch'                => '{price} at {branch}',
+	'menu.change_branch'                  => 'Change',
+	'menu.sold_out'                       => 'Sold out today',
+	'menu.unavailable'                    => 'Not available at this branch now',
+	'menu.available_today'                => 'Available today',
+	'menu.not_available'                  => 'Not currently available',
+	'menu.advance_order'                  => 'Order at least {hours} h ahead',
+	'menu.advance_order.notice'           => 'This dish must be ordered at least {hours} hours in advance. Please mention it in the special request when you request a table.',
+	'menu.advance_order.mention'          => 'Mention it in your table request',
+	'menu.filters.heading'                => 'Filters',
+	'menu.filters.toggle'                 => 'Filters ({n})',
+	'menu.filters.empty'                  => 'No dishes match these filters.',
+	'menu.filters.clear'                  => 'Clear filters',
+	'menu.filters.count.one'              => '{n} dish shown',
+	'menu.filters.count.other'            => '{n} dishes shown',
+	'menu.filter.diet'                    => 'Dietary preferences',
+	'menu.filter.max_spice'               => 'Maximum spice level',
+	'menu.filter.max_spice.any'           => 'Any',
+	'menu.filter.exclude'                 => 'Hide dishes that may contain',
+	'menu.filter.allergen_note'           => 'Based on information provided voluntarily. Please always tell staff about allergies.',
+	'menu.category.branch_empty'          => 'This branch doesn\'t offer dishes from this category.',
+	'menu.category.all_branches_link'     => 'Show all branches',
+	'menu.available_at'                   => 'Available at',
+	'menu.related'                        => 'More dishes from this category',
+	'menu.table.branch'                   => 'Branch',
+	'menu.table.price'                    => 'Price',
+	'menu.table.availability'             => 'Availability',
+	'menu.spice'                          => 'Spice: {label}',
+	'spice.0'                             => 'Not spicy',
+	'spice.1'                             => 'Mild',
+	'spice.2'                             => 'Medium',
+	'spice.3'                             => 'Hot',
+	'availability_reason.sold_out_today'  => 'Sold out today',
+	'availability_reason.seasonal'        => 'Seasonal',
+	'availability_reason.ingredient_unavailable' => 'Ingredient unavailable',
+	'availability_reason.advance_order_only'     => 'Advance order only',
+	'media.illustration'                  => 'Image for illustration',
+];
