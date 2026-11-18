@@ -21,6 +21,11 @@ define( 'NONCE_SALT', 'dev-only-nonce-salt' );
 
 $table_prefix = 'wp_';
 
+if ( getenv( 'MOMOS_URL' ) ) {
+	define( 'WP_HOME', getenv( 'MOMOS_URL' ) );
+	define( 'WP_SITEURL', getenv( 'MOMOS_URL' ) );
+}
+
 define( 'WP_ENVIRONMENT_TYPE', 'development' );
 define( 'MOMOS_ENV', 'development' );
 define( 'WP_DEBUG', true );

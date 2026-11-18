@@ -92,7 +92,7 @@ final class Router {
 	}
 
 	public static function guard_disabled_language(): void {
-		if ( self::$disabled_language && ! current_user_can( 'momos_preview_languages' ) ) {
+		if ( self::$disabled_language && ! current_user_can( 'momo_preview_languages' ) ) {
 			global $wp_query;
 			$wp_query->set_404();
 			status_header( 404 );

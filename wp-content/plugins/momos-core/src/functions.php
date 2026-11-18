@@ -56,3 +56,46 @@ if ( ! function_exists( 'momos_t' ) ) {
 		return '<bdi>' . esc_html( $text ) . '</bdi>';
 	}
 }
+
+if ( ! function_exists( 'momos_audit' ) ) {
+	/**
+	 * Record a domain audit entry (FR-ADM-003). Implemented by the Audit module listening to
+	 * `momos/audit/log`. Never pass personal data (email, phone, names, tokens) in $changes.
+	 *
+	 * @param array<string,mixed> $changes before/after values or context
+	 */
+	function momos_audit( string $action, string $object_type, ?int $object_id = null, ?int $branch_id = null, array $changes = [], string $actor_type = 'staff' ): void {
+		do_action( 'momos/audit/log', $action, $object_type, $object_id, $branch_id, $changes, $actor_type );
+	}
+
+	/**
+	 * Branch IDs the user may act on, or null when the user has all-branch scope
+	 * (`momo_access_all_branches`). Disabled/expired users get []. (TRD §2.7.3 "assigned").
+	 *
+	 * @return list<int>|null
+	 */
+	function momos_user_branch_ids( ?int $user_id = null ): ?array {
+		$user_id = $user_id ?? get_current_user_id();
+		if ( ! $user_id ) {
+			return [];
+		}
+		/** @var list<int>|null|false $pre Short-circuit used by the Access module (disabled/expired accounts). */
+		$pre = apply_filters( 'momos/access/user_branch_ids', false, $user_id );
+		if ( false !== $pre ) {
+			return $pre;
+		}
+		if ( user_can( $user_id, 'momo_access_all_branches' ) ) {
+			return null;
+		}
+		global $wpdb;
+		$table = \Momos\Kernel\Db\Tables::user_branches();
+		$ids   = $wpdb->get_col( $wpdb->prepare( "SELECT branch_id FROM {$table} WHERE user_id = %d", $user_id ) ); // phpcs:ignore
+		return array_map( 'intval', $ids );
+	}
+
+	/** Is the branch within the user's scope? */
+	function momos_user_can_branch( int $branch_id, ?int $user_id = null ): bool {
+		$ids = momos_user_branch_ids( $user_id );
+		return null === $ids || in_array( $branch_id, $ids, true );
+	}
+}

@@ -12,7 +12,7 @@ use Momos\Kernel\I18n\Translations;
  *  - a stand-alone editor page (admin.php?page=momos-translate&type=post&id=N&lang=en) used by
  *    Translators from the Translation gaps view (SCR-A11) without access to source fields.
  * Permission: `momos_translate` (Translator, HO, SA) or edit rights on the item.
- * Only users with `momos_approve_translations` may set status "approved" (DEC-027 human review).
+ * Only users with `momo_approve_translations` may set status "approved" (DEC-027 human review).
  */
 final class TranslationEditor {
 	public static function register(): void {
@@ -23,14 +23,14 @@ final class TranslationEditor {
 	}
 
 	public static function can_translate( string $type, int $id ): bool {
-		if ( current_user_can( 'momos_translate' ) ) {
+		if ( current_user_can( 'momo_translate' ) ) {
 			return true;
 		}
 		return 'post' === $type ? current_user_can( 'edit_post', $id ) : current_user_can( 'edit_term', $id );
 	}
 
 	public static function can_approve(): bool {
-		return current_user_can( 'momos_approve_translations' );
+		return current_user_can( 'momo_approve_translations' );
 	}
 
 	public static function meta_box( string $post_type, $post ): void {
@@ -138,7 +138,7 @@ final class TranslationEditor {
 	}
 
 	public static function menu(): void {
-		add_submenu_page( 'options.php', __( 'Edit translation', 'momos-core' ), __( 'Edit translation', 'momos-core' ), 'momos_translate', 'momos-translate', [ self::class, 'page' ] );
+		add_submenu_page( 'options.php', __( 'Edit translation', 'momos-core' ), __( 'Edit translation', 'momos-core' ), 'momo_translate', 'momos-translate', [ self::class, 'page' ] );
 	}
 
 	public static function page(): void {

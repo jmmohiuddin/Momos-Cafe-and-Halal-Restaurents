@@ -6,7 +6,7 @@ namespace Momos\Kernel\I18n;
 /**
  * Key-based UI string catalog for customer-facing text and emails (Doc 07 §6 key register).
  *
- * Defaults: languages/strings/{lang}.php (array key => string). Reviewed overrides edited by
+ * Defaults: languages/strings/{lang}/{module}.php (array key => string). Reviewed overrides edited by
  * translators in SCR-A11 are stored in option `momos_strings_overrides` [lang][key].
  * Placeholders use {name}. A key missing in a target language falls back to English and is
  * reported in the translation gaps view (UI chrome only; content never falls back — DEC-027).
@@ -54,9 +54,15 @@ final class Strings {
 	/** @return array<string,string> */
 	public static function catalog( string $lang ): array {
 		if ( ! isset( self::$catalog[ $lang ] ) ) {
-			$file                   = MOMOS_CORE_DIR . '/languages/strings/' . $lang . '.php';
-			$data                   = is_readable( $file ) ? include $file : [];
-			self::$catalog[ $lang ] = is_array( $data ) ? $data : [];
+			// One file per module: languages/strings/{lang}/{module}.php (avoids edit conflicts).
+			$data = [];
+			foreach ( (array) glob( MOMOS_CORE_DIR . '/languages/strings/' . $lang . '/*.php' ) as $file ) {
+				$part = include $file;
+				if ( is_array( $part ) ) {
+					$data = array_merge( $data, $part );
+				}
+			}
+			self::$catalog[ $lang ] = $data;
 			/** Allow theme/modules to add keys. */
 			self::$catalog[ $lang ] = (array) apply_filters( 'momos/strings/catalog', self::$catalog[ $lang ], $lang );
 		}

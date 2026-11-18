@@ -20,16 +20,18 @@ mysql -uroot -e "CREATE DATABASE IF NOT EXISTS \`$DB\` CHARACTER SET utf8mb4 COL
 if [ "$RESET" = 1 ]; then mysql -uroot -e "DROP DATABASE \`$DB\`; CREATE DATABASE \`$DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"; fi
 
 # 2. Dependencies
-( cd "$ROOT" && composer install -q --no-interaction )
-( cd "$ROOT/wp-content/plugins/momos-core" && composer install -q --no-interaction )
+[ -d "$ROOT/vendor" ] || ( cd "$ROOT" && composer install -q --no-interaction )
+[ -d "$ROOT/wp-content/plugins/momos-core/vendor" ] || ( cd "$ROOT/wp-content/plugins/momos-core" && composer install -q --no-interaction )
 
 # 3. WordPress core + links to repository code
 mkdir -p "$WP"
-rsync -a --delete --exclude wp-content --exclude wp-config.php "$ROOT/vendor/johnpbloch/wordpress-core/" "$WP/"
+if ! cmp -s "$ROOT/vendor/johnpbloch/wordpress-core/wp-includes/version.php" "$WP/wp-includes/version.php" 2>/dev/null; then
+  rsync -a --delete --exclude wp-content --exclude wp-config.php "$ROOT/vendor/johnpbloch/wordpress-core/" "$WP/"
+fi
 mkdir -p "$WP/wp-content/plugins" "$WP/wp-content/themes" "$WP/wp-content/uploads" "$WP/wp-content/mail-catcher"
 ln -sfn "$ROOT/wp-content/plugins/momos-core" "$WP/wp-content/plugins/momos-core"
 ln -sfn "$ROOT/wp-content/themes/momos" "$WP/wp-content/themes/momos"
-cp "$ROOT/config/wp-config.dev.php" "$WP/wp-config.php"
+[ -f "$WP/wp-config.php" ] && cmp -s "$ROOT/config/wp-config.dev.php" "$WP/wp-config.php" || cp "$ROOT/config/wp-config.dev.php" "$WP/wp-config.php"
 
 WPCLI="php -d memory_limit=512M $ROOT/vendor/wp-cli/wp-cli/php/boot-fs.php --allow-root --path=$WP"
 if ! $WPCLI core is-installed 2>/dev/null; then
