@@ -1,0 +1,60 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ['v*']
+jobs:
+  php:
+    runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: --health-cmd="healthcheck.sh --connect" --health-interval=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli, intl, mbstring, gd, zip
+          coverage: none
+      - name: Composer
+        run: |
+          composer install --no-interaction --prefer-dist
+          composer install --no-interaction --prefer-dist -d wp-content/plugins/momos-core
+      - name: Lint
+        run: find wp-content -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n 50 php -l > /dev/null
+      - name: Prepare databases
+        run: |
+          mysql -h127.0.0.1 -uroot -proot -e "CREATE DATABASE momos_test; CREATE DATABASE momos_dev; CREATE USER 'momos'@'%' IDENTIFIED BY 'momos_dev_pw'; GRANT ALL ON momos_test.* TO 'momos'@'%'; GRANT ALL ON momos_dev.* TO 'momos'@'%';"
+      - name: WordPress core for tests
+        run: |
+          mkdir -p .wp && rsync -a --exclude wp-content vendor/johnpbloch/wordpress-core/ .wp/
+          mkdir -p .wp/wp-content/plugins .wp/wp-content/themes
+          ln -s "$PWD/wp-content/plugins/momos-core" .wp/wp-content/plugins/momos-core
+          ln -s "$PWD/wp-content/themes/momos" .wp/wp-content/themes/momos
+          ln -s "$PWD/wp-content/mu-plugins" .wp/wp-content/mu-plugins
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+  e2e:
+    runs-on: ubuntu-24.04
+    needs: php
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.3', extensions: 'mysqli, intl, mbstring, gd, zip' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Start MariaDB
+        run: sudo apt-get update -q && sudo apt-get install -y -q mariadb-server && sudo systemctl start mariadb
+      - name: Install site
+        run: sudo env PATH="$PATH" bin/dev-setup.sh && (bin/serve.sh > /tmp/server.log 2>&1 &) && sleep 2
+      - name: Playwright
+        working-directory: tests/e2e
+        run: |
+          npm ci || npm install
+          npx playwright install --with-deps chromium
+          npx playwright test --trace off
