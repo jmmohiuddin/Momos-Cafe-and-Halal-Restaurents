@@ -143,6 +143,26 @@ final class ContentTypes {
 		);
 	}
 
+	/**
+	 * Core REST (`wp/v2/momo_dish`) and core sitemaps never list sample dishes in production
+	 * (BR-CORP-03, FR-MENU-009); drafts/pending/retired are excluded by core (not published).
+	 *
+	 * @param array<string,mixed> $args
+	 * @return array<string,mixed>
+	 */
+	public static function exclude_samples( array $args, mixed $context = null ): array {
+		if ( ! \Momos\Kernel\Env::is_production() || ( is_string( $context ) && self::DISH !== $context ) ) {
+			return $args;
+		}
+		$args['meta_query']   = (array) ( $args['meta_query'] ?? [] ); // phpcs:ignore
+		$args['meta_query'][] = [
+			'relation' => 'OR',
+			[ 'key' => 'momo_is_sample', 'compare' => 'NOT EXISTS' ],
+			[ 'key' => 'momo_is_sample', 'value' => '1', 'compare' => '!=' ],
+		];
+		return $args;
+	}
+
 	/** Classic editor for dishes (spec: block editor disabled). */
 	public static function disable_block_editor( bool $use, string $post_type ): bool {
 		return self::DISH === $post_type ? false : $use;

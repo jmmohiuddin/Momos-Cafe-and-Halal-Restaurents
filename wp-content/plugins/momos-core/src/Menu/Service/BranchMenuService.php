@@ -21,7 +21,7 @@ use Momos\Menu\Support\MenuItemException;
  * momo_edit_branch_prices; availability/sold_out_until/availability_reason →
  * momo_edit_branch_availability. Branch scope via momos_user_can_branch(). Optimistic locking via
  * `version` (0 = create). Every changed field is audited inside the transaction; the domain hook
- * `momos/branch_menu_item/updated` fires after commit.
+ * `momos/branch_menu_item/updated (array{branch_id:int,dish_id:int,fields:list<string>,id:int})` fires after commit.
  */
 final class BranchMenuService {
 	public const FIELDS = [ 'version', 'offered', 'price_override_jpy', 'availability', 'sold_out_until', 'availability_reason', 'confirm_large_change', 'confirm_variant_overlap' ];
@@ -242,7 +242,7 @@ final class BranchMenuService {
 		}
 
 		$saved = BranchMenuItemRepository::find_by_id( $id );
-		AfterCommit::dispatch( 'momos/branch_menu_item/updated', $branch_id, $dish_id, $changed );
+		AfterCommit::dispatch( 'momos/branch_menu_item/updated', [ 'branch_id' => $branch_id, 'dish_id' => $dish_id, 'fields' => $changed, 'id' => $id ] );
 		CachePurge::dish( $dish_id );
 		return self::present( $saved, $dish_id );
 	}

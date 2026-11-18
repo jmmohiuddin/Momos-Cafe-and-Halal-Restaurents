@@ -16,6 +16,8 @@ final class MenuModule implements ModuleInterface {
 		add_action( 'init', [ ContentTypes::class, 'register' ], 5 );
 		add_action( 'init', [ Fields\MenuFields::class, 'register' ], 6 );
 		add_filter( 'use_block_editor_for_post_type', [ ContentTypes::class, 'disable_block_editor' ], 10, 2 );
+		add_filter( 'rest_' . ContentTypes::DISH . '_query', [ ContentTypes::class, 'exclude_samples' ] );
+		add_filter( 'wp_sitemaps_posts_query_args', [ ContentTypes::class, 'exclude_samples' ], 10, 2 );
 
 		Rewrite\MenuRewrite::register();
 		Service\DishPublishValidator::register();

@@ -52,7 +52,7 @@ final class SoldOutResetJob {
 					[ 'dish_id' => (int) $r['dish_id'], 'before' => [ 'availability' => 'sold_out', 'sold_out_until' => $r['sold_out_until'], 'reason' => $r['availability_reason'] ], 'after' => [ 'availability' => 'available' ] ],
 					'system'
 				);
-				AfterCommit::dispatch( 'momos/branch_menu_item/updated', (int) $r['branch_id'], (int) $r['dish_id'], [ 'availability' ] );
+				AfterCommit::dispatch( 'momos/branch_menu_item/updated', [ 'branch_id' => (int) $r['branch_id'], 'dish_id' => (int) $r['dish_id'], 'fields' => [ 'availability' ], 'id' => (int) $r['id'] ] );
 				CachePurge::dish( (int) $r['dish_id'] );
 			}
 			update_option( 'momos_job_heartbeat_soldout_reset', $now, false );

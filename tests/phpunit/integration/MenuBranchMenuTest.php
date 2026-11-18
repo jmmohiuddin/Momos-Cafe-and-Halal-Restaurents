@@ -62,7 +62,7 @@ final class MenuBranchMenuTest extends TestCase {
 		$price = $this->audits_of( 'menu_item.price_changed' );
 		$this->assertSame( [ null, 1700 ], [ $price[0][4]['before'], $price[0][4]['after'] ] );
 		$fired = [];
-		add_action( 'momos/branch_menu_item/updated', static function ( $b, $d ) use ( &$fired ) { $fired[] = [ $b, $d ]; }, 10, 2 );
+		add_action( 'momos/branch_menu_item/updated', static function ( $item ) use ( &$fired ) { $fired[] = [ $item['branch_id'], $item['dish_id'] ]; } );
 		AfterCommit::flush();
 		$this->assertContains( [ $this->a, $this->dish ], $fired );
 	}
