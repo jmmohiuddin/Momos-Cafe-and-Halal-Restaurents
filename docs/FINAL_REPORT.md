@@ -26,12 +26,13 @@ A WordPress 7.1 site (PHP 8.3, MariaDB 10.11) with **no paid plugins** (IMPL-001
 
 | Check | Result (fresh database) |
 |---|---|
-| PHPUnit (78 test classes) | 1445 tests, 0 failures (§6) |
+| PHPUnit | 1516 tests, 0 failures (§7) |
 | Playwright (28 specs, 543 tests, one worker, one run) | 539 passed before the last fixes; the 3 keyboard-focus failures were fixed and the affected specs re-run: 48 passed; the remaining 1 is a TBT measurement that passes when run alone (CPU contention) |
 | PHPStan level 5 / PHPCS WordPress-Extra | no errors / 0 errors |
 | `wp momos smoke` | pass |
 | Backup → restore round trip | pass (`bin/backup.sh` / `bin/restore.sh`, automated in `OpsBackupRestoreTest` and `tests/ops/`) |
 | Requirements re-audit (206 rows, against code and tests) | 175 implemented + tested · 6 partial · 2 tested only in CI · 0 missing · 23 owner-dependent |
+| PRD audit (778 items: features, ACs, BRs, data, MoSCoW, release scope, user stories) | 568 built + tested, 3 missing, 56 partial, 31 untested before the follow-up; every confirmed gap then built and tested (`docs/PRD_AUDIT.md`, §7) |
 
 QA covered customer journeys in six languages at 390/1280 px, every staff role and the full capability matrix,
 branch isolation through screens, URLs, REST, admin-post, exports, notifications and ID enumeration, the reservation
@@ -95,3 +96,17 @@ The skipped test is the production-only sample guard (the test install's environ
 the template query-budget test, which passes but leaves an output buffer open from the core template loader.
 The full Playwright suite was last run as one pass in the release-candidate run (539/543; the failing cases are
 covered by the re-runs above).
+
+## 7. PRD audit follow-up (2026-11-20)
+
+An item-by-item audit of the PRD (Doc 04) found gaps the requirements registry did not show (`docs/PRD_AUDIT.md`):
+GPS data kept in uploads, self-approval of translations, missing gallery lightbox / show-map / copy-address,
+digest bugs, and others. All confirmed gaps were built with tests (decisions CHG-012…015). Verification on a fresh
+database after the last change:
+
+| Check | Result |
+|---|---|
+| PHPUnit, full suite | Tests: 1516, Assertions: 15540, Skipped: 1, Risky: 1 — 0 failures |
+| Playwright `qa-customer-branch` + `kernel-i18n-media` on a fresh deterministic seed | 48 passed |
+| Full Playwright suite (fixers' regression, before the last follow-ups) | 569 passed, 3 date-coupled failures (fixed: deterministic seed date, IDs by slug), 1 conditional skip |
+| PHPStan / PHPCS (whole tree) / php -l | `[OK] No errors` / exit 0 / exit 0 |

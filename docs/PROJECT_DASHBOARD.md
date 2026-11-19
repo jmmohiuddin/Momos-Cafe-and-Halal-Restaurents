@@ -15,6 +15,7 @@ here is claimed without a recorded run. Final summary: `docs/FINAL_REPORT.md`.
 | Wave 3 QA | 7 QA suites; 81 evidenced defects (3 S1, 21 S2, 45 S3, 12 S4) | Done | `docs/QA_DEFECT_REGISTER.md`: 77 fixed, 4 blocked on decisions |
 | Wave 3b closing | Cross-module follow-ups, regression failures, audit gaps, operations docs | Done | fresh-DB release-candidate run (below) |
 | Release prep | Operations runbooks, release checklist, final report | Done (code side) | `docs/operations/`, `docs/RELEASE_CHECKLIST.md` |
+| PRD audit + gap build | 778 PRD items audited; all confirmed gaps built and tested | Done | `docs/PRD_AUDIT.md`; PHPUnit 1516 tests, 0 failures |
 | Go-live | Owner gates, hosting, data, approvals | **Waiting on owner** | `docs/RELEASE_CHECKLIST.md` |
 
 ## Release-candidate gates (fresh database `momos_rc`)
