@@ -31,8 +31,8 @@ use Momos\Kernel\Clock\Clock;
 
 defined( 'ABSPATH' ) || exit;
 
-$jst  = static fn( ?\DateTimeImmutable $d ): string => $d ? $d->setTimezone( Clock::tz() )->format( 'Y-m-d H:i' ) . ' JST' : '—';
-$lang = str_starts_with( (string) get_user_locale(), 'ja' ) ? 'ja' : 'en';
+$jst        = static fn( ?\DateTimeImmutable $d ): string => $d ? $d->setTimezone( Clock::tz() )->format( 'Y-m-d H:i' ) . ' JST' : '—';
+$lang       = str_starts_with( (string) get_user_locale(), 'ja' ) ? 'ja' : 'en';
 $max_window = Clock::jst()->modify( '+72 hours' )->format( 'Y-m-d\TH:i' );
 $max_bg     = Clock::jst()->modify( '+8 hours' )->format( 'Y-m-d\TH:i' );
 $now_local  = Clock::jst()->format( 'Y-m-d\TH:i' );
@@ -138,7 +138,7 @@ $now_local  = Clock::jst()->format( 'Y-m-d\TH:i' );
 		</td>
 	</tr>
 
-	<?php if ( $is_sa && $editable ) : ?>
+		<?php if ( $is_sa && $editable ) : ?>
 	<tr>
 		<th scope="row"><?php esc_html_e( 'Vendor account', 'momos-core' ); ?></th>
 		<td>
@@ -150,7 +150,7 @@ $now_local  = Clock::jst()->format( 'Y-m-d\TH:i' );
 	<tr><th scope="row"><?php esc_html_e( 'Vendor account', 'momos-core' ); ?></th><td><?php esc_html_e( 'Yes', 'momos-core' ); ?></td></tr>
 	<?php endif; ?>
 
-	<?php if ( $vendor && $editable ) : ?>
+		<?php if ( $vendor && $editable ) : ?>
 	<tr>
 		<th scope="row"><label for="momos_vendor_until"><?php esc_html_e( 'Enable vendor access until (JST)', 'momos-core' ); ?></label></th>
 		<td>
@@ -161,7 +161,7 @@ $now_local  = Clock::jst()->format( 'Y-m-d\TH:i' );
 			<?php endif; ?>
 		</td>
 	</tr>
-	<?php if ( $is_sa ) : ?>
+			<?php if ( $is_sa ) : ?>
 	<tr>
 		<th scope="row"><label for="momos_bg_until"><?php esc_html_e( 'Break-glass (customer data) until (JST)', 'momos-core' ); ?></label></th>
 		<td>
@@ -170,7 +170,7 @@ $now_local  = Clock::jst()->format( 'Y-m-d\TH:i' );
 			<p><label for="momos_bg_ref"><?php esc_html_e( 'Owner approval reference (no personal data)', 'momos-core' ); ?></label><br>
 			<input type="text" name="momos_bg_ref" id="momos_bg_ref" maxlength="100" class="regular-text"></p>
 			<p class="description"><?php esc_html_e( 'At most 8 hours. Allows viewing reservations and customer details only — export and data-subject tools stay blocked.', 'momos-core' ); ?></p>
-			<?php if ( $bg_until ) : ?>
+				<?php if ( $bg_until ) : ?>
 				<label><input type="checkbox" name="momos_bg_revoke" value="1"> <?php esc_html_e( 'Revoke break-glass now', 'momos-core' ); ?></label>
 			<?php endif; ?>
 		</td>

@@ -125,9 +125,9 @@ final class ClaimResolver {
 			$view['template_key'] = 'no_claim';
 			$text                 = StatementRepository::text( 'no_claim', $lang );
 		} else {
-			$scope = (string) get_post_meta( $record, 'momo_cert_scope', true );
-			$key   = self::template_for( $type, $scope, (string) get_post_meta( $branch_id, 'momo_halal_statement_key', true ), (string) get_post_meta( $record, 'momo_cert_statement_key', true ) );
-			$view  = array_merge( $view, self::record_view( $record, $lang ) );
+			$scope                = (string) get_post_meta( $record, 'momo_cert_scope', true );
+			$key                  = self::template_for( $type, $scope, (string) get_post_meta( $branch_id, 'momo_halal_statement_key', true ), (string) get_post_meta( $record, 'momo_cert_statement_key', true ) );
+			$view                 = array_merge( $view, self::record_view( $record, $lang ) );
 			$view['template_key'] = $key;
 			$view['label']        = momos_t( 'certified' === $type ? 'halal.label.certified' : 'halal.label.ingredients', [], $lang );
 			$text                 = self::fill( $key, $record, $lang );
@@ -138,14 +138,14 @@ final class ClaimResolver {
 		// Last verified = later of the record's verified_at and the branch stamp.
 		$dates = array_filter( [ (string) get_post_meta( $branch_id, 'momo_claims_verified_at', true ), ClaimType::NoClaim->value !== $type ? (string) get_post_meta( $record, 'momo_cert_verified_at', true ) : '' ] );
 		if ( $dates ) {
-			$latest              = Clock::from_mysql_utc( max( $dates ) );
-			$view['verified_at'] = $latest ? $latest->setTimezone( Clock::tz() )->format( 'Y-m-d' ) : null;
+			$latest                = Clock::from_mysql_utc( max( $dates ) );
+			$view['verified_at']   = $latest ? $latest->setTimezone( Clock::tz() )->format( 'Y-m-d' ) : null;
 			$view['last_verified'] = $view['verified_at'] ? momos_t( 'last_verified', [ 'date' => self::format_date( $view['verified_at'], $lang ) ], $lang ) : null;
 		}
 
 		// Alcohol policy (unknown = not displayed).
-		$served  = self::alcohol_value( (string) get_post_meta( $branch_id, 'momo_alcohol_served', true ) );
-		$cooking = self::alcohol_value( (string) get_post_meta( $branch_id, 'momo_alcohol_in_cooking', true ) );
+		$served                     = self::alcohol_value( (string) get_post_meta( $branch_id, 'momo_alcohol_served', true ) );
+		$cooking                    = self::alcohol_value( (string) get_post_meta( $branch_id, 'momo_alcohol_in_cooking', true ) );
 		$view['alcohol_served']     = $served;
 		$view['alcohol_in_cooking'] = $cooking;
 		$lines                      = [];
@@ -186,12 +186,12 @@ final class ClaimResolver {
 		} elseif ( 'branch_default' === $basis ) {
 			$branches = array_values( array_filter( MenuQueryService::branches_offering( $dish_id ), static fn( $b ) => '' !== Branches::name( $b, $lang ) ) );
 			if ( $branches ) {
-				$view['template_key'] = 'branch_default';
-				$raw                  = StatementRepository::text( 'branch_default', $lang );
-				$names                = array_map( static fn( $b ) => Branches::name( $b, $lang ), $branches );
-				$links                = array_map( static fn( $b ) => '<a href="' . esc_url( Branches::url( $b, $lang ) ) . '">' . esc_html( Branches::name( $b, $lang ) ) . '</a>', $branches );
-				$sep                  = momos_t( 'diet.list.separator', [], $lang );
-				$text                 = null === $raw ? null : strtr( $raw, [ '{branch_links}' => implode( $sep, $names ) ] );
+				$view['template_key']   = 'branch_default';
+				$raw                    = StatementRepository::text( 'branch_default', $lang );
+				$names                  = array_map( static fn( $b ) => Branches::name( $b, $lang ), $branches );
+				$links                  = array_map( static fn( $b ) => '<a href="' . esc_url( Branches::url( $b, $lang ) ) . '">' . esc_html( Branches::name( $b, $lang ) ) . '</a>', $branches );
+				$sep                    = momos_t( 'diet.list.separator', [], $lang );
+				$text                   = null === $raw ? null : strtr( $raw, [ '{branch_links}' => implode( $sep, $names ) ] );
 				$view['statement_html'] = null === $raw ? '' : strtr( esc_html( $raw ), [ '{branch_links}' => implode( esc_html( $sep ), $links ) ] );
 			} else {
 				$view['template_key'] = 'brand.neutral';

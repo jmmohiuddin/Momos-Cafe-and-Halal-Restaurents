@@ -91,7 +91,7 @@ final class BranchGuard {
 			$fields['momo_branch_code'] = strtoupper( trim( HoursValidator::ascii_digits( mb_convert_kana( $fields['momo_branch_code'], 'a', 'UTF-8' ) ) ) );
 		}
 		if ( isset( $fields['momo_postal_code'] ) && is_string( $fields['momo_postal_code'] ) ) {
-			$pc = preg_replace( '/[^0-9]/', '', HoursValidator::ascii_digits( mb_convert_kana( $fields['momo_postal_code'], 'a', 'UTF-8' ) ) );
+			$pc                         = preg_replace( '/[^0-9]/', '', HoursValidator::ascii_digits( mb_convert_kana( $fields['momo_postal_code'], 'a', 'UTF-8' ) ) );
 			$fields['momo_postal_code'] = 7 === strlen( (string) $pc ) ? substr( $pc, 0, 3 ) . '-' . substr( $pc, 3 ) : $fields['momo_postal_code'];
 		}
 		foreach ( [ 'momo_lat', 'momo_lng' ] as $k ) {
@@ -346,7 +346,7 @@ final class BranchGuard {
 			}
 			return is_string( $v ) && is_email( $v ) ? Hash::mask_email( $v ) : $v;
 		};
-		$out = [];
+		$out  = [];
 		foreach ( $changes as $k => [ $old, $new ] ) {
 			$out[ $k ] = [ $mask( $old ), $mask( $new ) ];
 		}

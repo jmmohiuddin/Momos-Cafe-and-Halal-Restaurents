@@ -20,11 +20,11 @@ use Momos\Reservation\Domain\DeclineReason;
 use Momos\Reservation\Domain\ReservationStatus;
 use Momos\Reservation\Domain\StaffCancelReason;
 
-$status  = ReservationStatus::from( (string) $d['status'] );
-$allowed = (array) $d['allowed_actions'];
-$guest   = (string) $d['guest_given_name'];
-$langnm  = Lang::native( (string) $d['preferred_lang'] ) . ' / ' . ( Lang::ALL[ $d['preferred_lang'] ]['english'] ?? '' );
-$reasons = [
+$status       = ReservationStatus::from( (string) $d['status'] );
+$allowed      = (array) $d['allowed_actions'];
+$guest        = (string) $d['guest_given_name'];
+$langnm       = Lang::native( (string) $d['preferred_lang'] ) . ' / ' . ( Lang::ALL[ $d['preferred_lang'] ]['english'] ?? '' );
+$reasons      = [
 	'fully_booked'              => __( 'Fully booked', 'momos-core' ),
 	'closed_or_private_event'   => __( 'Closed or private event', 'momos-core' ),
 	'party_size_not_supported'  => __( 'Party size not supported', 'momos-core' ),
@@ -51,8 +51,8 @@ $event_labels = [
 	'closure_conflict'    => __( 'Conflicts with closure or changed hours', 'momos-core' ),
 	'pii_purged'          => __( 'Personal data removed', 'momos-core' ),
 ];
-$st_label = static fn( ?string $s ): string => $s && ReservationStatus::tryFrom( $s ) ? ReservationStatus::from( $s )->staffLabel() : (string) $s;
-$form_open = static function ( string $op ) use ( $d ): void {
+$st_label     = static fn( ?string $s ): string => $s && ReservationStatus::tryFrom( $s ) ? ReservationStatus::from( $s )->staffLabel() : (string) $s;
+$form_open    = static function ( string $op ) use ( $d ): void {
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	echo '<input type="hidden" name="action" value="' . esc_attr( InboxPage::ACTION ) . '">';
 	echo '<input type="hidden" name="id" value="' . (int) $d['id'] . '">';
@@ -60,15 +60,18 @@ $form_open = static function ( string $op ) use ( $d ): void {
 	echo '<input type="hidden" name="op" value="' . esc_attr( $op ) . '">';
 	wp_nonce_field( 'momos_res_action_' . (int) $d['id'] );
 };
-$email_note = sprintf( /* translators: 1: guest given name, 2: language */ __( '%1$s will receive an email in %2$s.', 'momos-core' ), $guest, Lang::native( (string) $d['preferred_lang'] ) );
-include __DIR__ . '/reservation-styles.php';
+$email_note   = sprintf( /* translators: 1: guest given name, 2: language */ __( '%1$s will receive an email in %2$s.', 'momos-core' ), $guest, Lang::native( (string) $d['preferred_lang'] ) );
+require __DIR__ . '/reservation-styles.php';
 ?>
 <div class="wrap momos-admin momos-res" id="momos-detail">
 	<p><a href="<?php echo esc_url( $back ); ?>">← <?php esc_html_e( 'Back to inbox', 'momos-core' ); ?></a></p>
 	<h1>
 		<span class="momos-badge momos-badge--<?php echo esc_attr( $status->value ); ?>"><?php echo esc_html( $status->staffLabel() ); ?></span>
 		<bdi dir="ltr"><?php echo esc_html( (string) $d['reference_display'] ); ?></bdi>
-		<?php if ( $d['flags']['test_branch'] ) : ?><span class="momos-flag momos-flag--warn">TEST BRANCH — not a real restaurant</span><?php endif; ?>
+		<?php
+		if ( $d['flags']['test_branch'] ) :
+			?>
+			<span class="momos-flag momos-flag--warn">TEST BRANCH — not a real restaurant</span><?php endif; ?>
 	</h1>
 	<?php if ( $notice ) : ?>
 		<div class="notice notice-<?php echo esc_attr( $notice['type'] ); ?>" role="<?php echo 'error' === $notice['type'] ? 'alert' : 'status'; ?>"><p><?php echo esc_html( $notice['text'] ); ?></p></div>
@@ -118,9 +121,18 @@ include __DIR__ . '/reservation-styles.php';
 				<section class="momos-card" aria-labelledby="momos-h-flags">
 					<h2 id="momos-h-flags"><?php esc_html_e( 'Needs attention', 'momos-core' ); ?></h2>
 					<ul>
-						<?php if ( $d['flags']['customer_not_notified'] ) : ?><li><span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Guest not notified', 'momos-core' ); ?></span> <?php echo esc_html( momos_t( 'staff.warn.customer_not_notified' ) ); ?></li><?php endif; ?>
-						<?php if ( $d['flags']['needs_action'] ) : ?><li><span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Needs action', 'momos-core' ); ?></span> <?php echo esc_html( momos_t( 'staff.warn.needs_action_closure' ) ); ?></li><?php endif; ?>
-						<?php if ( $d['flags']['captcha_unverified'] ) : ?><li><span class="momos-flag momos-flag--warn"><?php esc_html_e( 'Spam check unavailable', 'momos-core' ); ?></span> <?php echo esc_html( momos_t( 'staff.warn.captcha_unverified' ) ); ?></li><?php endif; ?>
+						<?php
+						if ( $d['flags']['customer_not_notified'] ) :
+							?>
+							<li><span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Guest not notified', 'momos-core' ); ?></span> <?php echo esc_html( momos_t( 'staff.warn.customer_not_notified' ) ); ?></li><?php endif; ?>
+						<?php
+						if ( $d['flags']['needs_action'] ) :
+							?>
+							<li><span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Needs action', 'momos-core' ); ?></span> <?php echo esc_html( momos_t( 'staff.warn.needs_action_closure' ) ); ?></li><?php endif; ?>
+						<?php
+						if ( $d['flags']['captcha_unverified'] ) :
+							?>
+							<li><span class="momos-flag momos-flag--warn"><?php esc_html_e( 'Spam check unavailable', 'momos-core' ); ?></span> <?php echo esc_html( momos_t( 'staff.warn.captcha_unverified' ) ); ?></li><?php endif; ?>
 					</ul>
 				</section>
 			<?php endif; ?>
@@ -135,8 +147,14 @@ include __DIR__ . '/reservation-styles.php';
 					<?php foreach ( $d['events'] as $e ) : ?>
 						<li>
 							<strong><?php echo esc_html( $event_labels[ $e['type'] ] ?? $e['type'] ); ?></strong>
-							<?php if ( $e['from'] || $e['to'] ) : ?><?php echo esc_html( ( $e['from'] ? $st_label( $e['from'] ) . ' → ' : '' ) . $st_label( $e['to'] ) ); ?><?php endif; ?>
-							<?php if ( $e['reason'] ) : ?> · <?php echo esc_html( $reasons[ $e['reason'] ] ?? $e['reason'] ); ?><?php endif; ?>
+							<?php
+							if ( $e['from'] || $e['to'] ) :
+								?>
+								<?php echo esc_html( ( $e['from'] ? $st_label( $e['from'] ) . ' → ' : '' ) . $st_label( $e['to'] ) ); ?><?php endif; ?>
+							<?php
+							if ( $e['reason'] ) :
+								?>
+								· <?php echo esc_html( $reasons[ $e['reason'] ] ?? $e['reason'] ); ?><?php endif; ?>
 							<br><span class="momos-muted"><?php echo esc_html( (string) $e['at'] . ' · ' . ( 'system' === $e['actor_type'] ? __( 'System', 'momos-core' ) : ( 'customer' === $e['actor_type'] ? __( 'Guest', 'momos-core' ) : (string) $e['actor_display'] ) ) ); ?></span>
 							<?php if ( 'modified' === $e['type'] && ! empty( $e['payload']['before'] ) ) : ?>
 								<?php
@@ -146,9 +164,15 @@ include __DIR__ . '/reservation-styles.php';
 								$momos_a  = (array) ( $e['payload']['after'] ?? [] );
 								?>
 								<br><?php echo esc_html( sprintf( '%s %s (%d) → %s %s (%d)', $momos_mv( $momos_b, 'requested_date', 'date' ), $momos_mv( $momos_b, 'requested_time', 'time' ), (int) $momos_mv( $momos_b, 'party_size', 'party' ), $momos_mv( $momos_a, 'requested_date', 'date' ), $momos_mv( $momos_a, 'requested_time', 'time' ), (int) $momos_mv( $momos_a, 'party_size', 'party' ) ) ); ?>
-								<?php if ( ! empty( $e['payload']['override_reason'] ) ) : ?><br><?php echo esc_html( __( 'Rules overridden:', 'momos-core' ) . ' ' . $e['payload']['override_reason'] ); ?><?php endif; ?>
+								<?php
+								if ( ! empty( $e['payload']['override_reason'] ) ) :
+									?>
+									<br><?php echo esc_html( __( 'Rules overridden:', 'momos-core' ) . ' ' . $e['payload']['override_reason'] ); ?><?php endif; ?>
 							<?php endif; ?>
-							<?php if ( null !== $e['note'] && '' !== $e['note'] ) : ?><div dir="auto" style="white-space:pre-wrap"><?php echo esc_html( (string) $e['note'] ); ?></div><?php endif; ?>
+							<?php
+							if ( null !== $e['note'] && '' !== $e['note'] ) :
+								?>
+								<div dir="auto" style="white-space:pre-wrap"><?php echo esc_html( (string) $e['note'] ); ?></div><?php endif; ?>
 						</li>
 					<?php endforeach; ?>
 				</ol>
@@ -213,7 +237,11 @@ include __DIR__ . '/reservation-styles.php';
 						<?php $form_open( 'cancel' ); ?>
 						<fieldset><legend><?php esc_html_e( 'Reason (required)', 'momos-core' ); ?></legend>
 							<?php foreach ( StaffCancelReason::values() as $r ) : ?>
-								<label><input type="radio" name="reason_code" value="<?php echo esc_attr( $r ); ?>" required> <?php echo esc_html( $reasons[ $r ] ); ?><?php if ( 'suspected_spam' === $r ) : ?> — <em><?php esc_html_e( 'No email will be sent to the guest.', 'momos-core' ); ?></em><?php endif; ?></label>
+								<label><input type="radio" name="reason_code" value="<?php echo esc_attr( $r ); ?>" required> <?php echo esc_html( $reasons[ $r ] ); ?>
+								<?php
+								if ( 'suspected_spam' === $r ) :
+									?>
+									— <em><?php esc_html_e( 'No email will be sent to the guest.', 'momos-core' ); ?></em><?php endif; ?></label>
 							<?php endforeach; ?>
 						</fieldset>
 						<p><?php echo esc_html( $email_note ); ?></p>
@@ -236,7 +264,11 @@ include __DIR__ . '/reservation-styles.php';
 						<p><?php esc_html_e( 'Reason: Agreed with guest.', 'momos-core' ); ?> <?php echo esc_html( $email_note ); ?></p>
 						<label><?php esc_html_e( 'Date', 'momos-core' ); ?> <input type="date" name="requested_date" value="<?php echo esc_attr( (string) $d['requested_date'] ); ?>" required></label>
 						<label><?php esc_html_e( 'Time', 'momos-core' ); ?> <input type="time" name="requested_time" value="<?php echo esc_attr( (string) $d['requested_time'] ); ?>" step="<?php echo (int) $settings['slot_interval_minutes'] * 60; ?>" required list="momos-slots"></label>
-						<datalist id="momos-slots"><?php foreach ( $slots as $s ) : ?><option value="<?php echo esc_attr( $s ); ?>"><?php endforeach; ?></datalist>
+						<datalist id="momos-slots">
+						<?php
+						foreach ( $slots as $s ) :
+							?>
+							<option value="<?php echo esc_attr( $s ); ?>"><?php endforeach; ?></datalist>
 						<p class="description"><?php echo esc_html( sprintf( /* translators: 1: date, 2: times */ __( 'Times on %1$s: %2$s', 'momos-core' ), (string) $d['requested_date'], $slots ? implode( ', ', $slots ) : '—' ) ); ?></p>
 						<label><?php esc_html_e( 'Party', 'momos-core' ); ?> <input type="number" name="party_size" min="1" max="50" value="<?php echo (int) $d['party_size']; ?>" inputmode="numeric" required></label>
 						<label><?php esc_html_e( 'Internal note (optional)', 'momos-core' ); ?> <textarea name="note" maxlength="1000" rows="2"></textarea></label>

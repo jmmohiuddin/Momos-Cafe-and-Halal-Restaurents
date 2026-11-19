@@ -46,10 +46,10 @@ final class OfferScopeGuard {
 	 */
 	public static function error_for_submission( string $type, int $post_id, array $fields, ?int $user_id = null ): ?array {
 		[ $scope_key, $global_value, $terms_key ] = self::TYPES[ $type ];
-		$scope    = array_key_exists( $scope_key, $fields ) ? (string) $fields[ $scope_key ] : (string) ( $post_id ? get_post_meta( $post_id, $scope_key, true ) : '' );
-		$global   = $global_value === $scope;
-		$term_ids = array_key_exists( $terms_key, $fields ) ? array_map( 'absint', (array) $fields[ $terms_key ] ) : ( $post_id ? (array) wp_get_object_terms( $post_id, BranchScopeTaxonomy::TAX, [ 'fields' => 'ids' ] ) : [] );
-		$branches = $global ? [] : BranchScopeTaxonomy::branch_ids_of_terms( array_values( array_filter( array_map( 'intval', $term_ids ) ) ) );
+		$scope                                    = array_key_exists( $scope_key, $fields ) ? (string) $fields[ $scope_key ] : (string) ( $post_id ? get_post_meta( $post_id, $scope_key, true ) : '' );
+		$global                                   = $global_value === $scope;
+		$term_ids                                 = array_key_exists( $terms_key, $fields ) ? array_map( 'absint', (array) $fields[ $terms_key ] ) : ( $post_id ? (array) wp_get_object_terms( $post_id, BranchScopeTaxonomy::TAX, [ 'fields' => 'ids' ] ) : [] );
+		$branches                                 = $global ? [] : BranchScopeTaxonomy::branch_ids_of_terms( array_values( array_filter( array_map( 'intval', $term_ids ) ) ) );
 		if ( ! $global && count( $branches ) < count( array_filter( $term_ids ) ) ) {
 			return [ 'code' => 'forbidden_branch', 'branch_id' => null ]; // Unknown term IDs.
 		}

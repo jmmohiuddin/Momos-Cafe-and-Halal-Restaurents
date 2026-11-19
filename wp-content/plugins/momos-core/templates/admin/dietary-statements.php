@@ -25,7 +25,11 @@ $nonce    = static fn() => wp_nonce_field( 'momos_statement_save' );
 		<p>🔒 <?php esc_html_e( 'Only Dietary Claims Approvers can change these fields', 'momos-core' ); ?></p>
 	<?php endif; ?>
 	<?php if ( $errors ) : ?>
-		<div class="notice notice-error" role="alert"><ul><?php foreach ( (array) $errors as $e ) : ?><li><?php echo esc_html( (string) $e ); ?></li><?php endforeach; ?></ul></div>
+		<div class="notice notice-error" role="alert"><ul>
+		<?php
+		foreach ( (array) $errors as $e ) :
+			?>
+			<li><?php echo esc_html( (string) $e ); ?></li><?php endforeach; ?></ul></div>
 	<?php elseif ( isset( $_GET['updated'] ) ) : // phpcs:ignore ?>
 		<div class="notice notice-success" role="status"><p><?php esc_html_e( 'Saved.', 'momos-core' ); ?></p></div>
 	<?php endif; ?>
@@ -38,7 +42,10 @@ $nonce    = static fn() => wp_nonce_field( 'momos_statement_save' );
 		<?php if ( $cross['confirmed_at'] ) : ?>
 			<p class="description"><?php echo esc_html( sprintf( /* translators: 1: user 2: date */ __( 'Last changed by %1$s at %2$s (UTC)', 'momos-core' ), (string) ( get_userdata( (int) $cross['confirmed_by'] )->display_name ?? '—' ), (string) $cross['confirmed_at'] ) ); ?></p>
 		<?php endif; ?>
-		<?php if ( $can_edit ) : ?><p><button type="submit" class="button"><?php esc_html_e( 'Save', 'momos-core' ); ?></button></p><?php endif; ?>
+		<?php
+		if ( $can_edit ) :
+			?>
+			<p><button type="submit" class="button"><?php esc_html_e( 'Save', 'momos-core' ); ?></button></p><?php endif; ?>
 	</form>
 
 	<h2><?php esc_html_e( 'Templates', 'momos-core' ); ?></h2>
@@ -51,7 +58,11 @@ $nonce    = static fn() => wp_nonce_field( 'momos_statement_save' );
 					<input type="hidden" name="action" value="momos_statement_save"><input type="hidden" name="mode" value="row"><input type="hidden" name="original_key" value="<?php echo esc_attr( $key ); ?>">
 					<?php $nonce(); ?>
 					<p><label><?php esc_html_e( 'Key', 'momos-core' ); ?> <input type="text" name="key" value="<?php echo esc_attr( $key ); ?>" pattern="[a-z0-9_.]{3,40}" required></label>
-					<label><?php esc_html_e( 'Type', 'momos-core' ); ?> <select name="claim_type"><?php foreach ( $types as $t => $label ) : ?><option value="<?php echo esc_attr( $t ); ?>" <?php selected( $row['claim_type'], $t ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label></p>
+					<label><?php esc_html_e( 'Type', 'momos-core' ); ?> <select name="claim_type">
+					<?php
+					foreach ( $types as $t => $label ) :
+						?>
+						<option value="<?php echo esc_attr( $t ); ?>" <?php selected( $row['claim_type'], $t ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label></p>
 					<p><label for="stmt-ja-<?php echo esc_attr( $key ); ?>"><?php esc_html_e( 'Japanese text (master)', 'momos-core' ); ?></label><br>
 					<textarea id="stmt-ja-<?php echo esc_attr( $key ); ?>" name="text_ja" rows="3" class="large-text" maxlength="400" required><?php echo esc_textarea( (string) $row['text_ja'] ); ?></textarea></p>
 					<p><label><input type="checkbox" name="approved" value="1" <?php checked( $row['approved'] ); ?>> <?php esc_html_e( 'Approved (counsel + certifier sign-off recorded)', 'momos-core' ); ?></label>
@@ -66,7 +77,10 @@ $nonce    = static fn() => wp_nonce_field( 'momos_statement_save' );
 			<table class="widefat">
 				<thead><tr><th scope="col"><?php esc_html_e( 'Language', 'momos-core' ); ?></th><th scope="col"><?php esc_html_e( 'Translation', 'momos-core' ); ?></th><th scope="col"><?php esc_html_e( 'Status', 'momos-core' ); ?></th></tr></thead>
 				<tbody>
-				<?php foreach ( Lang::targets() as $lang ) : $tr = $row['i18n'][ $lang ] ?? [ 'text' => '', 'status' => 'missing' ]; ?>
+				<?php
+				foreach ( Lang::targets() as $lang ) :
+					$tr = $row['i18n'][ $lang ] ?? [ 'text' => '', 'status' => 'missing' ];
+					?>
 					<tr>
 						<th scope="row"><?php echo esc_html( Lang::native( $lang ) . ' (' . $lang . ')' ); ?></th>
 						<td>
@@ -75,7 +89,11 @@ $nonce    = static fn() => wp_nonce_field( 'momos_statement_save' );
 									<input type="hidden" name="action" value="momos_statement_save"><input type="hidden" name="mode" value="translation"><input type="hidden" name="key" value="<?php echo esc_attr( $key ); ?>"><input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>">
 									<?php $nonce(); ?>
 									<textarea name="text" rows="2" class="large-text" lang="<?php echo esc_attr( $lang ); ?>" dir="<?php echo Lang::is_rtl( $lang ) ? 'rtl' : 'ltr'; ?>" aria-label="<?php echo esc_attr( $key . ' ' . $lang ); ?>"><?php echo esc_textarea( (string) $tr['text'] ); ?></textarea>
-									<select name="status" aria-label="<?php esc_attr_e( 'Status', 'momos-core' ); ?>"><?php foreach ( [ 'draft', 'needs_review', 'approved' ] as $s ) : ?><option value="<?php echo esc_attr( $s ); ?>" <?php selected( $tr['status'], $s ); ?>><?php echo esc_html( $statuses[ $s ] ); ?></option><?php endforeach; ?></select>
+									<select name="status" aria-label="<?php esc_attr_e( 'Status', 'momos-core' ); ?>">
+									<?php
+									foreach ( [ 'draft', 'needs_review', 'approved' ] as $s ) :
+										?>
+										<option value="<?php echo esc_attr( $s ); ?>" <?php selected( $tr['status'], $s ); ?>><?php echo esc_html( $statuses[ $s ] ); ?></option><?php endforeach; ?></select>
 									<button type="submit" class="button"><?php esc_html_e( 'Save', 'momos-core' ); ?></button>
 								</form>
 							<?php else : ?>
@@ -96,7 +114,11 @@ $nonce    = static fn() => wp_nonce_field( 'momos_statement_save' );
 			<input type="hidden" name="action" value="momos_statement_save"><input type="hidden" name="mode" value="row">
 			<?php $nonce(); ?>
 			<p><label><?php esc_html_e( 'Key', 'momos-core' ); ?> <input type="text" name="key" pattern="[a-z0-9_.]{3,40}" required></label>
-			<label><?php esc_html_e( 'Type', 'momos-core' ); ?> <select name="claim_type"><?php foreach ( $types as $t => $label ) : ?><option value="<?php echo esc_attr( $t ); ?>"><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label></p>
+			<label><?php esc_html_e( 'Type', 'momos-core' ); ?> <select name="claim_type">
+			<?php
+			foreach ( $types as $t => $label ) :
+				?>
+				<option value="<?php echo esc_attr( $t ); ?>"><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label></p>
 			<p><label for="stmt-new-ja"><?php esc_html_e( 'Japanese text (master)', 'momos-core' ); ?></label><br><textarea id="stmt-new-ja" name="text_ja" rows="3" class="large-text" maxlength="400" required></textarea></p>
 			<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Add template', 'momos-core' ); ?></button></p>
 		</form>

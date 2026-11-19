@@ -28,7 +28,7 @@ final class ReportService {
 	 */
 	public static function build( Scope $scope, array $f ): array {
 		global $wpdb;
-		$test = array_values( array_filter( BranchRepository::published_ids( true ), [ BranchRepository::class, 'is_test' ] ) );
+		$test    = array_values( array_filter( BranchRepository::published_ids( true ), [ BranchRepository::class, 'is_test' ] ) );
 		$filters = [ 'branch_ids' => $f['branch_ids'] ?? null, 'exclude_branch_ids' => $test ];
 		if ( 'requested' === $f['basis'] ) {
 			$filters['date_from'] = $f['date_from'];
@@ -60,9 +60,9 @@ final class ReportService {
 		$all = [];
 		$by  = [ 'by_branch' => [], 'by_lang' => [], 'by_week' => [] ];
 		foreach ( $rows as $r ) {
-			$bid          = (int) $r['branch_id'];
+			$bid           = (int) $r['branch_id'];
 			$sla[ $bid ] ??= (int) BranchSettingsRepository::get( $bid )['response_sla_minutes'];
-			$created      = Clock::from_mysql_utc( (string) $r['created_at'] );
+			$created       = Clock::from_mysql_utc( (string) $r['created_at'] );
 			$r['response'] = isset( $decisions[ (int) $r['id'] ] ) ? intdiv( Clock::from_mysql_utc( $decisions[ (int) $r['id'] ] )->getTimestamp() - $created->getTimestamp(), 60 ) : null;
 			$r['sla']      = $sla[ $bid ];
 			$week_src      = 'requested' === $f['basis'] ? new \DateTimeImmutable( (string) $r['requested_date'], Clock::tz() ) : $created->setTimezone( Clock::tz() );
@@ -85,7 +85,7 @@ final class ReportService {
 	 * @return array<string,mixed>
 	 */
 	public static function metrics( array $rows ): array {
-		$counts = array_fill_keys( \Momos\Reservation\Domain\ReservationStatus::values(), 0 );
+		$counts   = array_fill_keys( \Momos\Reservation\Domain\ReservationStatus::values(), 0 );
 		$accepted = 0;
 		$resp     = [];
 		$in_sla   = 0;

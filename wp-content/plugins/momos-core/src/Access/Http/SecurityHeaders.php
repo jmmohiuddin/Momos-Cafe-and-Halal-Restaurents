@@ -66,7 +66,7 @@ final class SecurityHeaders {
 	 * @return array<string,string>
 	 */
 	public static function public_headers( $headers ): array {
-		$headers = array_merge( (array) $headers, self::global_headers() );
+		$headers                    = array_merge( (array) $headers, self::global_headers() );
 		$headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
 		$headers[ self::csp_enforced() ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only' ] = self::CSP;
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '/'; // phpcs:ignore

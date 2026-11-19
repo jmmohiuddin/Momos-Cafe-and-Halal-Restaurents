@@ -102,7 +102,7 @@ final class BranchMenuService {
 			'sold_out_until'      => null,
 			'availability_reason' => null,
 		];
-		$now = Clock::utc();
+		$now     = Clock::utc();
 
 		// ---- requested changes (only fields that differ from the current row count as changed).
 		$new     = [

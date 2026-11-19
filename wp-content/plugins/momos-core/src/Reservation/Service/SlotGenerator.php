@@ -149,8 +149,8 @@ final class SlotGenerator {
 		if ( isset( $slots[ $time ] ) ) {
 			return null;
 		}
-		$t    = Clock::jst_at( $date, $time );
-		$prev = ( new \DateTimeImmutable( $date, Clock::tz() ) )->modify( '-1 day' )->format( 'Y-m-d' );
+		$t        = Clock::jst_at( $date, $time );
+		$prev     = ( new \DateTimeImmutable( $date, Clock::tz() ) )->modify( '-1 day' )->format( 'Y-m-d' );
 		$covering = null;
 		$tail     = false;
 		foreach ( [ $prev, $date ] as $b ) {

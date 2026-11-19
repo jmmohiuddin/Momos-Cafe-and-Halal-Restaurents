@@ -27,9 +27,9 @@ final class AuditLogScreen {
 
 	/** @return array<string,mixed> validated filters from the query string */
 	public static function filters(): array {
-		$get  = static fn( string $k ): string => isset( $_GET[ $k ] ) ? sanitize_text_field( wp_unslash( (string) $_GET[ $k ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- read-only GET filters.
-		$date = static fn( string $v ): ?string => ( '' !== $v && \DateTimeImmutable::createFromFormat( '!Y-m-d', $v ) && \DateTimeImmutable::createFromFormat( '!Y-m-d', $v )->format( 'Y-m-d' ) === $v ) ? $v : null;
-		$f    = [
+		$get    = static fn( string $k ): string => isset( $_GET[ $k ] ) ? sanitize_text_field( wp_unslash( (string) $_GET[ $k ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- read-only GET filters.
+		$date   = static fn( string $v ): ?string => ( '' !== $v && \DateTimeImmutable::createFromFormat( '!Y-m-d', $v ) && \DateTimeImmutable::createFromFormat( '!Y-m-d', $v )->format( 'Y-m-d' ) === $v ) ? $v : null;
+		$f      = [
 			'from'        => $date( $get( 'from' ) ) ?? Clock::jst()->modify( '-6 days' )->format( 'Y-m-d' ),
 			'to'          => $date( $get( 'to' ) ) ?? Clock::jst()->format( 'Y-m-d' ),
 			'actor'       => 'system' === $get( 'actor' ) ? 'system' : ( ctype_digit( $get( 'actor' ) ) ? (int) $get( 'actor' ) : '' ),

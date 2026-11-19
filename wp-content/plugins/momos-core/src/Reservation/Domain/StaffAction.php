@@ -7,11 +7,11 @@ namespace Momos\Reservation\Domain;
  * Staff transition actions of API-12 (spec §2.3).
  */
 enum StaffAction: string {
-	case Accept = 'accept';
-	case Decline = 'decline';
-	case Cancel = 'cancel';
+	case Accept        = 'accept';
+	case Decline       = 'decline';
+	case Cancel        = 'cancel';
 	case MarkCompleted = 'mark_completed';
-	case MarkNoShow = 'mark_no_show';
+	case MarkNoShow    = 'mark_no_show';
 
 	/** @return list<string> */
 	public static function values(): array {

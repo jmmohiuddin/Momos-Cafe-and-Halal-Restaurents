@@ -78,11 +78,11 @@ final class LogTransport implements TransportInterface {
 
 	/** Raw RFC 5322 message, multipart/alternative, base64 UTF-8 parts. */
 	public static function mime( Message $m ): string {
-		$boundary = 'b' . md5( $m->message_id );
-		$h        = self::headers( $m );
+		$boundary          = 'b' . md5( $m->message_id );
+		$h                 = self::headers( $m );
 		$h['Subject']      = '=?UTF-8?B?' . base64_encode( $m->subject ) . '?=';
 		$h['Content-Type'] = 'multipart/alternative; boundary="' . $boundary . '"';
-		$out = '';
+		$out               = '';
 		foreach ( $h as $k => $v ) {
 			$out .= $k . ': ' . $v . "\r\n";
 		}

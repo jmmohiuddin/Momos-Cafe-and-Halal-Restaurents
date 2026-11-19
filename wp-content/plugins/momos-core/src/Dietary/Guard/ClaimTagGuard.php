@@ -44,7 +44,7 @@ final class ClaimTagGuard {
 			return;
 		}
 		// Revert: keep non-claim changes, restore claim tags exactly as before.
-		$keep = array_values( array_unique( array_merge( array_diff( $new, $added ), $removed ) ) );
+		$keep            = array_values( array_unique( array_merge( array_diff( $new, $added ), $removed ) ) );
 		self::$reverting = true;
 		try {
 			wp_set_object_terms( $object_id, self::term_ids( $keep ), self::TAXONOMY, false );

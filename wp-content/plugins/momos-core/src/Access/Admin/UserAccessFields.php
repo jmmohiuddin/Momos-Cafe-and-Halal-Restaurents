@@ -19,7 +19,7 @@ use Momos\Kernel\Clock\Clock;
  * after core saved the user (`profile_update` / `user_register`) under the section's own nonce.
  */
 final class UserAccessFields {
-	public const NONCE = '_momos_access_nonce';
+	public const NONCE  = '_momos_access_nonce';
 	public const ACTION = 'momos_user_access';
 
 	/** Username deny-list (SEC-002). */
@@ -77,24 +77,24 @@ final class UserAccessFields {
 	}
 
 	private static function render( ?\WP_User $user, bool $editable ): void {
-		$uid        = $user ? (int) $user->ID : 0;
-		$branches   = self::branch_choices();
-		$assigned   = $uid ? BranchScope::rows( $uid ) : [];
-		$role       = $user && $user->roles ? (string) reset( $user->roles ) : '';
-		$is_sa      = current_user_can( 'manage_options' ) && ! AccountStatus::is_vendor( get_current_user_id() );
-		$vendor     = $uid && AccountStatus::is_vendor( $uid );
-		$disabled   = $uid && AccountStatus::is_disabled( $uid );
-		$expires    = $uid ? AccountStatus::expires_at( $uid ) : null;
-		$bg_until   = $uid ? AccountStatus::breakglass_until( $uid ) : null;
-		$has_dca    = $user && ! empty( $user->caps['momo_edit_dietary_claims'] );
-		$dca_ok     = $uid && RoleInstaller::dca_eligible( $uid );
-		$enrolled   = $uid && TwoFactor::is_enrolled( $uid );
-		$recovery   = $uid ? TwoFactor::recovery_remaining( $uid ) : 0;
-		$phone      = $uid ? (string) get_user_meta( $uid, 'momo_phone', true ) : '';
-		$last_login = $uid ? (string) get_user_meta( $uid, AccountStatus::META_LAST_LOGIN, true ) : '';
-		$own        = $uid && get_current_user_id() === $uid;
-		$optin      = $uid && '1' === (string) get_user_meta( $uid, TwoFactor::META_OPTIN, true );
-		$scoped     = $role && AccountStatus::is_scoped_role( $role );
+		$uid              = $user ? (int) $user->ID : 0;
+		$branches         = self::branch_choices();
+		$assigned         = $uid ? BranchScope::rows( $uid ) : [];
+		$role             = $user && $user->roles ? (string) reset( $user->roles ) : '';
+		$is_sa            = current_user_can( 'manage_options' ) && ! AccountStatus::is_vendor( get_current_user_id() );
+		$vendor           = $uid && AccountStatus::is_vendor( $uid );
+		$disabled         = $uid && AccountStatus::is_disabled( $uid );
+		$expires          = $uid ? AccountStatus::expires_at( $uid ) : null;
+		$bg_until         = $uid ? AccountStatus::breakglass_until( $uid ) : null;
+		$has_dca          = $user && ! empty( $user->caps['momo_edit_dietary_claims'] );
+		$dca_ok           = $uid && RoleInstaller::dca_eligible( $uid );
+		$enrolled         = $uid && TwoFactor::is_enrolled( $uid );
+		$recovery         = $uid ? TwoFactor::recovery_remaining( $uid ) : 0;
+		$phone            = $uid ? (string) get_user_meta( $uid, 'momo_phone', true ) : '';
+		$last_login       = $uid ? (string) get_user_meta( $uid, AccountStatus::META_LAST_LOGIN, true ) : '';
+		$own              = $uid && get_current_user_id() === $uid;
+		$optin            = $uid && '1' === (string) get_user_meta( $uid, TwoFactor::META_OPTIN, true );
+		$scoped           = $role && AccountStatus::is_scoped_role( $role );
 		$translator_langs = $uid ? array_map( 'strval', (array) get_user_meta( $uid, 'momo_translator_langs', true ) ) : [];
 		include MOMOS_CORE_DIR . '/templates/admin/access-user-fields.php';
 	}
@@ -103,7 +103,7 @@ final class UserAccessFields {
 	public static function branch_choices(): array {
 		$out = [];
 		foreach ( get_posts( [ 'post_type' => 'momo_branch', 'post_status' => [ 'publish', 'draft', 'pending', 'private' ], 'posts_per_page' => 200, 'orderby' => [ 'menu_order' => 'ASC', 'title' => 'ASC' ], 'no_found_rows' => true ] ) as $p ) {
-			$code             = (string) get_post_meta( $p->ID, 'momo_branch_code', true );
+			$code                = (string) get_post_meta( $p->ID, 'momo_branch_code', true );
 			$out[ (int) $p->ID ] = trim( ( '' !== $code ? $code . ' — ' : '' ) . $p->post_title );
 		}
 		return $out;
@@ -251,11 +251,13 @@ final class UserAccessFields {
 		if ( isset( $post['momos_disabled_present'] ) && ! AccountStatus::is_vendor( $user_id ) ) {
 			$want = ! empty( $post['momos_disabled'] );
 			if ( $want && ! AccountStatus::is_disabled( $user_id ) ) {
-				$run( static function () use ( $user_id, $actor ): void {
-					foreach ( AccountService::disable( $user_id, $actor ) as $w ) {
-						self::$notices[] = $w;
+				$run(
+					static function () use ( $user_id, $actor ): void {
+						foreach ( AccountService::disable( $user_id, $actor ) as $w ) {
+							self::$notices[] = $w;
+						}
 					}
-				} );
+				);
 			} elseif ( ! $want && AccountStatus::is_disabled( $user_id ) ) {
 				$run( static fn() => AccountService::enable( $user_id, $actor ) );
 			}
@@ -263,12 +265,14 @@ final class UserAccessFields {
 
 		if ( ! empty( $post['momos_vendor_until'] ) ) {
 			$until = self::parse_jst( (string) $post['momos_vendor_until'] );
-			$run( static function () use ( $user_id, $until, $actor ): void {
-				if ( null === $until ) {
-					throw new \InvalidArgumentException( __( 'Enter a valid date and time.', 'momos-core' ) );
+			$run(
+				static function () use ( $user_id, $until, $actor ): void {
+					if ( null === $until ) {
+						throw new \InvalidArgumentException( __( 'Enter a valid date and time.', 'momos-core' ) );
+					}
+					AccountService::set_vendor_window( $user_id, $until, $actor );
 				}
-				AccountService::set_vendor_window( $user_id, $until, $actor );
-			} );
+			);
 		}
 		if ( ! empty( $post['momos_vendor_end_now'] ) && AccountStatus::is_vendor( $user_id ) ) {
 			$run( static fn() => AccountService::disable( $user_id, $actor, 'vendor_window_closed' ) );
@@ -276,12 +280,14 @@ final class UserAccessFields {
 
 		if ( ! empty( $post['momos_bg_until'] ) ) {
 			$until = self::parse_jst( (string) $post['momos_bg_until'] );
-			$run( static function () use ( $user_id, $until, $actor, $post ): void {
-				if ( null === $until ) {
-					throw new \InvalidArgumentException( __( 'Enter a valid date and time.', 'momos-core' ) );
+			$run(
+				static function () use ( $user_id, $until, $actor, $post ): void {
+					if ( null === $until ) {
+						throw new \InvalidArgumentException( __( 'Enter a valid date and time.', 'momos-core' ) );
+					}
+					AccountService::grant_breakglass( $user_id, $until, (string) ( $post['momos_bg_ref'] ?? '' ), $actor );
 				}
-				AccountService::grant_breakglass( $user_id, $until, (string) ( $post['momos_bg_ref'] ?? '' ), $actor );
-			} );
+			);
 		}
 		if ( ! empty( $post['momos_bg_revoke'] ) && current_user_can( 'manage_options' ) ) {
 			AccountService::revoke_breakglass( $user_id, 'manual' );

@@ -59,4 +59,3 @@ final class AnalyticsHooks {
 		echo '<script type="application/json" id="momo-page-data">' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "</script>\n";
 	}
 }
-

@@ -12,15 +12,15 @@ use Momos\Kernel\Support\Crockford;
 
 defined( 'ABSPATH' ) || exit;
 
-$momos_v      = $view;
-$momos_bid    = (int) $momos_v['branch_id'];
-$momos_edit   = (bool) $momos_v['can_edit'];
-$momos_state  = $momos_v['state'];
-$momos_errors = ( $momos_state && 'errors' === $momos_state['result']['status'] ) ? (array) $momos_state['result']['errors'] : [];
-$momos_impact = ( $momos_state && 'impact' === $momos_state['result']['status'] ) ? (array) $momos_state['result']['affected'] : [];
-$momos_dis    = $momos_edit ? '' : ' disabled';
-$momos_post   = admin_url( 'admin-post.php' );
-$momos_err_attr = static function ( string $key ) use ( $momos_errors ): string {
+$momos_v          = $view;
+$momos_bid        = (int) $momos_v['branch_id'];
+$momos_edit       = (bool) $momos_v['can_edit'];
+$momos_state      = $momos_v['state'];
+$momos_errors     = ( $momos_state && 'errors' === $momos_state['result']['status'] ) ? (array) $momos_state['result']['errors'] : [];
+$momos_impact     = ( $momos_state && 'impact' === $momos_state['result']['status'] ) ? (array) $momos_state['result']['affected'] : [];
+$momos_dis        = $momos_edit ? '' : ' disabled';
+$momos_post       = admin_url( 'admin-post.php' );
+$momos_err_attr   = static function ( string $key ) use ( $momos_errors ): string {
 	return isset( $momos_errors[ $key ] ) ? ' aria-invalid="true" aria-describedby="momos-err-' . esc_attr( $key ) . '"' : '';
 };
 $momos_period_row = static function ( string $name, array $p, string $err_key ) use ( $momos_v, $momos_dis, $momos_err_attr ): void {
@@ -164,7 +164,10 @@ $momos_period_row = static function ( string $name, array $p, string $err_key ) 
 						<th scope="row"><?php echo esc_html( HoursEditorPage::weekday_short( $momos_w ) ); ?></th>
 						<td>
 							<label class="momos-closed"><input type="checkbox" name="closed[<?php echo (int) $momos_w; ?>]" value="1"<?php checked( isset( $momos_state['input']['closed'][ $momos_w ] ) ); echo $momos_dis; // phpcs:ignore ?>> <?php esc_html_e( 'Closed all day (regular closing day)', 'momos-core' ); ?></label>
-							<?php if ( ! $momos_periods ) : ?><span class="description"><?php esc_html_e( 'Currently closed', 'momos-core' ); ?></span><?php endif; ?>
+							<?php
+							if ( ! $momos_periods ) :
+								?>
+								<span class="description"><?php esc_html_e( 'Currently closed', 'momos-core' ); ?></span><?php endif; ?>
 							<div class="momos-periods">
 							<?php
 							$momos_rows = $momos_periods;

@@ -8,13 +8,13 @@ namespace Momos\Reservation\Domain;
  * pending/confirmed are active; every other status is terminal (BR-RES-05).
  */
 enum ReservationStatus: string {
-	case Pending = 'pending';
+	case Pending   = 'pending';
 	case Confirmed = 'confirmed';
-	case Rejected = 'rejected';
+	case Rejected  = 'rejected';
 	case Cancelled = 'cancelled';
-	case Expired = 'expired';
+	case Expired   = 'expired';
 	case Completed = 'completed';
-	case NoShow = 'no_show';
+	case NoShow    = 'no_show';
 
 	public function isActive(): bool {
 		return self::Pending === $this || self::Confirmed === $this;

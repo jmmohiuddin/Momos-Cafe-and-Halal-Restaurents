@@ -68,7 +68,7 @@ final class Renderer {
 		$v = Strings::raw( $key, self::$lang );
 		if ( null === $v ) {
 			self::$missing[ $key ] = true;
-			$v = Strings::raw( $key, 'ja' ) ?? Strings::raw( $key, 'en' ) ?? $key;
+			$v                     = Strings::raw( $key, 'ja' ) ?? Strings::raw( $key, 'en' ) ?? $key;
 		}
 		return $v;
 	}
@@ -153,14 +153,14 @@ final class Renderer {
 			'jst'         => 'ja' === $lang ? '' : self::t( 'email.jst' ),
 		];
 		if ( $r ) {
-			$d['ref']      = Crockford::display( (string) $r['public_ref'] );
-			$d['status']   = (string) $r['status'];
-			$d['date']     = EmailFormatter::date_long( (string) $r['requested_date'], $lang );
-			$d['time']     = $customer ? EmailFormatter::customer_time( (string) $r['requested_time'], $lang, $d['jst'] ) : EmailFormatter::time( (string) $r['requested_time'] ) . ( 'en' === $lang ? ' JST' : '' );
-			$d['party']    = self::party( (int) $r['party_size'] );
-			$d['message']  = trim( (string) ( $r['message_to_customer'] ?? '' ) );
-			$d['carrier']  = self::is_carrier( (string) ( $r['email'] ?? '' ) );
-			$d['note']     = '' !== trim( (string) ( $r['special_request'] ?? '' ) );
+			$d['ref']       = Crockford::display( (string) $r['public_ref'] );
+			$d['status']    = (string) $r['status'];
+			$d['date']      = EmailFormatter::date_long( (string) $r['requested_date'], $lang );
+			$d['time']      = $customer ? EmailFormatter::customer_time( (string) $r['requested_time'], $lang, $d['jst'] ) : EmailFormatter::time( (string) $r['requested_time'] ) . ( 'en' === $lang ? ' JST' : '' );
+			$d['party']     = self::party( (int) $r['party_size'] );
+			$d['message']   = trim( (string) ( $r['message_to_customer'] ?? '' ) );
+			$d['carrier']   = self::is_carrier( (string) ( $r['email'] ?? '' ) );
+			$d['note']      = '' !== trim( (string) ( $r['special_request'] ?? '' ) );
 			$d['admin_url'] = self::admin_reservation_url( (int) $r['id'] );
 			if ( $customer ) {
 				$d['status_url']  = self::status_url( $r, $lang );
@@ -175,7 +175,7 @@ final class Renderer {
 	/** @return array<string,mixed> chrome for the customer layout (header, branch block, help, footer) */
 	private static function customer_chrome( array $d ): array {
 		return [
-			'details_rows' => isset( $d['ref'] ) ? [
+			'details_rows'   => isset( $d['ref'] ) ? [
 				[ self::t( 'email.details.branch' ), $d['branch']['name'] ],
 				[ self::t( 'email.details.date' ), $d['date'] ],
 				[ self::t( 'email.details.time' ), $d['time'] ],

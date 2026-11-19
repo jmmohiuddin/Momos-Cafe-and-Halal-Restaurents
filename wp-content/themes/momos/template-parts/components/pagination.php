@@ -14,7 +14,7 @@ $momos_total = max( 1, (int) $args['total'] );
 if ( $momos_total < 2 ) {
 	return;
 }
-$momos_url = static function ( int $n ) use ( $args ): string {
+$momos_url   = static function ( int $n ) use ( $args ): string {
 	return is_callable( $args['url'] ) ? (string) call_user_func( $args['url'], $n ) : sprintf( (string) $args['url'], $n );
 };
 $momos_pages = array_unique( array_filter( [ 1, $momos_cur - 1, $momos_cur, $momos_cur + 1, $momos_total ], static fn( $n ) => $n >= 1 && $n <= $momos_total ) );
@@ -22,7 +22,15 @@ sort( $momos_pages );
 ?>
 <nav class="momo-pagination" aria-label="<?php echo esc_attr( momos_s( 'a11y.pagination' ) ); ?>">
 	<ul>
-		<li><?php if ( $momos_cur > 1 ) : ?><a href="<?php echo esc_url( $momos_url( $momos_cur - 1 ) ); ?>" rel="prev" aria-label="<?php echo esc_attr( momos_s( 'a11y.prev' ) ); ?>"><?php momos_the_icon( 'chevron-start' ); ?></a><?php else : ?><span class="is-disabled" aria-hidden="true"><?php momos_the_icon( 'chevron-start' ); ?></span><?php endif; ?></li>
+		<li>
+		<?php
+		if ( $momos_cur > 1 ) :
+			?>
+			<a href="<?php echo esc_url( $momos_url( $momos_cur - 1 ) ); ?>" rel="prev" aria-label="<?php echo esc_attr( momos_s( 'a11y.prev' ) ); ?>"><?php momos_the_icon( 'chevron-start' ); ?></a>
+			<?php
+else :
+	?>
+			<span class="is-disabled" aria-hidden="true"><?php momos_the_icon( 'chevron-start' ); ?></span><?php endif; ?></li>
 		<?php
 		$momos_prev = 0;
 		foreach ( $momos_pages as $momos_p ) :
@@ -41,6 +49,14 @@ sort( $momos_pages );
 			$momos_prev = $momos_p;
 		endforeach;
 		?>
-		<li><?php if ( $momos_cur < $momos_total ) : ?><a href="<?php echo esc_url( $momos_url( $momos_cur + 1 ) ); ?>" rel="next" aria-label="<?php echo esc_attr( momos_s( 'a11y.next' ) ); ?>"><?php momos_the_icon( 'chevron-end' ); ?></a><?php else : ?><span class="is-disabled" aria-hidden="true"><?php momos_the_icon( 'chevron-end' ); ?></span><?php endif; ?></li>
+		<li>
+		<?php
+		if ( $momos_cur < $momos_total ) :
+			?>
+			<a href="<?php echo esc_url( $momos_url( $momos_cur + 1 ) ); ?>" rel="next" aria-label="<?php echo esc_attr( momos_s( 'a11y.next' ) ); ?>"><?php momos_the_icon( 'chevron-end' ); ?></a>
+			<?php
+else :
+	?>
+			<span class="is-disabled" aria-hidden="true"><?php momos_the_icon( 'chevron-end' ); ?></span><?php endif; ?></li>
 	</ul>
 </nav>

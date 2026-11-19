@@ -49,7 +49,7 @@ final class ReservationAccess {
 	 * @return list<string>
 	 */
 	public static function map_meta_cap( array $caps, string $cap, int $user_id, array $args ): array {
-		if ( ! in_array( $cap, [ 'momo_view_reservation', 'momo_process_reservation' ], true )) {
+		if ( ! in_array( $cap, [ 'momo_view_reservation', 'momo_process_reservation' ], true ) ) {
 			return $caps;
 		}
 		$row = isset( $args[0] ) ? \Momos\Reservation\Repository\ReservationRepository::find( (int) $args[0] ) : null;

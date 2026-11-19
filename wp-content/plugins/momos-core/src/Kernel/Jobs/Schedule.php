@@ -96,8 +96,8 @@ final class Schedule {
 		$beats = (array) get_option( 'momos_heartbeat', [] );
 		$out   = [];
 		foreach ( self::$recurring as $hook => $def ) {
-			$last = $beats[ $hook ] ?? null;
-			$age  = $last ? time() - (int) strtotime( (string) $last ) : null;
+			$last         = $beats[ $hook ] ?? null;
+			$age          = $last ? time() - (int) strtotime( (string) $last ) : null;
 			$out[ $hook ] = [
 				'interval' => $def['interval'],
 				'last'     => $last,

@@ -19,7 +19,7 @@ foreach ( (array) ( $v['details_rows'] ?? [] ) as $row ) {
 	echo $row[0] . ': ' . $row[1] . "\n"; // phpcs:ignore
 }
 echo "\n";
-include __DIR__ . '/_blocks.txt.php';
+require __DIR__ . '/_blocks.txt.php';
 if ( ! empty( $v['button'] ) ) {
 	echo $v['button']['label'] . ":\n" . $v['button']['url'] . "\n\n"; // phpcs:ignore
 }

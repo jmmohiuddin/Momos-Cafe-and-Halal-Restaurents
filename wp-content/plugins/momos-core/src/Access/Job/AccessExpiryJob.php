@@ -29,7 +29,7 @@ final class AccessExpiryJob {
 			return $out;
 		}
 		try {
-			$now = Clock::mysql_utc();
+			$now     = Clock::mysql_utc();
 			$expired = get_users(
 				[
 					'fields'     => 'ID',

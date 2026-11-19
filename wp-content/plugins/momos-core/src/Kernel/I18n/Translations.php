@@ -186,7 +186,7 @@ final class Translations {
 			return self::option_status( (string) $id, $lang );
 		}
 		$id = (int) $id;
-		$s = 'term' === $type ? get_term_meta( $id, '_momos_i18n_status_' . $lang, true ) : get_post_meta( $id, '_momos_i18n_status_' . $lang, true );
+		$s  = 'term' === $type ? get_term_meta( $id, '_momos_i18n_status_' . $lang, true ) : get_post_meta( $id, '_momos_i18n_status_' . $lang, true );
 		return in_array( $s, self::STATUSES, true ) ? (string) $s : 'missing';
 	}
 
@@ -303,12 +303,12 @@ final class Translations {
 		if ( Lang::SOURCE === $lang || ! Lang::is_valid( $lang ) || ! in_array( $status, self::STATUSES, true ) || ! self::fields( 'option:' . $page ) ) {
 			throw new \InvalidArgumentException( 'Invalid translation target' );
 		}
-		$clean  = self::clean_values( 'option:' . $page, $values, fn( string $key ) => self::source_value( 'option', $page, $key ) );
-		$before = self::option_data( $page, $lang );
-		$old_st = self::option_status( $page, $lang );
-		$all    = get_option( 'momos_option_i18n', [] );
-		$all    = is_array( $all ) ? $all : [];
-		$row    = array_merge( self::option_row( $page, $lang ), $clean );
+		$clean           = self::clean_values( 'option:' . $page, $values, fn( string $key ) => self::source_value( 'option', $page, $key ) );
+		$before          = self::option_data( $page, $lang );
+		$old_st          = self::option_status( $page, $lang );
+		$all             = get_option( 'momos_option_i18n', [] );
+		$all             = is_array( $all ) ? $all : [];
+		$row             = array_merge( self::option_row( $page, $lang ), $clean );
 		$row['_status']  = $status;
 		$row['_updated'] = Clock::mysql_utc();
 		if ( self::changed_fields( $before, $clean ) && $user_id ) {

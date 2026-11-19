@@ -32,14 +32,17 @@ final class DependencyCheck {
 	}
 
 	public static function register(): void {
-		add_action( 'admin_notices', static function (): void {
-			if ( ! current_user_can( 'manage_options' ) ) {
-				return;
+		add_action(
+			'admin_notices',
+			static function (): void {
+				if ( ! current_user_can( 'manage_options' ) ) {
+					return;
+				}
+				$p = self::problems();
+				if ( $p ) {
+					echo '<div class="notice notice-error"><p><strong>momos-core:</strong> ' . esc_html( implode( ' · ', $p ) ) . '</p></div>';
+				}
 			}
-			$p = self::problems();
-			if ( $p ) {
-				echo '<div class="notice notice-error"><p><strong>momos-core:</strong> ' . esc_html( implode( ' · ', $p ) ) . '</p></div>';
-			}
-		} );
+		);
 	}
 }

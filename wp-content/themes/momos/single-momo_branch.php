@@ -64,8 +64,8 @@ $momos_anchors  = array_filter(
 		'facilities' => $momos_fac ? momos_s( 'branch.sec.facilities' ) : null,
 	]
 );
-$momos_req   = (string) $momos_b['request_url'];
-$momos_trail = [
+$momos_req      = (string) $momos_b['request_url'];
+$momos_trail    = [
 	[ 'name' => momos_s( 'bc.home' ), 'url' => momos_theme_url( '/' ) ],
 	[ 'name' => momos_s( 'nav.branches' ), 'url' => momos_page_url( 'branches' ) ],
 	[ 'name' => (string) $momos_b['name'] ],
@@ -101,7 +101,11 @@ $momos_trail = [
 		<div class="momo-card momo-branch-summary">
 			<?php momos_component( 'open-status', [ 'status' => $momos_b['open'] ?? null ] ); ?>
 			<?php if ( is_array( $momos_today ) && empty( $momos_b['temp_closed'] ) ) : ?>
-				<p class="momo-branch-summary__today"><?php momos_the_icon( 'clock', 'momo-icon--sm' ); ?><span><span class="momo-branch-summary__label"><?php echo esc_html( momos_s( 'branch.today' ) ); ?></span> <?php echo wp_kses( (string) $momos_today['hours_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?><?php if ( '' !== $momos_today['lo_html'] ) : ?> <span class="momo-muted">(<?php echo esc_html( momos_s( 'branch.hours.last_order' ) ); ?> <?php echo wp_kses( (string) $momos_today['lo_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>)</span><?php endif; ?></span></p>
+				<p class="momo-branch-summary__today"><?php momos_the_icon( 'clock', 'momo-icon--sm' ); ?><span><span class="momo-branch-summary__label"><?php echo esc_html( momos_s( 'branch.today' ) ); ?></span> <?php echo wp_kses( (string) $momos_today['hours_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>
+				<?php
+				if ( '' !== $momos_today['lo_html'] ) :
+					?>
+					<span class="momo-muted">(<?php echo esc_html( momos_s( 'branch.hours.last_order' ) ); ?> <?php echo wp_kses( (string) $momos_today['lo_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>)</span><?php endif; ?></span></p>
 			<?php endif; ?>
 			<div class="momo-branch-summary__actions">
 				<?php

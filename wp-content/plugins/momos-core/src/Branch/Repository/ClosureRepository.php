@@ -190,9 +190,9 @@ final class ClosureRepository {
 			return null;
 		}
 		return [
-			'type'           => $rows[0]['closure_type'],
-			'reason'         => $rows[0]['public_reason'],
-			'periods'        => array_values( array_filter( array_map( static fn( $r ) => $r['opens_at'] ? $r['opens_at'] . '-' . $r['closes_at'] . ( $r['last_order_at'] ? ' LO ' . $r['last_order_at'] : '' ) : null, $rows ) ) ),
+			'type'              => $rows[0]['closure_type'],
+			'reason'            => $rows[0]['public_reason'],
+			'periods'           => array_values( array_filter( array_map( static fn( $r ) => $r['opens_at'] ? $r['opens_at'] . '-' . $r['closes_at'] . ( $r['last_order_at'] ? ' LO ' . $r['last_order_at'] : '' ) : null, $rows ) ) ),
 			'has_internal_note' => null !== $rows[0]['internal_note'] && '' !== $rows[0]['internal_note'],
 		];
 	}

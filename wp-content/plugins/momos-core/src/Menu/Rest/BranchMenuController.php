@@ -70,10 +70,10 @@ final class BranchMenuController {
 		if ( is_wp_error( $branch_id ) ) {
 			return $branch_id;
 		}
-		$user_id = get_current_user_id();
-		$page    = max( 1, (int) $request['page'] );
-		$per     = min( 100, max( 1, (int) $request['per_page'] ) );
-		$result  = self::list_items(
+		$user_id  = get_current_user_id();
+		$page     = max( 1, (int) $request['page'] );
+		$per      = min( 100, max( 1, (int) $request['per_page'] ) );
+		$result   = self::list_items(
 			$branch_id,
 			[
 				'category'     => (string) ( $request['category'] ?? '' ),

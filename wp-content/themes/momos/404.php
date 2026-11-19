@@ -36,12 +36,12 @@ $momos_cards = [
 				momos_component(
 					'card',
 					[
-						'title'   => momos_s( $momos_key ),
-						'url'     => $momos_url,
-						'icon'    => $momos_icon,
-						'variant' => 'link',
-						'h'       => 3,
-						'more'    => '',
+						'title'      => momos_s( $momos_key ),
+						'url'        => $momos_url,
+						'icon'       => $momos_icon,
+						'variant'    => 'link',
+						'h'          => 3,
+						'more'       => '',
 						'link_attrs' => 'cta.request_table' === $momos_key ? [ 'data-momo-event' => 'click_reservation', 'data-momo-cta' => 'error_page' ] : [],
 					]
 				);

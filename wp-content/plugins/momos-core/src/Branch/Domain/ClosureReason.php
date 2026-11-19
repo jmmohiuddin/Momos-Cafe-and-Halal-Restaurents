@@ -6,10 +6,10 @@ namespace Momos\Branch\Domain;
 /** Public closure reason; equals DB CHECK chk_momo_clos_reason (FR-BR-007). */
 enum ClosureReason: string {
 	case PublicHoliday = 'public_holiday';
-	case PrivateEvent = 'private_event';
-	case Maintenance = 'maintenance';
+	case PrivateEvent  = 'private_event';
+	case Maintenance   = 'maintenance';
 	case StaffShortage = 'staff_shortage';
-	case Other = 'other';
+	case Other         = 'other';
 
 	/** @return list<string> */
 	public static function values(): array {

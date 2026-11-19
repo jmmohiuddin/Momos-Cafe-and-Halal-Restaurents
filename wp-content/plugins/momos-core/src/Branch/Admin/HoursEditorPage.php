@@ -89,11 +89,11 @@ final class HoursEditorPage {
 				delete_transient( 'momos_hours_state_' . get_current_user_id() );
 			}
 		}
-		$today = Clock::jst()->format( 'Y-m-d' );
-		$sets  = $branch_id ? HoursRepository::sets( $branch_id ) : [];
+		$today            = Clock::jst()->format( 'Y-m-d' );
+		$sets             = $branch_id ? HoursRepository::sets( $branch_id ) : [];
 		[ $from, $until ] = HoursFormHandler::parse_set_key( $set_key );
-		$rows  = $branch_id && 'new' !== $set_key ? HoursRepository::rows_for_set( $branch_id, $from, $until ) : [];
-		$week  = [];
+		$rows             = $branch_id && 'new' !== $set_key ? HoursRepository::rows_for_set( $branch_id, $from, $until ) : [];
+		$week             = [];
 		for ( $w = 1; $w <= 7; $w++ ) {
 			$week[ $w ] = array_values( array_filter( $rows, static fn( $r ) => $r['weekday'] === $w ) );
 		}
@@ -121,27 +121,27 @@ final class HoursEditorPage {
 			];
 		}
 		return [
-			'branch_id'    => $branch_id,
-			'branches'     => array_map( static fn( $id ) => [ 'id' => $id, 'title' => get_the_title( $id ), 'code' => (string) get_post_meta( $id, 'momo_branch_code', true ) ], $visible ),
-			'can_edit'     => $branch_id && BranchAccess::can_edit( $branch_id, 'hours' ),
-			'tab'          => $tab,
-			'set_key'      => $set_key,
-			'set'          => [ 'valid_from' => $state['input']['valid_from'] ?? $from, 'valid_until' => $state['input']['valid_until'] ?? $until ],
-			'sets'         => $sets,
-			'week'         => $week,
-			'loaded_at'    => $branch_id ? HoursRepository::max_updated_at( $branch_id ) : '',
-			'res_enabled'  => $branch_id && '1' === (string) get_post_meta( $branch_id, 'momo_res_enabled', true ),
-			'closures'     => $closures,
-			'today'        => $today,
-			'preview'      => $preview,
-			'state'        => $state,
-			'labels'       => self::period_labels(),
-			'reasons'      => self::reason_labels(),
-			'nonce'        => $branch_id ? wp_create_nonce( 'momos_hours_' . $branch_id ) : '',
+			'branch_id'   => $branch_id,
+			'branches'    => array_map( static fn( $id ) => [ 'id' => $id, 'title' => get_the_title( $id ), 'code' => (string) get_post_meta( $id, 'momo_branch_code', true ) ], $visible ),
+			'can_edit'    => $branch_id && BranchAccess::can_edit( $branch_id, 'hours' ),
+			'tab'         => $tab,
+			'set_key'     => $set_key,
+			'set'         => [ 'valid_from' => $state['input']['valid_from'] ?? $from, 'valid_until' => $state['input']['valid_until'] ?? $until ],
+			'sets'        => $sets,
+			'week'        => $week,
+			'loaded_at'   => $branch_id ? HoursRepository::max_updated_at( $branch_id ) : '',
+			'res_enabled' => $branch_id && '1' === (string) get_post_meta( $branch_id, 'momo_res_enabled', true ),
+			'closures'    => $closures,
+			'today'       => $today,
+			'preview'     => $preview,
+			'state'       => $state,
+			'labels'      => self::period_labels(),
+			'reasons'     => self::reason_labels(),
+			'nonce'       => $branch_id ? wp_create_nonce( 'momos_hours_' . $branch_id ) : '',
 			'msg'          => isset( $_GET['momos_msg'] ) ? sanitize_key( wp_unslash( $_GET['momos_msg'] ) ) : '', // phpcs:ignore
 			'affected'     => isset( $_GET['affected'] ) ? absint( $_GET['affected'] ) : 0, // phpcs:ignore
-			'inbox_url'    => add_query_arg( [ 'page' => 'momos-inbox', 'flag' => 'needs_action', 'branch' => $branch_id ? (string) get_post_meta( $branch_id, 'momo_branch_code', true ) : '' ], admin_url( 'admin.php' ) ),
-			'notice_url'   => add_query_arg( [ 'post_type' => 'momo_notice' ], admin_url( 'post-new.php' ) ),
+			'inbox_url'   => add_query_arg( [ 'page' => 'momos-inbox', 'flag' => 'needs_action', 'branch' => $branch_id ? (string) get_post_meta( $branch_id, 'momo_branch_code', true ) : '' ], admin_url( 'admin.php' ) ),
+			'notice_url'  => add_query_arg( [ 'post_type' => 'momo_notice' ], admin_url( 'post-new.php' ) ),
 		];
 	}
 

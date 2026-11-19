@@ -28,7 +28,11 @@ $momos_phones = class_exists( \Momos\Presentation\View\BranchLinks::class ) ? ar
 								<summary class="momo-mmenu__row"<?php echo $momos_item['current'] ? ' aria-current="page"' : ''; ?>><span><?php echo esc_html( $momos_item['label'] ); ?></span><?php momos_the_icon( 'chevron-down', 'momo-icon--chev' ); ?></summary>
 								<ul class="momo-mmenu__sub">
 									<?php foreach ( $momos_item['children'] as $momos_child ) : ?>
-										<li><a href="<?php echo esc_url( $momos_child['url'] ); ?>"><?php echo esc_html( $momos_child['label'] ); ?><?php if ( '' !== $momos_child['sub'] ) : ?><small class="momo-muted"><?php echo esc_html( $momos_child['sub'] ); ?></small><?php endif; ?></a></li>
+										<li><a href="<?php echo esc_url( $momos_child['url'] ); ?>"><?php echo esc_html( $momos_child['label'] ); ?>
+										<?php
+										if ( '' !== $momos_child['sub'] ) :
+											?>
+											<small class="momo-muted"><?php echo esc_html( $momos_child['sub'] ); ?></small><?php endif; ?></a></li>
 									<?php endforeach; ?>
 									<li><a href="<?php echo esc_url( $momos_item['url'] ); ?>"><?php echo esc_html( momos_s( 'nav.all_branches' ) ); ?></a></li>
 								</ul>

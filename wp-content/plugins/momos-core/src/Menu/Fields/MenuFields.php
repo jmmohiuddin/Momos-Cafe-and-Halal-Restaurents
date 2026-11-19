@@ -95,11 +95,11 @@ final class MenuFields {
 						'default' => '0',
 					],
 					[
-						'name'     => 'momo_spice_level',
-						'label'    => __( 'Spice level', 'momos-core' ),
-						'type'     => 'select',
-						'choices'  => SpiceLevel::choices(),
-						'column'   => false,
+						'name'    => 'momo_spice_level',
+						'label'   => __( 'Spice level', 'momos-core' ),
+						'type'    => 'select',
+						'choices' => SpiceLevel::choices(),
+						'column'  => false,
 					],
 					[
 						'name'    => 'momo_advance_order_required',
@@ -108,11 +108,11 @@ final class MenuFields {
 						'default' => '0',
 					],
 					[
-						'name'    => 'momo_advance_order_lead_hours',
-						'label'   => __( 'Advance-order lead time (hours)', 'momos-core' ),
-						'type'    => 'number',
-						'step'    => 1,
-						'show_if' => [ 'momo_advance_order_required' => '1' ],
+						'name'     => 'momo_advance_order_lead_hours',
+						'label'    => __( 'Advance-order lead time (hours)', 'momos-core' ),
+						'type'     => 'number',
+						'step'     => 1,
+						'show_if'  => [ 'momo_advance_order_required' => '1' ],
 						'validate' => [ self::class, 'validate_lead_hours' ],
 					],
 					[

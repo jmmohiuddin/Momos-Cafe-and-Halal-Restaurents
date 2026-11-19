@@ -42,7 +42,7 @@ final class SmtpConfigurator {
 		if ( ! self::is_configured( self::$use_fallback ) ) {
 			return;
 		}
-		$c = static fn( string $k, mixed $d = '' ): mixed => defined( $p . $k ) ? constant( $p . $k ) : $d;
+		$c                   = static fn( string $k, mixed $d = '' ): mixed => defined( $p . $k ) ? constant( $p . $k ) : $d;
 		$mailer->isSMTP();
 		$mailer->Host        = (string) $c( 'HOST' );
 		$mailer->Port        = (int) $c( 'PORT', 587 );

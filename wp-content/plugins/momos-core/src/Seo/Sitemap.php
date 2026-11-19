@@ -16,9 +16,9 @@ use Momos\Kernel\I18n\Url;
  * Lists are cached and invalidated by a version bump on any content/translation/language change.
  */
 final class Sitemap {
-	public const TYPES     = [ 'pages', 'branches', 'menu-categories', 'dishes', 'news' ];
-	public const PER_FILE  = 1000;
-	public const VERSION   = 'momos_seo_sitemap_ver';
+	public const TYPES      = [ 'pages', 'branches', 'menu-categories', 'dishes', 'news' ];
+	public const PER_FILE   = 1000;
+	public const VERSION    = 'momos_seo_sitemap_ver';
 	private const CACHE_TTL = 6 * HOUR_IN_SECONDS;
 
 	public static function register(): void {

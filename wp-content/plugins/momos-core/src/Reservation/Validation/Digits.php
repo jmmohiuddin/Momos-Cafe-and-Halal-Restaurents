@@ -20,11 +20,11 @@ final class Digits {
 					$map[ mb_chr( $base + $i, 'UTF-8' ) ] = (string) $i;
 				}
 			}
-			$map['－'] = '-';
-			$map['＋'] = '+';
-			$map['（'] = '(';
-			$map['）'] = ')';
-			$map['：'] = ':';
+			$map['－']        = '-';
+			$map['＋']        = '+';
+			$map['（']        = '(';
+			$map['）']        = ')';
+			$map['：']        = ':';
 			$map["\u{3000}"] = ' ';
 		}
 		return strtr( $value, $map );

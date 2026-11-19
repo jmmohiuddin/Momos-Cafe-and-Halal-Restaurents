@@ -75,7 +75,7 @@ final class ReservationOptions {
 	public static function values(): array {
 		$out = [];
 		foreach ( self::fields() as $f ) {
-			$v                = get_option( $f['name'], null );
+			$v                 = get_option( $f['name'], null );
 			$out[ $f['name'] ] = ( null === $v || false === $v ) ? ( $f['default'] ?? null ) : $v;
 		}
 		return $out;

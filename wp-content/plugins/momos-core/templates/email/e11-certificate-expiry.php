@@ -26,7 +26,7 @@ $branches = [];
 foreach ( array_filter( array_map( 'intval', (array) get_post_meta( $cert_id, 'momo_cert_branches', true ) ) ) as $b ) {
 	$branches[] = trim( get_post_meta( $b, 'momo_branch_code', true ) . ' ' . get_the_title( $b ) );
 }
-$rows = [
+$rows     = [
 	[ $t( 'staff.email.label.cert_no' ), $number ],
 	[ $t( 'staff.email.label.certifier' ), $m( 'momo_cert_certifier_name' ) ],
 	[ $t( 'staff.email.label.claim' ), $m( 'momo_cert_claim_type' ) ],
@@ -34,8 +34,8 @@ $rows = [
 	[ $t( 'staff.email.label.branches' ), $branches ? implode( ', ', $branches ) : '—' ],
 	[ $t( 'staff.email.label.valid_until' ), $date ],
 ];
-$rows   = array_values( array_filter( $rows, static fn( $r ) => '' !== (string) $r[1] ) );
-$blocks = 'cert_expired' === $variant
+$rows     = array_values( array_filter( $rows, static fn( $r ) => '' !== (string) $r[1] ) );
+$blocks   = 'cert_expired' === $variant
 	? [ [ 'type' => 'p', 'text' => $t( 'staff.email.e11.expired' ), 'args' => [ 'cert_no' => $number ], 'strong' => true ] ]
 	: [ [ 'type' => 'p', 'text' => $t( 'staff.email.e11.warning' ), 'args' => [ 'cert_no' => $number, 'certifier' => $m( 'momo_cert_certifier_name' ), 'date' => $date ], 'strong' => true ] ];
 $blocks[] = [ 'type' => 'rows', 'rows' => $rows ];

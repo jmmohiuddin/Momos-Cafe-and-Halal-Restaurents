@@ -163,9 +163,9 @@ final class BranchView {
 	 * @return list<array{label:string,value:string,icon:string}>
 	 */
 	public static function facilities( int $branch_id, ?string $lang = null ): array {
-		$lang = $lang ?? Locale::current();
-		$m    = static fn( string $k ) => get_post_meta( $branch_id, $k, true );
-		$out  = [];
+		$lang   = $lang ?? Locale::current();
+		$m      = static fn( string $k ) => get_post_meta( $branch_id, $k, true );
+		$out    = [];
 		$single = [
 			'prayer'    => [ 'momo_prayer_space', [ 'yes', 'no', 'nearby' ], 'compass' ],
 			'smoking'   => [ 'momo_smoking_policy', [ 'non_smoking', 'smoking_area' ], 'ban' ],
@@ -179,7 +179,7 @@ final class BranchView {
 			}
 			$value = momos_t( 'facility.' . $key . '.' . $v, [], $lang );
 			if ( 'prayer' === $key ) {
-				$note = trim( Translations::post( $branch_id, 'momo_prayer_note', $lang ) );
+				$note   = trim( Translations::post( $branch_id, 'momo_prayer_note', $lang ) );
 				$value .= '' !== $note ? ' — ' . $note : '';
 			}
 			$out[ $key ] = [ 'label' => momos_t( 'facility.' . $key . '.label', [], $lang ), 'value' => $value, 'icon' => $icon ];

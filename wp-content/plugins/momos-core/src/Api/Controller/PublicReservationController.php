@@ -96,8 +96,8 @@ final class PublicReservationController {
 		$body = (array) $request->get_json_params();
 		$lang = Lang::is_valid( $body['lang'] ?? null ) ? (string) $body['lang'] : Lang::SOURCE;
 		Locale::set( $lang );
-		$ctx  = self::branch_context( (string) ( $body['branch_code'] ?? '' ), $lang );
-		$ip   = RequestContext::ip() ?? 'unknown';
+		$ctx = self::branch_context( (string) ( $body['branch_code'] ?? '' ), $lang );
+		$ip  = RequestContext::ip() ?? 'unknown';
 		try {
 			// 3. Per-IP limit (tighter while a captcha outage was seen in the last 10 min).
 			$rl = RateLimiter::hit( TurnstileVerifier::outage_active() ? 'res_ip_degraded' : 'res_ip', $ip );

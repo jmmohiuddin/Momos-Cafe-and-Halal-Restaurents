@@ -32,11 +32,14 @@ final class Runner {
 		// Production/staging: migrations run only from the deploy step (`wp momos migrate`), never on a
 		// web request (FR-FND-003(d)); show an SA notice instead.
 		if ( 'development' !== \Momos\Kernel\Env::name() && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
-			add_action( 'admin_notices', static function (): void {
-				if ( current_user_can( 'manage_options' ) ) {
-					echo '<div class="notice notice-error"><p>' . esc_html__( 'Database update required — run: wp momos migrate', 'momos-core' ) . '</p></div>';
+			add_action(
+				'admin_notices',
+				static function (): void {
+					if ( current_user_can( 'manage_options' ) ) {
+						echo '<div class="notice notice-error"><p>' . esc_html__( 'Database update required — run: wp momos migrate', 'momos-core' ) . '</p></div>';
+					}
 				}
-			} );
+			);
 			return;
 		}
 		self::run();

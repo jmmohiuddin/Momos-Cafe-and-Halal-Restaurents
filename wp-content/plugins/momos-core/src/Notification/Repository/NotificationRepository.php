@@ -12,9 +12,9 @@ use Momos\Kernel\Log\Redactor;
  * Clock (never NOW()). Bodies and subjects are never stored (PRV-011).
  */
 final class NotificationRepository {
-	public const STATUSES       = [ 'queued', 'sending', 'sent', 'failed', 'cancelled' ];
-	public const TERMINAL       = [ 'sent', 'failed', 'cancelled' ];
-	public const MAX_ATTEMPTS   = 5;
+	public const STATUSES        = [ 'queued', 'sending', 'sent', 'failed', 'cancelled' ];
+	public const TERMINAL        = [ 'sent', 'failed', 'cancelled' ];
+	public const MAX_ATTEMPTS    = 5;
 	public const RECIPIENT_TYPES = [ 'customer', 'branch', 'head_office', 'user' ];
 
 	/**
@@ -25,9 +25,9 @@ final class NotificationRepository {
 	 */
 	public static function insert( array $row ): ?int {
 		global $wpdb;
-		$t   = Tables::notifications();
-		$now = Clock::mysql_utc();
-		$row = array_merge(
+		$t      = Tables::notifications();
+		$now    = Clock::mysql_utc();
+		$row    = array_merge(
 			[
 				'template_variant'  => null,
 				'channel'           => 'email',

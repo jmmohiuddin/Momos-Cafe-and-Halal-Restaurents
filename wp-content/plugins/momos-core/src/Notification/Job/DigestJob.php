@@ -31,12 +31,15 @@ final class DigestJob {
 	public static function register(): void {
 		add_action( self::HOOK, [ self::class, 'run' ] );
 		add_action( 'init', [ self::class, 'ensure_schedule' ], 31 );
-		add_action( 'momos/options_page/saved', static function ( string $slug ): void {
-			if ( SettingsFields::PAGE === $slug ) {
-				delete_option( 'momos_digest_schedule_sig' );
-				self::ensure_schedule();
+		add_action(
+			'momos/options_page/saved',
+			static function ( string $slug ): void {
+				if ( SettingsFields::PAGE === $slug ) {
+					delete_option( 'momos_digest_schedule_sig' );
+					self::ensure_schedule();
+				}
 			}
-		} );
+		);
 	}
 
 	/** Configured JST time HH:MM (default ⟦09:00⟧, C1). */

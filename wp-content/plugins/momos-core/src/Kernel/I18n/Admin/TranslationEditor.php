@@ -77,10 +77,17 @@ final class TranslationEditor {
 		if ( ! Translations::fields( 'post:' . $post_type ) ) {
 			return;
 		}
-		add_meta_box( 'momos-translations', __( 'Translations', 'momos-core' ), static function ( \WP_Post $p ): void {
-			wp_nonce_field( 'momos_translations_' . $p->ID, '_momos_tr_nonce' );
-			self::render_tabs( 'post', $p->ID );
-		}, $post_type, 'normal', 'low' );
+		add_meta_box(
+			'momos-translations',
+			__( 'Translations', 'momos-core' ),
+			static function ( \WP_Post $p ): void {
+				wp_nonce_field( 'momos_translations_' . $p->ID, '_momos_tr_nonce' );
+				self::render_tabs( 'post', $p->ID );
+			},
+			$post_type,
+			'normal',
+			'low'
+		);
 	}
 
 	public static function render_tabs( string $type, int|string $id, ?string $only_lang = null ): void {

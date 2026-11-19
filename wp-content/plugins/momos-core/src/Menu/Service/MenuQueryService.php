@@ -186,14 +186,14 @@ final class MenuQueryService {
 	 * @return array<string,mixed>
 	 */
 	public static function card( int $dish_id, string $lang, ?int $branch_id = null ): array {
-		$post        = get_post( $dish_id );
-		$spice       = (int) get_post_meta( $dish_id, 'momo_spice_level', true );
-		$price       = PriceResolver::price( $dish_id, $branch_id );
-		$row         = null !== $branch_id ? BranchMenuItemRepository::find( $branch_id, $dish_id ) : null;
-		$lead        = '1' === (string) get_post_meta( $dish_id, 'momo_advance_order_required', true ) ? (int) get_post_meta( $dish_id, 'momo_advance_order_lead_hours', true ) : 0;
-		$tags        = self::tags( $dish_id, $lang );
-		$alg         = class_exists( \Momos\Dietary\Service\AllergenPresenter::class ) ? \Momos\Dietary\Service\AllergenPresenter::filter_codes( $dish_id ) : [];
-		$url         = (string) get_permalink( $dish_id );
+		$post  = get_post( $dish_id );
+		$spice = (int) get_post_meta( $dish_id, 'momo_spice_level', true );
+		$price = PriceResolver::price( $dish_id, $branch_id );
+		$row   = null !== $branch_id ? BranchMenuItemRepository::find( $branch_id, $dish_id ) : null;
+		$lead  = '1' === (string) get_post_meta( $dish_id, 'momo_advance_order_required', true ) ? (int) get_post_meta( $dish_id, 'momo_advance_order_lead_hours', true ) : 0;
+		$tags  = self::tags( $dish_id, $lang );
+		$alg   = class_exists( \Momos\Dietary\Service\AllergenPresenter::class ) ? \Momos\Dietary\Service\AllergenPresenter::filter_codes( $dish_id ) : [];
+		$url   = (string) get_permalink( $dish_id );
 		return [
 			'id'                  => $dish_id,
 			'url'                 => \Momos\Kernel\I18n\Url::localize( $url, $lang ) . ( null !== $branch_id ? '?branch=' . rawurlencode( Branches::code( $branch_id ) ) : '' ),

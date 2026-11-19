@@ -50,6 +50,8 @@ final class SeedDemoTest extends TestCase {
 		$this->assertSame( 10, $counts['reservations'] );
 
 		$this->assert_demo_content();
+		$blocking = array_filter( \Momos\Seed\SampleCheck::findings(), static fn( array $r ) => 'yes' === $r['blocking'] );
+		$this->assertCount( 54, $blocking, 'Go-live check lists every published sample item (4 branches, 24 dishes, 2 notices, 2 offers, 16 pages, 6 categories).' );
 		$first = $this->fingerprint();
 
 		// ---- Second seed: nothing changes (no new rows, no new audit entries, same meta).
@@ -64,6 +66,7 @@ final class SeedDemoTest extends TestCase {
 		$this->assertSame( 0, (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->termmeta} WHERE meta_key = '_momo_seed_key'" ) ); // phpcs:ignore
 		$this->assertSame( [], get_users( [ 'meta_key' => Writer::KEY_META, 'meta_compare' => 'EXISTS', 'fields' => 'ID' ] ) ); // phpcs:ignore
 		$this->assertFalse( get_user_by( 'login', 'demo_ho' ) );
+		$this->assertSame( [], \Momos\Seed\SampleCheck::findings(), 'Go-live check is clean after the reset.' );
 
 		foreach ( [ $real_page, $real_dish, $real_branch ] as $id ) {
 			$this->assertInstanceOf( \WP_Post::class, get_post( $id ), "Real post {$id} must survive the reset." );

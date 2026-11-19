@@ -185,21 +185,21 @@ final class MenuView {
 			}
 		}
 		return [
-			'card'         => $card,
-			'title'        => (string) $card['name'],
-			'content'      => Translations::post( $dish_id, 'content', $lang ),
-			'sku'          => (string) get_post_meta( $dish_id, 'momo_dish_sku', true ),
-			'term'         => $term instanceof \WP_Term ? [ 'slug' => $term->slug, 'name' => Translations::term( $term, 'name', $lang ), 'url' => self::with_branch( self::term_url( $term, $lang ), $context ) ] : null,
-			'gallery'      => $gallery,
-			'price_mode'   => $mode,               // single | table | none | branch | not_offered_here
-			'price_html'   => null !== $summary['price'] ? \Momos\Menu\Service\PriceFormatter::html( (int) $summary['price'], $lang ) : '',
-			'rows'         => $rows,
-			'offered'      => [] !== $rows,
-			'ingredients'  => $ingredients,
-			'request_url'  => [] === $rows || ( null !== $context && null === $card['price'] ) ? '' : ( '' !== $cta_code ? add_query_arg( 'branch', $cta_code, $res_url ) : $res_url ),
-			'claim'        => class_exists( \Momos\Dietary\Service\ClaimResolver::class ) ? \Momos\Dietary\Service\ClaimResolver::dish_claim( $dish_id, $context['id'] ?? null, $lang ) : null,
-			'allergens'    => class_exists( \Momos\Dietary\Service\AllergenPresenter::class ) ? \Momos\Dietary\Service\AllergenPresenter::for_dish( $dish_id, $lang ) : null,
-			'related'      => \Momos\Menu\Service\MenuQueryService::related( $dish_id, $lang, 4 ),
+			'card'        => $card,
+			'title'       => (string) $card['name'],
+			'content'     => Translations::post( $dish_id, 'content', $lang ),
+			'sku'         => (string) get_post_meta( $dish_id, 'momo_dish_sku', true ),
+			'term'        => $term instanceof \WP_Term ? [ 'slug' => $term->slug, 'name' => Translations::term( $term, 'name', $lang ), 'url' => self::with_branch( self::term_url( $term, $lang ), $context ) ] : null,
+			'gallery'     => $gallery,
+			'price_mode'  => $mode,               // single | table | none | branch | not_offered_here
+			'price_html'  => null !== $summary['price'] ? \Momos\Menu\Service\PriceFormatter::html( (int) $summary['price'], $lang ) : '',
+			'rows'        => $rows,
+			'offered'     => [] !== $rows,
+			'ingredients' => $ingredients,
+			'request_url' => [] === $rows || ( null !== $context && null === $card['price'] ) ? '' : ( '' !== $cta_code ? add_query_arg( 'branch', $cta_code, $res_url ) : $res_url ),
+			'claim'       => class_exists( \Momos\Dietary\Service\ClaimResolver::class ) ? \Momos\Dietary\Service\ClaimResolver::dish_claim( $dish_id, $context['id'] ?? null, $lang ) : null,
+			'allergens'   => class_exists( \Momos\Dietary\Service\AllergenPresenter::class ) ? \Momos\Dietary\Service\AllergenPresenter::for_dish( $dish_id, $lang ) : null,
+			'related'     => \Momos\Menu\Service\MenuQueryService::related( $dish_id, $lang, 4 ),
 		];
 	}
 

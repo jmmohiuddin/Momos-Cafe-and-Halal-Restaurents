@@ -86,7 +86,7 @@ final class Cli {
 			if ( [ null ] === $row || '' === trim( (string) ( $row[0] ?? '' ) ) ) {
 				continue;
 			}
-			$in = [
+			$in       = [
 				'from'     => (string) ( $row[0] ?? '' ),
 				'to'       => (string) ( $row[1] ?? '' ),
 				'status'   => '' !== trim( (string) ( $row[2] ?? '' ) ) ? (int) $row[2] : 301,

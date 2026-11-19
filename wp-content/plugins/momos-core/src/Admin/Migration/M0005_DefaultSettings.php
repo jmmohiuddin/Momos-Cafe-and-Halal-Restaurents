@@ -22,7 +22,7 @@ final class M0005_DefaultSettings implements MigrationInterface {
 	public function up(): void {
 		// Plain options read by the Reservation/Branch modules (autoload off).
 		$plain = [
-			'momo_consent_versions'        => [
+			'momo_consent_versions' => [
 				[
 					'consent_key'                    => self::PLACEHOLDER_KEY,
 					'privacy_policy_version'         => '1.0',
@@ -50,9 +50,9 @@ final class M0005_DefaultSettings implements MigrationInterface {
 			'momo_login_lock_invalid_username' => '1',
 			'momo_heartbeat_enabled'           => '1',
 		];
-		$page = get_option( 'momos_opt_momo-settings', [] );
-		$page = is_array( $page ) ? $page : [];
-		$changed = false;
+		$page     = get_option( 'momos_opt_momo-settings', [] );
+		$page     = is_array( $page ) ? $page : [];
+		$changed  = false;
 		foreach ( $defaults as $k => $v ) {
 			if ( ! array_key_exists( $k, $page ) ) {
 				$page[ $k ] = $v;

@@ -112,7 +112,7 @@ final class Hardening {
 
 	/** @param array<string,mixed> $tests */
 	public static function site_health_tests( $tests ): array {
-		$tests                                  = (array) $tests;
+		$tests                                 = (array) $tests;
 		$tests['direct']['momos_file_editing'] = [ 'label' => __( "Momo's: file editing and installs", 'momos-core' ), 'test' => [ self::class, 'health_file_editing' ] ];
 		return $tests;
 	}

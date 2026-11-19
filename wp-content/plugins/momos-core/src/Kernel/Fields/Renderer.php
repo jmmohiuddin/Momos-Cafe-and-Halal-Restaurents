@@ -63,8 +63,8 @@ final class Renderer {
 			case 'tel':
 			case 'date':
 			case 'time':
-				$type = [ 'text' => 'text', 'email' => 'email', 'url' => 'url', 'tel' => 'tel', 'date' => 'date', 'time' => 'time' ][ $f['type'] ];
-				$attrs = isset( $f['maxlength'] ) ? ' maxlength="' . (int) $f['maxlength'] . '"' : '';
+				$type   = [ 'text' => 'text', 'email' => 'email', 'url' => 'url', 'tel' => 'tel', 'date' => 'date', 'time' => 'time' ][ $f['type'] ];
+				$attrs  = isset( $f['maxlength'] ) ? ' maxlength="' . (int) $f['maxlength'] . '"' : '';
 				$attrs .= isset( $f['pattern'] ) && 'text' === $type ? ' pattern="' . esc_attr( (string) $f['pattern'] ) . '"' : '';
 				$attrs .= isset( $f['placeholder'] ) ? ' placeholder="' . esc_attr( (string) $f['placeholder'] ) . '"' : '';
 				echo '<input type="' . esc_attr( $type ) . '" class="regular-text"' . $common . $attrs . ' value="' . esc_attr( (string) $value ) . '">'; // phpcs:ignore
@@ -248,10 +248,16 @@ final class Renderer {
 			case 'relationship':
 				return implode( ', ', array_map( static fn( $id ) => get_the_title( (int) $id ), (array) $value ) );
 			case 'taxonomy':
-				return implode( ', ', array_map( static function ( $id ) {
-					$t = get_term( (int) $id );
-					return $t instanceof \WP_Term ? $t->name : '';
-				}, (array) $value ) );
+				return implode(
+					', ',
+					array_map(
+						static function ( $id ) {
+							$t = get_term( (int) $id );
+							return $t instanceof \WP_Term ? $t->name : '';
+						},
+						(array) $value
+					)
+				);
 			case 'repeater':
 				/* translators: %d: number of rows */
 				return sprintf( _n( '%d row', '%d rows', count( (array) $value ), 'momos-core' ), count( (array) $value ) );

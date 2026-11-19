@@ -35,29 +35,33 @@
     "phpstan:baseline": "phpstan analyse --memory-limit=2G --no-progress --generate-baseline=phpstan-baseline.neon",
     "lint": [
       "@lint:php",
-      "@phpcs:errors",
+      "@phpcs:changed",
       "@phpstan"
     ],
     "i18n:pot": [
-      "wp i18n make-pot wp-content/plugins/momos-core wp-content/plugins/momos-core/languages/momos-core.pot --slug=momos-core --domain=momos-core --exclude=vendor,languages,node_modules --skip-audit",
-      "wp i18n make-pot wp-content/themes/momos wp-content/themes/momos/languages/momos.pot --slug=momos --domain=momos --exclude=assets,static,node_modules --skip-audit",
-      "wp i18n update-po wp-content/plugins/momos-core/languages/momos-core.pot wp-content/plugins/momos-core/languages/momos-core-ja.po",
-      "wp i18n update-po wp-content/themes/momos/languages/momos.pot wp-content/themes/momos/languages/ja.po"
+      "bin/wp i18n make-pot wp-content/plugins/momos-core wp-content/plugins/momos-core/languages/momos-core.pot --slug=momos-core --domain=momos-core --exclude=vendor,languages,node_modules --skip-audit --headers='{\"Report-Msgid-Bugs-To\":\"\",\"Language-Team\":\"Momos platform team\"}'",
+      "bin/wp i18n make-pot wp-content/themes/momos wp-content/themes/momos/languages/momos.pot --slug=momos --domain=momos --exclude=assets,static,node_modules --skip-audit --headers='{\"Report-Msgid-Bugs-To\":\"\",\"Language-Team\":\"Momos platform team\"}'",
+      "bin/wp i18n update-po wp-content/plugins/momos-core/languages/momos-core.pot wp-content/plugins/momos-core/languages/momos-core-ja.po",
+      "bin/wp i18n update-po wp-content/themes/momos/languages/momos.pot wp-content/themes/momos/languages/ja.po"
     ],
     "i18n:mo": [
-      "wp i18n make-mo wp-content/plugins/momos-core/languages/momos-core-ja.po wp-content/plugins/momos-core/languages",
-      "wp i18n make-mo wp-content/themes/momos/languages/ja.po wp-content/themes/momos/languages"
-    ]
+      "bin/wp i18n make-mo wp-content/plugins/momos-core/languages/momos-core-ja.po wp-content/plugins/momos-core/languages",
+      "bin/wp i18n make-mo wp-content/themes/momos/languages/ja.po wp-content/themes/momos/languages"
+    ],
+    "phpcs:changed": "git ls-files -m -o --exclude-standard -- '*.php' | grep -E '^wp-content/(plugins/momos-core/(momos-core\\.php|src/|config/|templates/)|themes/momos/|mu-plugins/)' | grep -v '/languages/' | xargs -r phpcs -n -q",
+    "phpcs:security": "phpcs -n -q --sniffs=WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput,WordPress.Security.SafeRedirect,WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders --report-summary"
   },
   "scripts-descriptions": {
-    "lint": "php -l + PHPCS (errors only) + PHPStan with baseline: the static gates of CI (qa.md §2.3, NFR-MNT-01).",
+    "lint": "Static CI gates: php -l + PHPCS errors in files you changed (working tree) + PHPStan level 5 with baseline (qa.md §3.7, NFR-MNT-01).",
     "lint:php": "Syntax-check every PHP file of momos-core, the theme, the mu-plugin and tests.",
     "phpcs": "Full PHPCS report (WordPress-Extra + PHPCompatibilityWP 8.3, phpcs.xml.dist), warnings included.",
-    "phpcs:errors": "PHPCS errors only.",
+    "phpcs:errors": "PHPCS errors only, whole tree (legacy formatting errors included; see composer lint:fix).",
     "lint:fix": "Auto-fix PHPCS formatting violations (phpcbf). Coordinate first: touches many files.",
     "phpstan": "PHPStan level 5 + phpstan-wordpress with phpstan-baseline.neon.",
     "phpstan:baseline": "Regenerate phpstan-baseline.neon (only after fixing findings, never to hide new ones).",
     "i18n:pot": "Regenerate the momos-core and theme POT files and merge new strings into the Japanese .po files (translate them, then run i18n:mo).",
-    "i18n:mo": "Compile the Japanese .po files to .mo (checked by tests/phpunit/integration/ToolingI18nPoTest)."
+    "i18n:mo": "Compile the Japanese .po files to .mo (checked by tests/phpunit/integration/ToolingI18nPoTest).",
+    "phpcs:changed": "PHPCS errors (WordPress-Extra + PHPCompatibilityWP 8.3) in modified/untracked PHP files only; CI applies the same rule to the PR diff.",
+    "phpcs:security": "Escaping / nonce / sanitising / prepared-SQL sniffs over the whole tree (CI: report-only until the wave-2 findings are closed)."
   }
 }

@@ -27,7 +27,11 @@ $momos_items = class_exists( \Momos\Presentation\View\Navigation::class ) ? \Mom
 									</summary>
 									<ul class="momo-dropdown">
 										<?php foreach ( $momos_item['children'] as $momos_child ) : ?>
-											<li><a href="<?php echo esc_url( $momos_child['url'] ); ?>"><?php echo esc_html( $momos_child['label'] ); ?><?php if ( '' !== $momos_child['sub'] ) : ?><small><?php echo esc_html( $momos_child['sub'] ); ?></small><?php endif; ?></a></li>
+											<li><a href="<?php echo esc_url( $momos_child['url'] ); ?>"><?php echo esc_html( $momos_child['label'] ); ?>
+											<?php
+											if ( '' !== $momos_child['sub'] ) :
+												?>
+												<small><?php echo esc_html( $momos_child['sub'] ); ?></small><?php endif; ?></a></li>
 										<?php endforeach; ?>
 										<li class="momo-dropdown__sep" role="presentation"></li>
 										<li><a href="<?php echo esc_url( $momos_item['url'] ); ?>"><?php echo esc_html( momos_s( 'nav.all_branches' ) ); ?></a></li>

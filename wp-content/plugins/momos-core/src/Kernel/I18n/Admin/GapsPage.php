@@ -233,8 +233,8 @@ final class GapsPage {
 				if ( 3 !== count( $parts ) || ! in_array( $parts[2], $langs, true ) || ! in_array( $parts[0], [ 'post', 'term', 'option', 'strings' ], true ) ) {
 					continue;
 				}
-				$id                          = in_array( $parts[0], [ 'post', 'term' ], true ) ? absint( $parts[1] ) : sanitize_key( $parts[1] );
-				$by_lang[ $parts[2] ][]      = [ 'type' => $parts[0], 'id' => $id ];
+				$id                     = in_array( $parts[0], [ 'post', 'term' ], true ) ? absint( $parts[1] ) : sanitize_key( $parts[1] );
+				$by_lang[ $parts[2] ][] = [ 'type' => $parts[0], 'id' => $id ];
 			}
 			foreach ( $by_lang as $lang => $only ) {
 				$n += TranslationGaps::mark_outdated_needs_review( [ (string) $lang ], $user, $only );

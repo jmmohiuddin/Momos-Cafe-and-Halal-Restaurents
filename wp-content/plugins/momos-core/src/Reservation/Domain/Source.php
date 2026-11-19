@@ -7,9 +7,9 @@ namespace Momos\Reservation\Domain;
  * Origin channel of a reservation row (CHECK chk_momo_res_source).
  */
 enum Source: string {
-	case Web = 'web';
+	case Web   = 'web';
 	case Staff = 'staff';
-	case Api = 'api';
+	case Api   = 'api';
 
 	/** @return list<string> */
 	public static function values(): array {

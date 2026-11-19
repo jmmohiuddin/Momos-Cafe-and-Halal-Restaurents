@@ -87,8 +87,8 @@ final class ErrorResponder {
 			$args['status'] = self::status_label( (string) ( $e->data['current']['status'] ?? '' ) );
 		}
 		$args['request_id'] = RequestContext::id();
-		$message = $staff ? Locale::with( Locale::admin(), static fn() => momos_t( $key, $args ) ) : momos_t( $key, $args, $lang );
-		$message = (string) preg_replace( '/\{[a-z_]+\}/', '', $message );
+		$message            = $staff ? Locale::with( Locale::admin(), static fn() => momos_t( $key, $args ) ) : momos_t( $key, $args, $lang );
+		$message            = (string) preg_replace( '/\{[a-z_]+\}/', '', $message );
 
 		$data = [
 			'status'      => $status,

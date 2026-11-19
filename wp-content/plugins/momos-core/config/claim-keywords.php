@@ -24,7 +24,7 @@
 defined( 'ABSPATH' ) || exit;
 
 return [
-	'classes'   => [
+	'classes'     => [
 		'certification' => [
 			'en' => [ 'halal certified', 'halal-certified', 'certified halal', 'halal certified kitchen' ],
 			'ja' => [ 'ハラール認証', 'ハラル認証', '認証取得' ],
@@ -69,7 +69,7 @@ return [
 		],
 	],
 	// Base terms for the claim-term scan and save-time warnings (Doc 11 §8.6).
-	'scan_base' => [ 'halal', 'ハラール', 'ハラル', 'حلال', 'हलाल', 'হালাল', 'certified', '認証', '100%', '100％' ],
+	'scan_base'   => [ 'halal', 'ハラール', 'ハラル', 'حلال', 'हलाल', 'হালাল', 'certified', '認証', '100%', '100％' ],
 	// Image file names / alt texts containing these are listed by the scan (unless a protected register mark).
 	'image_terms' => [ 'halal', 'seal' ],
 ];

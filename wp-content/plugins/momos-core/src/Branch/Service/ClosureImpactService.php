@@ -159,7 +159,7 @@ final class ClosureImpactService {
 	 * after-midnight part of the previous date's period.
 	 */
 	public static function slot_valid( int $branch_id, string $date_ymd, string $time_hm ): bool {
-		$t = Clock::jst_at( $date_ymd, $time_hm );
+		$t    = Clock::jst_at( $date_ymd, $time_hm );
 		$prev = ( new \DateTimeImmutable( $date_ymd, Clock::tz() ) )->modify( '-1 day' )->format( 'Y-m-d' );
 		foreach ( [ $prev, $date_ymd ] as $d ) {
 			foreach ( ScheduleService::intervals( $branch_id, $d ) as $iv ) {

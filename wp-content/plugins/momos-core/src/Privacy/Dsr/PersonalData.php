@@ -126,7 +126,7 @@ final class PersonalData {
 			'special_request'     => __( 'Special request', 'momos-core' ),
 			'message_to_customer' => __( 'Message from the branch', 'momos-core' ),
 		];
-		$out = [ [ 'name' => __( 'Branch', 'momos-core' ), 'value' => trim( $r['branch']['name'] . ' (' . $r['branch']['code'] . ')' ) ] ];
+		$out    = [ [ 'name' => __( 'Branch', 'momos-core' ), 'value' => trim( $r['branch']['name'] . ' (' . $r['branch']['code'] . ')' ) ] ];
 		foreach ( $labels as $k => $label ) {
 			if ( null !== $r[ $k ] && '' !== (string) $r[ $k ] ) {
 				$out[] = [ 'name' => $label, 'value' => (string) $r[ $k ] ];

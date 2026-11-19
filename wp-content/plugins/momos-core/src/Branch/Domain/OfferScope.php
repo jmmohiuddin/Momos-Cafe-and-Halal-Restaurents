@@ -6,7 +6,7 @@ namespace Momos\Branch\Domain;
 /** Offer scope (G17, FR-CORP-010). */
 enum OfferScope: string {
 	case AllBranches = 'all_branches';
-	case Branches = 'branches';
+	case Branches    = 'branches';
 
 	/** @return list<string> */
 	public static function values(): array {

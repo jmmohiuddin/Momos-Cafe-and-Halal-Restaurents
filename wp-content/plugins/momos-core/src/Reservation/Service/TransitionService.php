@@ -118,9 +118,9 @@ final class TransitionService {
 		}
 
 		$set = [
-			'status'                              => $to->value,
+			'status'                                     => $to->value,
 			StateMachine::TIMESTAMP_COLUMN[ $to->value ] => Clock::mysql_utc( $now ),
-			'handled_by'                          => [ 'raw' => 'COALESCE(handled_by, %d)', 'args' => [ (int) $actor->id ] ],
+			'handled_by'                                 => [ 'raw' => 'COALESCE(handled_by, %d)', 'args' => [ (int) $actor->id ] ],
 		];
 		if ( in_array( $action, [ 'accept', 'decline', 'cancel' ], true ) ) {
 			$set['message_to_customer'] = $message;

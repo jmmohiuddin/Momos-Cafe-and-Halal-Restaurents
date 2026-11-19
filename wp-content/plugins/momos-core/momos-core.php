@@ -22,9 +22,12 @@ define( 'MOMOS_CORE_DIR', __DIR__ );
 define( 'MOMOS_CORE_URL', plugins_url( '', __FILE__ ) );
 
 if ( PHP_VERSION_ID < 80300 ) {
-	add_action( 'admin_notices', static function (): void {
-		echo '<div class="notice notice-error"><p>momos-core requires PHP 8.3 or later.</p></div>';
-	} );
+	add_action(
+		'admin_notices',
+		static function (): void {
+			echo '<div class="notice notice-error"><p>momos-core requires PHP 8.3 or later.</p></div>';
+		}
+	);
 	return;
 }
 

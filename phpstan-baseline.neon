@@ -15,7 +15,7 @@ parameters:
 		-
 			message: '#^Strict comparison using \!\=\= between ''0'' and non\-falsy\-string will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
-			count: 1
+			count: 2
 			path: wp-content/plugins/momos-core/src/Admin/Content/MediaFields.php
 
 		-
@@ -85,8 +85,8 @@ parameters:
 			path: wp-content/plugins/momos-core/src/Kernel/Fields/Sanitizer.php
 
 		-
-			message: '#^Call to function in_array\(\) with arguments ''Momos\\\\Admin\\\\Content\\\\ContentModule'', array\{''Momos\\\\Kernel\\\\I18n\\\\I18nModule'', ''Momos\\\\Access\\\\AccessModule'', ''Momos\\\\Audit\\\\AuditModule'', ''Momos\\\\Branch\\\\BranchModule'', ''Momos\\\\Menu\\\\MenuModule'', ''Momos\\\\Dietary\\\\DietaryModule'', ''Momos\\\\Reservation\\\\ReservationModule'', ''Momos\\\\Notification\\\\NotificationModule'', \.\.\.\} and true will always evaluate to false\.$#'
-			identifier: function.impossibleType
+			message: '#^Call to function in_array\(\) with arguments ''Momos\\\\Admin\\\\Content\\\\ContentModule'', array\{''Momos\\\\Kernel\\\\I18n\\\\I18nModule'', ''Momos\\\\Access\\\\AccessModule'', ''Momos\\\\Audit\\\\AuditModule'', ''Momos\\\\Branch\\\\BranchModule'', ''Momos\\\\Menu\\\\MenuModule'', ''Momos\\\\Dietary\\\\DietaryModule'', ''Momos\\\\Reservation\\\\ReservationModule'', ''Momos\\\\Notification\\\\NotificationModule'', \.\.\.\} and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: wp-content/plugins/momos-core/src/Kernel/I18n/Admin/TranslationEditor.php
 
@@ -97,7 +97,7 @@ parameters:
 			path: wp-content/plugins/momos-core/src/Kernel/I18n/Translations.php
 
 		-
-			message: '#^Instanceof between Momos\\Access\\AccessModule\|Momos\\Admin\\AdminModule\|Momos\\Api\\ApiModule\|Momos\\Audit\\AuditModule\|Momos\\Branch\\BranchModule\|Momos\\Dietary\\DietaryModule\|Momos\\Kernel\\I18n\\I18nModule\|Momos\\Menu\\MenuModule\|Momos\\Notification\\NotificationModule\|Momos\\Presentation\\PresentationModule\|Momos\\Privacy\\PrivacyModule\|Momos\\Reservation\\ReservationModule\|Momos\\Seo\\SeoModule and Momos\\Kernel\\ModuleInterface will always evaluate to true\.$#'
+			message: '#^Instanceof between Momos\\Access\\AccessModule\|Momos\\Admin\\AdminModule\|Momos\\Admin\\Content\\ContentModule\|Momos\\Api\\ApiModule\|Momos\\Audit\\AuditModule\|Momos\\Branch\\BranchModule\|Momos\\Dietary\\DietaryModule\|Momos\\Kernel\\I18n\\I18nModule\|Momos\\Menu\\MenuModule\|Momos\\Notification\\NotificationModule\|Momos\\Presentation\\PresentationModule\|Momos\\Privacy\\PrivacyModule\|Momos\\Reservation\\ReservationModule\|Momos\\Seo\\SeoModule and Momos\\Kernel\\ModuleInterface will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
 			path: wp-content/plugins/momos-core/src/Kernel/Plugin.php

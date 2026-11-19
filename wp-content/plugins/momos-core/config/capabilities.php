@@ -102,12 +102,12 @@ $caps['momo_manage_redirects']         = [ $sa, $ho ];            // SEO redirec
 $caps['momo_edit_seo_meta']            = [ $sa, $ho, $mm, $ce ];  // Per-item SEO title/description.
 
 // Translation (replaces WPML designations, IMPL-002). TRD name `momo_translate` kept as alias.
-$caps['momo_translate']             = [ $sa, $ho, $mm, $ce, $tr ];
+$caps['momo_translate']            = [ $sa, $ho, $mm, $ce, $tr ];
 $caps['momo_approve_translations'] = [ $sa, $ho, $tr ];
 $caps['momo_preview_languages']    = [ $sa, $ho, $tr ];
 
 return [
-	'roles'        => [
+	'roles'         => [
 		$ho => [ 'Head Office Administrator', '本部管理者' ],
 		$mm => [ 'Menu Manager', 'メニュー管理者' ],
 		$ce => [ 'Content Editor', 'コンテンツ編集者' ],
@@ -115,10 +115,10 @@ return [
 		$bm => [ 'Branch Manager', '店長' ],
 		$rs => [ 'Reservation Staff', '予約担当スタッフ' ],
 	],
-	'scoped_roles' => [ $bm, $rs ],
-	'caps'         => $caps,
+	'scoped_roles'  => [ $bm, $rs ],
+	'caps'          => $caps,
 	// Per-user only (never role-granted): CAP-DCA. Grantable only to SA/HO users.
-	'per_user'     => [ 'momo_edit_dietary_claims' ],
+	'per_user'      => [ 'momo_edit_dietary_claims' ],
 	// Explicit denies for vendor accounts (DEC-035).
 	'vendor_denies' => [ 'momo_view_customer_pii', 'momo_view_reservations', 'momo_export_reservations', 'momo_manage_dsr' ],
 ];

@@ -45,7 +45,7 @@ if ( 'new_link' === $variant ) {
 	$blocks[] = [ 'type' => 'p', 'text' => $t( 'email.e06.reason' ) ];
 }
 // `new_link` follows the current status so a pending request is never called a reservation.
-$subject = 'confirmed' === $variant || ( 'new_link' === $variant && 'confirmed' === $status ) ? 'email.subject.e06.confirmed' : 'email.subject.e06.pending';
+$subject      = 'confirmed' === $variant || ( 'new_link' === $variant && 'confirmed' === $status ) ? 'email.subject.e06.confirmed' : 'email.subject.e06.pending';
 $button_label = 'confirmed' === $variant ? $t( 'email.cta.view_reservation' ) : $t( 'res.submitted.status_link' );
 
 return [

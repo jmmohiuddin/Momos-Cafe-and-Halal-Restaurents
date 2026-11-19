@@ -45,10 +45,10 @@ final class MediaFields {
 		if ( ! $post instanceof \WP_Post || ! wp_attachment_is_image( $post ) || ! current_user_can( 'edit_post', $post->ID ) ) {
 			return $fields;
 		}
-		$id      = (int) $post->ID;
-		$include = '1' === (string) get_post_meta( $id, self::INCLUDE, true );
-		$illus   = '1' === (string) get_post_meta( $id, 'momo_image_illustrative', true );
-		$fields[ self::INCLUDE ] = [
+		$id                       = (int) $post->ID;
+		$include                  = '1' === (string) get_post_meta( $id, self::INCLUDE, true );
+		$illus                    = '1' === (string) get_post_meta( $id, 'momo_image_illustrative', true );
+		$fields[ self::INCLUDE ]  = [
 			'label' => __( 'Gallery', 'momos-core' ),
 			'input' => 'html',
 			'html'  => '<label><input type="checkbox" name="attachments[' . $id . '][' . self::INCLUDE . ']" value="1"' . checked( $include, true, false ) . disabled( $illus && ! $include, true, false ) . '> ' . esc_html__( 'Show on the gallery page', 'momos-core' ) . '</label>'

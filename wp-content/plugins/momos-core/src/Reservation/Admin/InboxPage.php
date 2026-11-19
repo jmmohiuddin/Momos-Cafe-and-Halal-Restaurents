@@ -150,25 +150,25 @@ final class InboxPage {
 		$result  = [ 'rows' => [], 'total' => 0 ];
 		$filters = [ 'per_page' => self::PER_PAGE, 'branch_ids' => null ];
 		try {
-			$filters             = StaffReservationController::filters( $q + [ 'per_page' => (string) self::PER_PAGE ], $scope );
-			$result              = ReservationRepository::search( $scope, $filters );
+			$filters = StaffReservationController::filters( $q + [ 'per_page' => (string) self::PER_PAGE ], $scope );
+			$result  = ReservationRepository::search( $scope, $filters );
 		} catch ( ReservationError $e ) {
 			$error = 'forbidden_branch' === $e->error_code ? momos_t( 'staff.err.forbidden_branch' ) : __( 'Check the filters.', 'momos-core' );
 		}
 		if ( 'attendance' === $view ) {
 			$result['rows'] = array_values( array_filter( $result['rows'], static fn( $r ) => TransitionService::attendance_open( $r, $user_id ) ) );
 		}
-		$rows     = array_map( [ Presenter::class, 'list_row' ], $result['rows'] );
-		$counts   = ReservationRepository::counts_by_status( $scope, $filters['branch_ids'] ?? null );
-		$overdue  = 0;
+		$rows    = array_map( [ Presenter::class, 'list_row' ], $result['rows'] );
+		$counts  = ReservationRepository::counts_by_status( $scope, $filters['branch_ids'] ?? null );
+		$overdue = 0;
 		foreach ( ReservationRepository::pending_light( $scope ) as $r ) {
 			$overdue += 'overdue' === SlaClock::state( $r + [ 'status' => 'pending' ] ) ? 1 : 0;
 		}
-		$branches = self::scope_branches( $scope );
-		$page     = (int) ( $filters['page'] ?? 1 );
-		$pages    = (int) ceil( $result['total'] / self::PER_PAGE );
-		$total    = (int) $result['total'];
-		$base_q   = array_filter( array_merge( [ 'view' => $view ], self::query_from_get() ), static fn( $v ) => '' !== $v && null !== $v );
+		$branches   = self::scope_branches( $scope );
+		$page       = (int) ( $filters['page'] ?? 1 );
+		$pages      = (int) ceil( $result['total'] / self::PER_PAGE );
+		$total      = (int) $result['total'];
+		$base_q     = array_filter( array_merge( [ 'view' => $view ], self::query_from_get() ), static fn( $v ) => '' !== $v && null !== $v );
 		$can_export = current_user_can( 'momo_export_reservations' );
 		include MOMOS_CORE_DIR . '/templates/admin/reservation-inbox.php';
 	}
@@ -307,7 +307,7 @@ final class InboxPage {
 						'note'                => isset( $p['note'] ) ? (string) $p['note'] : null,
 						'suggested_times'     => 'decline' === $op ? $suggested : [],
 					];
-					$res = TransitionService::staff( $id, $op, $input, $actor );
+					$res   = TransitionService::staff( $id, $op, $input, $actor );
 					if ( 'cancel' === $op && ! $res['notifications_queued'] ) {
 						$ok = 'cancel_silent';
 					}

@@ -46,9 +46,9 @@ final class HoursFormHandler {
 	 * @return array{status:string,errors?:array<string,string>,affected?:list<array<string,mixed>>,set?:array<string,?string>}
 	 */
 	public static function process_hours( int $branch_id, array $input, int $user_id ): array {
-		$from     = self::date_or_null( $input['valid_from'] ?? '' );
-		$until    = self::date_or_null( $input['valid_until'] ?? '' );
-		$set_key  = (string) ( $input['set'] ?? 'default' );
+		$from                       = self::date_or_null( $input['valid_from'] ?? '' );
+		$until                      = self::date_or_null( $input['valid_until'] ?? '' );
+		$set_key                    = (string) ( $input['set'] ?? 'default' );
 		[ $orig_from, $orig_until ] = self::parse_set_key( $set_key );
 		if ( 'default' === $set_key ) {
 			$from  = null;
@@ -65,7 +65,7 @@ final class HoursFormHandler {
 			$errors['validity'] = __( 'Enter the date from which this schedule applies.', 'momos-core' );
 		}
 		$errors += HoursValidator::validate_set_dates( $branch_id, $from, $until, $orig_from, $orig_until );
-		$loaded = (string) ( $input['loaded_max_updated_at'] ?? '' );
+		$loaded  = (string) ( $input['loaded_max_updated_at'] ?? '' );
 		if ( '' !== $loaded && HoursRepository::max_updated_at( $branch_id ) > $loaded ) {
 			$errors['concurrency'] = __( 'This schedule was changed by someone else. Reload the page and apply your changes again.', 'momos-core' );
 		}
@@ -91,7 +91,7 @@ final class HoursFormHandler {
 	}
 
 	public static function delete_set(): void {
-		$branch_id = self::authorize();
+		$branch_id        = self::authorize();
 		[ $from, $until ] = self::parse_set_key( (string) ( $_POST['set'] ?? '' ) ); // phpcs:ignore -- nonce checked in authorize().
 		if ( null !== $from ) {
 			HoursRepository::delete_set( $branch_id, $from, $until, AccessContext::current() );
@@ -145,7 +145,7 @@ final class HoursFormHandler {
 		$periods = [];
 		if ( ClosureType::SpecialHours->value === $type ) {
 			[ $p_errors, $periods ] = HoursValidator::validate_special( (array) ( $input['periods'] ?? [] ), '1' === (string) get_post_meta( $branch_id, 'momo_res_enabled', true ) );
-			$errors += $p_errors;
+			$errors                += $p_errors;
 		}
 		if ( ! $errors && $dates ) {
 			$existing = array_keys( ClosureRepository::group_by_date( ClosureRepository::rows_between( $branch_id, $dates[0], end( $dates ) ) ) );

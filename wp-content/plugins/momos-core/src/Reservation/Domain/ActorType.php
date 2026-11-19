@@ -8,8 +8,8 @@ namespace Momos\Reservation\Domain;
  */
 enum ActorType: string {
 	case Customer = 'customer';
-	case Staff = 'staff';
-	case System = 'system';
+	case Staff    = 'staff';
+	case System   = 'system';
 
 	/** @return list<string> */
 	public static function values(): array {

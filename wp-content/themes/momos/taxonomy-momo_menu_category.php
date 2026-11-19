@@ -15,19 +15,19 @@
 defined( 'ABSPATH' ) || exit;
 
 get_header();
-$momos_term  = get_queried_object();
-$momos_lang  = momos_theme_lang();
-$momos_mv    = \Momos\Presentation\View\MenuView::class;
-$momos_tr    = \Momos\Kernel\I18n\Translations::class;
-$momos_ctx   = $momos_mv::branch_context();
-$momos_name  = $momos_term instanceof \WP_Term ? $momos_tr::term( $momos_term, 'name', $momos_lang ) : '';
-$momos_intro = $momos_term instanceof \WP_Term ? $momos_tr::term( $momos_term, 'description', $momos_lang ) : '';
-$momos_tid   = $momos_term instanceof \WP_Term ? (int) $momos_term->term_id : 0;
-$momos_self  = $momos_term instanceof \WP_Term ? $momos_mv::term_url( $momos_term, $momos_lang ) : momos_page_url( 'menu' );
-$momos_cards = $momos_tid ? $momos_mv::category_cards( $momos_tid, $momos_ctx ) : [];
-$momos_opts  = $momos_mv::filters( $momos_cards );
-$momos_f     = class_exists( \Momos\Menu\Service\MenuQueryService::class ) ? \Momos\Menu\Service\MenuQueryService::parse_filters( wp_unslash( $_GET ) ) : [ 'diet' => [], 'max_spice' => null, 'exclude' => [] ]; // phpcs:ignore WordPress.Security.NonceVerification
-$momos_show  = $momos_cards && ( $momos_f['diet'] || null !== $momos_f['max_spice'] || $momos_f['exclude'] )
+$momos_term     = get_queried_object();
+$momos_lang     = momos_theme_lang();
+$momos_mv       = \Momos\Presentation\View\MenuView::class;
+$momos_tr       = \Momos\Kernel\I18n\Translations::class;
+$momos_ctx      = $momos_mv::branch_context();
+$momos_name     = $momos_term instanceof \WP_Term ? $momos_tr::term( $momos_term, 'name', $momos_lang ) : '';
+$momos_intro    = $momos_term instanceof \WP_Term ? $momos_tr::term( $momos_term, 'description', $momos_lang ) : '';
+$momos_tid      = $momos_term instanceof \WP_Term ? (int) $momos_term->term_id : 0;
+$momos_self     = $momos_term instanceof \WP_Term ? $momos_mv::term_url( $momos_term, $momos_lang ) : momos_page_url( 'menu' );
+$momos_cards    = $momos_tid ? $momos_mv::category_cards( $momos_tid, $momos_ctx ) : [];
+$momos_opts     = $momos_mv::filters( $momos_cards );
+$momos_f        = class_exists( \Momos\Menu\Service\MenuQueryService::class ) ? \Momos\Menu\Service\MenuQueryService::parse_filters( wp_unslash( $_GET ) ) : [ 'diet' => [], 'max_spice' => null, 'exclude' => [] ]; // phpcs:ignore WordPress.Security.NonceVerification
+$momos_show     = $momos_cards && ( $momos_f['diet'] || null !== $momos_f['max_spice'] || $momos_f['exclude'] )
 	? \Momos\Menu\Service\MenuQueryService::apply_filters( array_map( static fn( $c ) => (int) $c['id'], $momos_cards ), $momos_f, $momos_lang )
 	: [];
 $momos_filtered = $momos_f['diet'] || null !== $momos_f['max_spice'] || $momos_f['exclude'];

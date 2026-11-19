@@ -53,7 +53,10 @@ $states = ClaimStatus::choices();
 			<th scope="col"><?php esc_html_e( 'Branches / dishes', 'momos-core' ); ?></th>
 			<th scope="col"><?php esc_html_e( 'Valid until', 'momos-core' ); ?></th>
 			<th scope="col"><?php esc_html_e( 'Status', 'momos-core' ); ?></th>
-			<?php if ( $can_manage ) : ?><th scope="col"><?php esc_html_e( 'Actions', 'momos-core' ); ?></th><?php endif; ?>
+			<?php
+			if ( $can_manage ) :
+				?>
+				<th scope="col"><?php esc_html_e( 'Actions', 'momos-core' ); ?></th><?php endif; ?>
 		</tr></thead>
 		<tbody>
 		<?php if ( ! $rows ) : ?>

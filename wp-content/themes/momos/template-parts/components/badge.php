@@ -18,13 +18,13 @@ $momos_map = [
 	'completed' => [ 'confirmed', 'user-check' ],
 	'no_show'   => [ 'confirmed', 'user-x' ],
 ];
-$momos_s = (string) ( $args['status'] ?? 'pending' );
+$momos_s   = (string) ( $args['status'] ?? 'pending' );
 if ( ! isset( $momos_map[ $momos_s ] ) ) {
 	return;
 }
 [ $momos_tone, $momos_icon ] = $momos_map[ $momos_s ];
-$momos_past  = in_array( $momos_s, [ 'completed', 'no_show' ], true );
-$momos_label = (string) ( $args['label'] ?? momos_s( 'status.' . $momos_tone ) );
+$momos_past                  = in_array( $momos_s, [ 'completed', 'no_show' ], true );
+$momos_label                 = (string) ( $args['label'] ?? momos_s( 'status.' . $momos_tone ) );
 if ( ! empty( $args['block'] ) ) :
 	$momos_text = (string) ( $args['text'] ?? ( $momos_past ? momos_s( 'status.past' ) : '' ) );
 	?>

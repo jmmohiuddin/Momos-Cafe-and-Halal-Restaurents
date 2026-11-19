@@ -63,7 +63,7 @@ final class SeoAdmin {
 			'owner'  => isset( $_POST['owner'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['owner'] ) ) : '',
 			'source' => 'manual',
 		];
-		$res = RedirectStore::save( $form, $id );
+		$res  = RedirectStore::save( $form, $id );
 		if ( $res['errors'] ) {
 			self::back( 'redirects', 'error', $res['errors'], $form + [ 'id' => $id ], '' !== $id ? [ 'edit' => $id ] : [] );
 		}

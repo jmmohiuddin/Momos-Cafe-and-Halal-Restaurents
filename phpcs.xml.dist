@@ -154,6 +154,8 @@
 				<element value="momo_edit_branch"/>
 				<element value="momo_edit_branch_menu_item"/>
 				<element value="momo_download_evidence"/>
+				<element value="momo_manage_redirects"/>
+				<element value="momo_edit_seo_meta"/>
 			</property>
 		</properties>
 	</rule>

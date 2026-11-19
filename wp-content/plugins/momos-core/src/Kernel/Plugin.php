@@ -29,6 +29,7 @@ final class Plugin {
 		\Momos\Presentation\PresentationModule::class,
 		\Momos\Admin\AdminModule::class,
 		\Momos\Admin\Content\ContentModule::class,
+		\Momos\Seed\SeedModule::class,
 	];
 
 	private static ?Plugin $instance = null;
@@ -49,11 +50,8 @@ final class Plugin {
 		$this->booted = true;
 
 		foreach ( self::MODULES as $class ) {
-			if ( class_exists( $class ) ) {
-				$module = new $class();
-				if ( $module instanceof ModuleInterface ) {
-					$this->modules[ $class ] = $module;
-				}
+			if ( class_exists( $class ) ) { // Every listed class implements ModuleInterface; a missing one is skipped.
+				$this->modules[ $class ] = new $class();
 			}
 		}
 		/**

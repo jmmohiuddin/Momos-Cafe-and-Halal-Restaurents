@@ -16,7 +16,7 @@ use Momos\Presentation\SystemPages;
  * page shell and the noindex flags of C10/C11; rewrite rules are refreshed by TemplateRouter.
  */
 final class M0007_SystemPages implements MigrationInterface {
-	public const LCCS = [ 'home', 'branches', 'menu', 'halal', 'reservation', 'submitted' ];
+	public const LCCS       = [ 'home', 'branches', 'menu', 'halal', 'reservation', 'submitted' ];
 	public const LCCS_LEGAL = [ 'privacy', 'res_policy', 'ext_trans' ];
 
 	public function id(): string {

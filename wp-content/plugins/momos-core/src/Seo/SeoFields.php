@@ -113,7 +113,7 @@ final class SeoFields {
 			/* translators: 1: current length, 2: recommended maximum */
 			'msg'   => __( 'Longer than recommended (%1$d/%2$d)', 'momos-core' ),
 		];
-		$js = 'jQuery(function($){var c=' . wp_json_encode( $data ) . ';function w(n,m){var f=$(\'[name="momos_fields[\'+n+\']"]\');if(!f.length){return;}var o=$(\'<p class="description momo-seo-count" aria-live="polite"></p>\').insertAfter(f);var u=function(){var l=[...String(f.val())].length;o.text(l>m?c.msg.replace("%1$d",l).replace("%2$d",m):l+"/"+m);o.css("color",l>m?"#b32d2e":"");};f.on("input",u);u();}w("momo_seo_title",c.title);w("momo_og_title",c.title);w("momo_seo_description",c.desc);w("momo_og_description",c.desc);});';
+		$js   = 'jQuery(function($){var c=' . wp_json_encode( $data ) . ';function w(n,m){var f=$(\'[name="momos_fields[\'+n+\']"]\');if(!f.length){return;}var o=$(\'<p class="description momo-seo-count" aria-live="polite"></p>\').insertAfter(f);var u=function(){var l=[...String(f.val())].length;o.text(l>m?c.msg.replace("%1$d",l).replace("%2$d",m):l+"/"+m);o.css("color",l>m?"#b32d2e":"");};f.on("input",u);u();}w("momo_seo_title",c.title);w("momo_og_title",c.title);w("momo_seo_description",c.desc);w("momo_og_description",c.desc);});';
 		wp_add_inline_script( 'momos-fields', $js );
 	}
 }

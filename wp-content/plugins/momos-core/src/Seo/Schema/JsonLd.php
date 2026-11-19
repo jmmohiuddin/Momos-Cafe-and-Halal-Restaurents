@@ -134,8 +134,8 @@ final class JsonLd {
 		$url = (string) Context::entity_url( Context::BRANCH, $branch_id, $lang );
 		$tr  = static fn( string $k ): string => trim( Lang::SOURCE === $lang ? (string) get_post_meta( $branch_id, $k, true ) : Translations::post( $branch_id, $k, $lang ) );
 
-		$street = trim( $tr( 'momo_address_line1' ) . ' ' . $tr( 'momo_address_line2' ) );
-		$addr   = array_filter(
+		$street   = trim( $tr( 'momo_address_line1' ) . ' ' . $tr( 'momo_address_line2' ) );
+		$addr     = array_filter(
 			[
 				'@type'           => 'PostalAddress',
 				'streetAddress'   => $street,
@@ -146,44 +146,44 @@ final class JsonLd {
 			],
 			static fn( $v ) => '' !== $v
 		);
-		$node = [
-			'@type' => 'Restaurant',
-			'@id'   => $url . '#restaurant',
-			'name'  => \Momos\Branch\Repository\BranchRepository::name( $branch_id, $lang ),
-			'url'   => $url,
-		];
-		if ( count( $addr ) > 2 ) {
-			$node['address'] = $addr;
-		}
-		if ( null !== $b['lat'] && null !== $b['lng'] ) {
-			$node['geo'] = [ '@type' => 'GeoCoordinates', 'latitude' => $b['lat'], 'longitude' => $b['lng'] ];
-		}
-		if ( '' !== $b['phone_e164'] ) {
-			$node['telephone'] = $b['phone_e164'];
-		}
-		$images = [];
-		foreach ( array_merge( [ (int) get_post_thumbnail_id( $branch_id ) ], array_map( 'intval', (array) get_post_meta( $branch_id, 'momo_gallery', true ) ) ) as $aid ) {
-			$src = $aid ? wp_get_attachment_image_url( $aid, 'full' ) : false;
-			if ( is_string( $src ) && '' !== $src ) {
-				$images[] = $src;
+			$node = [
+				'@type' => 'Restaurant',
+				'@id'   => $url . '#restaurant',
+				'name'  => \Momos\Branch\Repository\BranchRepository::name( $branch_id, $lang ),
+				'url'   => $url,
+			];
+			if ( count( $addr ) > 2 ) {
+				$node['address'] = $addr;
 			}
-		}
-		if ( $images ) {
-			$node['image'] = array_values( array_unique( $images ) );
-		}
-		$menu = class_exists( \Momos\Presentation\SystemPages::class ) ? \Momos\Presentation\SystemPages::url( 'menu', $lang ) : Url::to( '/menu/', $lang );
-		if ( null !== $menu ) {
-			$node['menu'] = Context::clean( $menu );
-		}
-		if ( 'open' === $b['operating_status'] && '1' === (string) get_post_meta( $branch_id, 'momo_res_enabled', true ) ) {
-			$node['acceptsReservations'] = true;
-		}
-		$node['parentOrganization'] = [ '@id' => self::org_id() ];
-		$hours                      = OpeningHours::for_branch( $branch_id );
-		if ( $hours ) {
-			$node['openingHoursSpecification'] = $hours;
-		}
-		return $node;
+			if ( null !== $b['lat'] && null !== $b['lng'] ) {
+				$node['geo'] = [ '@type' => 'GeoCoordinates', 'latitude' => $b['lat'], 'longitude' => $b['lng'] ];
+			}
+			if ( '' !== $b['phone_e164'] ) {
+				$node['telephone'] = $b['phone_e164'];
+			}
+			$images = [];
+			foreach ( array_merge( [ (int) get_post_thumbnail_id( $branch_id ) ], array_map( 'intval', (array) get_post_meta( $branch_id, 'momo_gallery', true ) ) ) as $aid ) {
+				$src = $aid ? wp_get_attachment_image_url( $aid, 'full' ) : false;
+				if ( is_string( $src ) && '' !== $src ) {
+					$images[] = $src;
+				}
+			}
+			if ( $images ) {
+				$node['image'] = array_values( array_unique( $images ) );
+			}
+			$menu = class_exists( \Momos\Presentation\SystemPages::class ) ? \Momos\Presentation\SystemPages::url( 'menu', $lang ) : Url::to( '/menu/', $lang );
+			if ( null !== $menu ) {
+				$node['menu'] = Context::clean( $menu );
+			}
+			if ( 'open' === $b['operating_status'] && '1' === (string) get_post_meta( $branch_id, 'momo_res_enabled', true ) ) {
+				$node['acceptsReservations'] = true;
+			}
+			$node['parentOrganization'] = [ '@id' => self::org_id() ];
+			$hours                      = OpeningHours::for_branch( $branch_id );
+			if ( $hours ) {
+				$node['openingHoursSpecification'] = $hours;
+			}
+			return $node;
 	}
 
 	/** @return array<string,mixed> */

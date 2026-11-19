@@ -20,12 +20,12 @@ use Momos\Kernel\I18n\Translations;
  * items. Saving needs `edit_post` on the page + nonce; an invalid list is rejected as a whole.
  */
 final class FaqEditor {
-	public const META    = 'momo_faq_items';
-	public const GROUPS  = [ 'reservations', 'halal_dietary', 'allergens', 'branches_access', 'payments' ];
-	public const MAX_Q   = 200;
-	public const MAX_A   = 2000;
+	public const META     = 'momo_faq_items';
+	public const GROUPS   = [ 'reservations', 'halal_dietary', 'allergens', 'branches_access', 'payments' ];
+	public const MAX_Q    = 200;
+	public const MAX_A    = 2000;
 	public const MAX_ROWS = 100;
-	private const NONCE  = '_momos_faq_nonce';
+	private const NONCE   = '_momos_faq_nonce';
 
 	public static function register(): void {
 		Translations::register(

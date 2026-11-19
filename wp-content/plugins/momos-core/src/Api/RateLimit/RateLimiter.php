@@ -35,16 +35,16 @@ final class RateLimiter {
 	 */
 	public static function hit( string $bucket, string $subject ): array {
 		[ $option, $window ] = self::BUCKETS[ $bucket ];
-		$limit   = max( 1, Options::int( $option ) );
-		$now     = Clock::utc()->getTimestamp();
-		$start   = intdiv( $now, $window ) * $window;
-		$subject = Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' );
-		$cur_key = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . $start;
-		$prv_key = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . ( $start - $window );
-		$cur     = self::get( $cur_key );
-		$prev    = self::get( $prv_key );
-		$elapsed = ( $now - $start ) / $window;
-		$est     = $cur + $prev * ( 1 - $elapsed );
+		$limit               = max( 1, Options::int( $option ) );
+		$now                 = Clock::utc()->getTimestamp();
+		$start               = intdiv( $now, $window ) * $window;
+		$subject             = Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' );
+		$cur_key             = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . $start;
+		$prv_key             = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . ( $start - $window );
+		$cur                 = self::get( $cur_key );
+		$prev                = self::get( $prv_key );
+		$elapsed             = ( $now - $start ) / $window;
+		$est                 = $cur + $prev * ( 1 - $elapsed );
 		if ( $est >= $limit ) {
 			$retry      = max( 1, $start + $window - $now );
 			self::$last = [ 'limit' => $limit, 'remaining' => 0 ];
@@ -82,9 +82,9 @@ final class RateLimiter {
 	/** Reset (tests / CLI). */
 	public static function reset( string $bucket, string $subject ): void {
 		[ , $window ] = self::BUCKETS[ $bucket ];
-		$now     = Clock::utc()->getTimestamp();
-		$start   = intdiv( $now, $window ) * $window;
-		$subject = substr( Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' ), 0, 32 );
+		$now          = Clock::utc()->getTimestamp();
+		$start        = intdiv( $now, $window ) * $window;
+		$subject      = substr( Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' ), 0, 32 );
 		foreach ( [ $start, $start - $window ] as $s ) {
 			$key = 'momos_rl:' . $bucket . ':' . $subject . ':' . $s;
 			wp_cache_delete( $key, 'momos_rl' );

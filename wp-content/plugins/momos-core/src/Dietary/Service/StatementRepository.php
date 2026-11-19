@@ -106,8 +106,8 @@ final class StatementRepository {
 		if ( $errs ) {
 			return $errs;
 		}
-		$before = null !== $original_key ? ( $all[ $original_key ] ?? null ) : ( $all[ $key ] ?? null );
-		$row    = $before ?? self::normalize( [ 'key' => $key ] );
+		$before            = null !== $original_key ? ( $all[ $original_key ] ?? null ) : ( $all[ $key ] ?? null );
+		$row               = $before ?? self::normalize( [ 'key' => $key ] );
 		$row['key']        = $key;
 		$row['claim_type'] = $type;
 		if ( $row['text_ja'] !== $text ) {
@@ -163,7 +163,7 @@ final class StatementRepository {
 			/* translators: %s: matched term */
 			return [ sprintf( __( 'Prohibited wording: “%s”.', 'momos-core' ), $v['term'] ) ];
 		}
-		$before                     = $all[ $key ]['i18n'][ $lang ] ?? null;
+		$before                       = $all[ $key ]['i18n'][ $lang ] ?? null;
 		$all[ $key ]['i18n'][ $lang ] = [ 'text' => $text, 'status' => '' === $text ? 'missing' : $status, 'updated_by' => $user_id, 'updated_at' => Clock::mysql_utc() ];
 		self::persist( $all );
 		momos_audit( 'dietary.statement_updated', 'dietary_statement', null, null, [ 'key' => $key, 'lang' => $lang, 'before' => $before ? [ 'status' => $before['status'] ?? null, 'text' => $before['text'] ?? '' ] : null, 'after' => [ 'status' => $all[ $key ]['i18n'][ $lang ]['status'], 'text' => $text ] ] );

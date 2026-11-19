@@ -207,23 +207,23 @@ final class CustomerPages {
 		if ( '' !== $prefill['branch'] && ! in_array( $prefill['branch'], $codes, true ) ) {
 			$prefill = [ 'branch' => '', 'date' => '', 'time' => '' ]; // Unknown/unpublished: left empty, no error.
 		}
-		$test     = '' !== $prefill['branch'] && ! empty( array_values( array_filter( $branches, static fn( $b ) => $b['code'] === $prefill['branch'] ) )[0]['is_test'] );
-		$langs    = [];
+		$test  = '' !== $prefill['branch'] && ! empty( array_values( array_filter( $branches, static fn( $b ) => $b['code'] === $prefill['branch'] ) )[0]['is_test'] );
+		$langs = [];
 		foreach ( Lang::enabled() as $code ) {
 			$langs[ $code ] = Lang::native( $code );
 		}
 		return [
-			'lang'           => $lang,
-			'branches'       => $branches,
-			'any_accepting'  => (bool) array_filter( $branches, static fn( $b ) => $b['accepting'] ),
-			'prefill'        => $prefill,
-			'is_test'        => $test,
-			'langs'          => $langs,
-			'privacy_url'    => SystemPages::legal_url( 'privacy', $lang ),
-			'res_policy_url' => SystemPages::legal_url( 'res_policy', $lang ),
+			'lang'             => $lang,
+			'branches'         => $branches,
+			'any_accepting'    => (bool) array_filter( $branches, static fn( $b ) => $b['accepting'] ),
+			'prefill'          => $prefill,
+			'is_test'          => $test,
+			'langs'            => $langs,
+			'privacy_url'      => SystemPages::legal_url( 'privacy', $lang ),
+			'res_policy_url'   => SystemPages::legal_url( 'res_policy', $lang ),
 			'separate_consent' => Options::bool( 'momo_special_request_separate_consent' ),
 			'consent_version'  => Options::consent_version(),
-			'config'         => [
+			'config'           => [
 				'lang'            => $lang,
 				'sprite'          => Assets::sprite_url(),
 				'api'             => esc_url_raw( rest_url( 'momos/v1/' ) ),
@@ -284,13 +284,13 @@ final class CustomerPages {
 			'ref'      => $ref,
 			'branches' => BranchLinks::all( $lang ),
 			'config'   => [
-				'lang'           => $lang,
-				'sprite'         => Assets::sprite_url(),
-				'ref'            => $ref,
-				'api'            => esc_url_raw( rest_url( 'momos/v1/' ) ),
-				'formUrl'        => (string) SystemPages::url( 'reservation', $lang ),
-				'resPolicyUrl'   => SystemPages::legal_url( 'res_policy', $lang ),
-				'i18n'           => self::strings( self::STATUS_KEYS, $lang ),
+				'lang'         => $lang,
+				'sprite'       => Assets::sprite_url(),
+				'ref'          => $ref,
+				'api'          => esc_url_raw( rest_url( 'momos/v1/' ) ),
+				'formUrl'      => (string) SystemPages::url( 'reservation', $lang ),
+				'resPolicyUrl' => SystemPages::legal_url( 'res_policy', $lang ),
+				'i18n'         => self::strings( self::STATUS_KEYS, $lang ),
 			],
 		];
 	}

@@ -110,9 +110,9 @@ final class AuditLogger {
 			set_transient( $tkey, 1, 30 * MINUTE_IN_SECONDS );
 		}
 
-		$user = $actor_id ? get_userdata( $actor_id ) : null;
-		$role = $user && $user->roles ? (string) reset( $user->roles ) : null;
-		$row  = [
+		$user            = $actor_id ? get_userdata( $actor_id ) : null;
+		$role            = $user && $user->roles ? (string) reset( $user->roles ) : null;
+		$row             = [
 			'occurred_at'  => Clock::mysql_utc(),
 			'actor_type'   => $actor_type,
 			'actor_id'     => $actor_id,
@@ -217,7 +217,7 @@ final class AuditLogger {
 		if ( $old_status === $status && 'approved' !== $status && ! $fields ) {
 			return;
 		}
-		$action = 'approved' === $status && 'approved' !== $old_status ? 'translation.approved'
+		$action      = 'approved' === $status && 'approved' !== $old_status ? 'translation.approved'
 			: ( 'draft' === $status && in_array( $old_status, [ 'needs_review', 'approved' ], true ) ? 'translation.returned' : 'translation.updated' );
 		$object_type = 'term' === $type ? 'term' : (string) get_post_type( $id );
 		self::record( $action, $object_type ?: $type, $id, null, [ 'lang' => $lang, 'status' => [ 'from' => $old_status, 'to' => $status ], 'fields' => array_values( $fields ) ] );

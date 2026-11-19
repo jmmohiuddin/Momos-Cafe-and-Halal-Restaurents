@@ -68,7 +68,7 @@ final class TurnstileVerifier {
 			Logger::critical( 'captcha.secret_missing' );
 			return self::OUTAGE;
 		}
-		$args = [
+		$args     = [
 			'timeout' => 5,
 			'body'    => [ 'secret' => $secret, 'response' => $token ],
 		];

@@ -23,8 +23,8 @@ if ( class_exists( \Momos\Branch\Query\OfferQuery::class ) ) {
 	}
 }
 // Scope per offer: 'all' or branch codes (chips only when scopes differ).
-$momos_scope  = [];
-$momos_chips  = [];
+$momos_scope = [];
+$momos_chips = [];
 foreach ( $momos_ids as $momos_oid ) {
 	$momos_codes = [];
 	if ( 'all_branches' !== \Momos\Branch\Query\OfferQuery::scope( (int) $momos_oid ) ) {
@@ -39,9 +39,9 @@ foreach ( $momos_ids as $momos_oid ) {
 	}
 	$momos_scope[ (int) $momos_oid ] = $momos_codes ? implode( ' ', $momos_codes ) : 'all';
 }
-$momos_sel = isset( $_GET['branch'] ) ? strtoupper( sanitize_key( wp_unslash( (string) $_GET['branch'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-$momos_sel = isset( $momos_chips[ $momos_sel ] ) ? $momos_sel : '';
-$momos_use = count( array_unique( $momos_scope ) ) > 1 && $momos_chips;
+$momos_sel  = isset( $_GET['branch'] ) ? strtoupper( sanitize_key( wp_unslash( (string) $_GET['branch'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+$momos_sel  = isset( $momos_chips[ $momos_sel ] ) ? $momos_sel : '';
+$momos_use  = count( array_unique( $momos_scope ) ) > 1 && $momos_chips;
 $momos_self = momos_page_url( 'offers' );
 get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_s( 'offers.title' ), 'lead' => momos_s( 'offers.intro' ) ] );
 ?>

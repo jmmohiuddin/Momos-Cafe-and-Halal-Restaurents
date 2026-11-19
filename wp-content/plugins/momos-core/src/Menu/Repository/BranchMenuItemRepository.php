@@ -50,7 +50,7 @@ final class BranchMenuItemRepository {
 		}
 		$out = [];
 		foreach ( (array) $rows as $r ) {
-			$r                           = self::cast( $r );
+			$r                          = self::cast( $r );
 			$out[ (int) $r['dish_id'] ] = $r;
 		}
 		return $out;

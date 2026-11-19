@@ -24,8 +24,8 @@ final class QrCode {
 	private int $size;
 
 	private function __construct( private int $version ) {
-		$this->size = $version * 4 + 17;
-		$row        = array_fill( 0, $this->size, false );
+		$this->size        = $version * 4 + 17;
+		$row               = array_fill( 0, $this->size, false );
 		$this->modules     = array_fill( 0, $this->size, $row );
 		$this->is_function = array_fill( 0, $this->size, $row );
 	}
@@ -235,14 +235,14 @@ final class QrCode {
 
 	/** @param list<int> $data @return list<int> */
 	private function add_ecc_and_interleave( array $data ): array {
-		$num_blocks  = self::NUM_BLOCKS[ $this->version ];
-		$ecc_len     = self::ECC_PER_BLOCK[ $this->version ];
-		$raw         = intdiv( self::raw_data_modules( $this->version ), 8 );
-		$num_short   = $num_blocks - $raw % $num_blocks;
-		$short_len   = intdiv( $raw, $num_blocks );
-		$divisor     = self::rs_divisor( $ecc_len );
-		$blocks      = [];
-		$k           = 0;
+		$num_blocks = self::NUM_BLOCKS[ $this->version ];
+		$ecc_len    = self::ECC_PER_BLOCK[ $this->version ];
+		$raw        = intdiv( self::raw_data_modules( $this->version ), 8 );
+		$num_short  = $num_blocks - $raw % $num_blocks;
+		$short_len  = intdiv( $raw, $num_blocks );
+		$divisor    = self::rs_divisor( $ecc_len );
+		$blocks     = [];
+		$k          = 0;
 		for ( $i = 0; $i < $num_blocks; $i++ ) {
 			$len = $short_len - $ecc_len + ( $i < $num_short ? 0 : 1 );
 			$dat = array_slice( $data, $k, $len );
@@ -267,9 +267,9 @@ final class QrCode {
 
 	/** @return list<int> */
 	private static function rs_divisor( int $degree ): array {
-		$result               = array_fill( 0, $degree, 0 );
+		$result                = array_fill( 0, $degree, 0 );
 		$result[ $degree - 1 ] = 1;
-		$root                 = 1;
+		$root                  = 1;
 		for ( $i = 0; $i < $degree; $i++ ) {
 			for ( $j = 0; $j < $degree; $j++ ) {
 				$result[ $j ] = self::gf_mul( $result[ $j ], $root );
@@ -286,7 +286,7 @@ final class QrCode {
 	private static function rs_remainder( array $data, array $divisor ): array {
 		$result = array_fill( 0, count( $divisor ), 0 );
 		foreach ( $data as $b ) {
-			$factor = $b ^ array_shift( $result );
+			$factor   = $b ^ array_shift( $result );
 			$result[] = 0;
 			foreach ( $divisor as $i => $coef ) {
 				$result[ $i ] ^= self::gf_mul( $coef, $factor );

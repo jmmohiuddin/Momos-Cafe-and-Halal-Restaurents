@@ -26,8 +26,8 @@ final class SoldOutResetJob {
 		}
 		try {
 			global $wpdb;
-			$t   = Tables::menu_items();
-			$now = Clock::mysql_utc();
+			$t     = Tables::menu_items();
+			$now   = Clock::mysql_utc();
 			$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, branch_id, dish_id, sold_out_until, availability_reason FROM {$t} WHERE availability = 'sold_out' AND sold_out_until <= %s", $now ), ARRAY_A ); // phpcs:ignore
 			$reset = 0;
 			foreach ( $rows as $r ) {

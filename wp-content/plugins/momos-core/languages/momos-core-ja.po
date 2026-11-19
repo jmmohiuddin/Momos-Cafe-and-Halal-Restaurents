@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-11-19T01:08:48+00:00\n"
-"PO-Revision-Date: 2026-11-19 01:13+0000\n"
+"PO-Revision-Date: 2026-11-19T01:35:18+00:00\n"
 "Language: ja\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: momos-core\n"
@@ -29,36 +29,36 @@ msgstr "Momo's Cafe & Halal Restaurant の業務ロジック — 店舗、メニ
 msgid "Nimikh for Momo's Cafe & Halal Restaurant"
 msgstr "Nimikh（Momo's Cafe & Halal Restaurant 向け）"
 
-#: src/Access/AccessModule.php:42
+#: src/Access/AccessModule.php:46
 msgid "MOMOS_2FA_KEY is not defined: two-factor secrets are encrypted with a key derived from the WordPress salts. Define a dedicated 32-byte key in the secrets file."
-msgstr "MOMOS_2FA_KEY が定義されていません。二段階認証のシークレットは WordPress のソルトから派生した鍵で暗号化されています。シークレットファイルに専用の 32 バイト鍵を定義してください。"
+msgstr "MOMOS_2FA_KEY が定義されていません。2段階認証のシークレットは WordPress のソルトから派生した鍵で暗号化されています。シークレットファイルに専用の 32 バイト鍵を定義してください。"
 
 #: src/Access/Admin/ProfileGuard.php:60
 msgid "You are not allowed to give users that role."
 msgstr "ユーザーにその権限グループを付与する権限がありません。"
 
-#: src/Access/Admin/UserAccessFields.php:135
+#: src/Access/Admin/UserAccessFields.php:136
 msgid "Enter a first or last name: the display name must differ from the username."
 msgstr "姓または名を入力してください。表示名はユーザー名と異なる必要があります。"
 
-#: src/Access/Admin/UserAccessFields.php:138
+#: src/Access/Admin/UserAccessFields.php:139
 msgid "Choose a display name that is different from the username."
 msgstr "ユーザー名と異なる表示名を選択してください。"
 
-#: src/Access/Admin/UserAccessFields.php:142
+#: src/Access/Admin/UserAccessFields.php:143
 msgid "Use a business email address (personal webmail and carrier addresses are not allowed for staff accounts)."
 msgstr "業務用のメールアドレスを使用してください（スタッフアカウントには個人向けウェブメールや携帯キャリアのアドレスは使用できません）。"
 
-#: src/Access/Admin/UserAccessFields.php:145
+#: src/Access/Admin/UserAccessFields.php:146
 msgid "The admin language must be Japanese or English."
 msgstr "管理画面の言語は日本語または英語にしてください。"
 
-#: src/Access/Admin/UserAccessFields.php:160
+#: src/Access/Admin/UserAccessFields.php:161
 msgid "Enter the phone number in international format, e.g. +81312345678."
 msgstr "電話番号は国際形式で入力してください（例：+81312345678）。"
 
-#: src/Access/Admin/UserAccessFields.php:258
-#: src/Access/Admin/UserAccessFields.php:271
+#: src/Access/Admin/UserAccessFields.php:268
+#: src/Access/Admin/UserAccessFields.php:281
 msgid "Enter a valid date and time."
 msgstr "正しい日時を入力してください。"
 
@@ -114,13 +114,13 @@ msgid "Enrolled"
 msgstr "登録済み"
 
 #: src/Access/Admin/UsersList.php:49
-#: templates/admin/access-user-fields.php:171
+#: templates/admin/access-user-fields.php:187
 msgid "Not enrolled"
 msgstr "未登録"
 
 #: src/Access/Admin/UsersList.php:52
 #: src/Access/Admin/UsersList.php:112
-#: templates/admin/access-user-fields.php:116
+#: templates/admin/access-user-fields.php:132
 msgid "Disabled"
 msgstr "無効"
 
@@ -148,12 +148,12 @@ msgstr "ベンダー（%s まで）"
 #: src/Branch/Fields/BranchFields.php:145
 #: src/Dietary/Domain/ClaimStatus.php:21
 #: src/Notification/Admin/SettingsFields.php:32
-#: templates/admin/access-user-fields.php:116
+#: templates/admin/access-user-fields.php:132
 msgid "Active"
 msgstr "有効"
 
 #: src/Access/Admin/UsersList.php:80
-#: templates/admin/settings-languages.php:83
+#: templates/admin/settings-languages.php:88
 msgid "Enable"
 msgstr "有効にする"
 
@@ -163,14 +163,14 @@ msgstr "無効にする"
 
 #: src/Access/Admin/UsersList.php:87
 msgid "Reset two-factor for this user? Confirm their identity first."
-msgstr "このユーザーの二段階認証をリセットしますか？先に本人確認を行ってください。"
+msgstr "このユーザーの2段階認証をリセットしますか？先に本人確認を行ってください。"
 
 #: src/Access/Admin/UsersList.php:88
 msgid "Reset two-factor"
-msgstr "二段階認証をリセット"
+msgstr "2段階認証をリセット"
 
 #: src/Access/Admin/UsersList.php:107
-#: src/Admin/Content/MediaFields.php:58
+#: src/Admin/Content/MediaFields.php:66
 #: src/Branch/PostType/PostTypes.php:23
 #: src/Kernel/I18n/Admin/TranslationGaps.php:71
 #: src/Menu/Admin/DishAdmin.php:143
@@ -231,7 +231,7 @@ msgstr "不明な操作です。"
 
 #: src/Access/Admin/UsersList.php:180
 msgid "Two-factor was reset. The user enrols again at the next login."
-msgstr "二段階認証をリセットしました。ユーザーは次回ログイン時に再登録します。"
+msgstr "2段階認証をリセットしました。ユーザーは次回ログイン時に再登録します。"
 
 #: src/Access/Hardening.php:116
 msgid "Momo's: file editing and installs"
@@ -493,46 +493,58 @@ msgstr "正しい日付を入力してください。"
 msgid "The last-updated date cannot be in the future."
 msgstr "最終更新日に未来の日付は指定できません。"
 
-#: src/Admin/Content/MediaFields.php:51
+#: src/Admin/Content/MediaFields.php:52
 #: src/Menu/Fields/MenuFields.php:79
 msgid "Gallery"
 msgstr "ギャラリー"
 
-#: src/Admin/Content/MediaFields.php:53
+#: src/Admin/Content/MediaFields.php:54
 msgid "Show on the gallery page"
 msgstr "ギャラリーページに表示する"
 
-#: src/Admin/Content/MediaFields.php:55
-#: src/Admin/Content/MediaFields.php:150
+#: src/Admin/Content/MediaFields.php:56
+#: src/Admin/Content/MediaFields.php:172
 msgid "Illustrative (demo) images cannot be shown on the gallery."
 msgstr "イメージ（デモ）画像はギャラリーに表示できません。"
 
+#: src/Admin/Content/MediaFields.php:59
+msgid "Illustrative image"
+msgstr "イメージ画像"
+
+#: src/Admin/Content/MediaFields.php:61
+msgid "Image for illustration (not the actual dish or venue)"
+msgstr "イメージ画像（実際の料理・店舗とは異なります）"
+
 #: src/Admin/Content/MediaFields.php:63
+msgid "Shown with the caption \"Image for illustration\" on dish and offer pages; never used on the gallery or branch pages (DEC-047)."
+msgstr "料理・特典のページでは「イメージ画像」の注記付きで表示されます。ギャラリーや店舗のページには使用されません（DEC-047）。"
+
+#: src/Admin/Content/MediaFields.php:71
 #: src/Kernel/I18n/Admin/TranslationGaps.php:73
 #: src/Menu/ContentTypes.php:67
 msgid "Menu category"
 msgstr "メニューカテゴリー"
 
-#: src/Admin/Content/MediaFields.php:73
+#: src/Admin/Content/MediaFields.php:81
 msgid "Alt text & caption translations"
 msgstr "代替テキストとキャプションの翻訳"
 
-#: src/Admin/Content/MediaFields.php:83
+#: src/Admin/Content/MediaFields.php:91
 #: src/Admin/Settings/BrandFields.php:70
 #: src/Kernel/Fields/Renderer.php:151
 #: src/Kernel/Fields/Renderer.php:166
 msgid "— None —"
 msgstr "— なし —"
 
-#: src/Admin/Content/MediaFields.php:163
+#: src/Admin/Content/MediaFields.php:185
 msgid "Choose a branch from the list."
 msgstr "リストから店舗を選択してください。"
 
-#: src/Admin/Content/MediaFields.php:166
+#: src/Admin/Content/MediaFields.php:188
 msgid "You can only tag images with your own branches."
 msgstr "画像に設定できるのは担当店舗のみです。"
 
-#: src/Admin/Content/MediaFields.php:176
+#: src/Admin/Content/MediaFields.php:198
 msgid "Choose a menu category from the list."
 msgstr "リストからメニューカテゴリーを選択してください。"
 
@@ -1058,7 +1070,7 @@ msgstr "存在しないユーザー名でログインを試みた IP アドレ�
 
 #: src/Admin/Settings/SettingsFields.php:104
 msgid "Require two-factor authentication for all staff"
-msgstr "すべてのスタッフに二段階認証を必須にする"
+msgstr "すべてのスタッフに2段階認証を必須にする"
 
 #: src/Admin/Settings/SettingsFields.php:104
 msgid "Always enforced in production. Turning it off only affects development and staging."
@@ -1566,8 +1578,8 @@ msgstr "初回公開日時（UTC）"
 #: src/Kernel/Fields/Renderer.php:235
 #: src/Kernel/I18n/Admin/GapsPage.php:196
 #: src/Seo/Admin/SeoAdmin.php:259
-#: templates/admin/access-user-fields.php:101
-#: templates/admin/access-user-fields.php:134
+#: templates/admin/access-user-fields.php:117
+#: templates/admin/access-user-fields.php:150
 msgid "Yes"
 msgstr "はい"
 
@@ -1577,7 +1589,7 @@ msgstr "はい"
 #: src/Kernel/Fields/Renderer.php:235
 #: src/Kernel/I18n/Admin/GapsPage.php:196
 #: src/Seo/Admin/SeoAdmin.php:259
-#: templates/admin/access-user-fields.php:101
+#: templates/admin/access-user-fields.php:117
 msgid "No"
 msgstr "いいえ"
 
@@ -1761,7 +1773,7 @@ msgstr "経営陣の承認が必要です（DEC-013）。"
 
 #: src/Branch/Fields/BranchFields.php:132
 msgid "Max pending requests per email"
-msgstr "メールアドレスあたりの未確定リクエストの上限"
+msgstr "メールアドレスあたりの未対応リクエストの上限"
 
 #: src/Branch/Fields/BranchFields.php:133
 msgid "Customer cancellation cutoff (minutes, 0 = until start)"
@@ -1840,7 +1852,7 @@ msgstr "公開後は店舗コードを変更できません。"
 #: src/Branch/Fields/BranchFields.php:237
 #, php-format
 msgid "Handle the %1$d pending or confirmed future requests before closing this branch: %2$s"
-msgstr "この店舗を休業にする前に、今後の未確定または確定済みのリクエスト %1$d 件に対応してください：%2$s"
+msgstr "この店舗を休業にする前に、今後の未対応または承認済みのリクエスト %1$d 件に対応してください：%2$s"
 
 #: src/Branch/Fields/BranchFields.php:241
 msgid "The reopening date cannot be in the past."
@@ -2130,7 +2142,7 @@ msgstr "スラッグ"
 #: src/Branch/Service/BranchGuard.php:332
 #, php-format
 msgid "This affects %d pending or confirmed requests. They are marked \"Needs action\" in the inbox."
-msgstr "これは未確定または確定済みのリクエスト %d 件に影響します。受信箱で「要対応」に設定されます。"
+msgstr "これは未対応または承認済みのリクエスト %d 件に影響します。受信箱で「要対応」に設定されます。"
 
 #: src/Branch/Service/BranchGuard.php:385
 msgid "This branch has reservations or menu data and cannot be deleted. Set it to \"Closed permanently\" instead."
@@ -2342,7 +2354,7 @@ msgstr "回答時間の目標"
 
 #: src/Branch/Service/SettingsValidator.php:197
 msgid "Pending requests per email"
-msgstr "メールアドレスあたりの未確定リクエスト数"
+msgstr "メールアドレスあたりの未対応リクエスト数"
 
 #: src/Branch/Service/SettingsValidator.php:198
 msgid "Customer cancellation cutoff"
@@ -4178,7 +4190,7 @@ msgstr "作成日時（日本時間）"
 #: templates/admin/branch-hours.php:73
 #: templates/admin/privacy-dsr.php:74
 #: templates/admin/privacy-dsr.php:148
-#: templates/admin/settings-languages.php:71
+#: templates/admin/settings-languages.php:76
 msgid "Reference"
 msgstr "受付番号"
 
@@ -4427,12 +4439,12 @@ msgstr "リクエスト受付"
 
 #: src/Notification/Template/TemplateRegistry.php:47
 msgid "Confirmed"
-msgstr "確定"
+msgstr "承認済み"
 
 #: src/Notification/Template/TemplateRegistry.php:48
 #: src/Reservation/Domain/ReservationStatus.php:41
 msgid "Declined"
-msgstr "お断り"
+msgstr "お断り済み"
 
 #: src/Notification/Template/TemplateRegistry.php:51
 msgid "Details updated"
@@ -4716,7 +4728,7 @@ msgstr "%s が対応中です。引き継ぎますか？"
 #: src/Reservation/Admin/InboxPage.php:133
 #: src/Reservation/Domain/ReservationStatus.php:39
 msgid "Pending"
-msgstr "未確定"
+msgstr "未対応"
 
 #: src/Reservation/Admin/InboxPage.php:134
 msgid "Today"
@@ -4725,7 +4737,7 @@ msgstr "本日"
 #: src/Reservation/Admin/InboxPage.php:135
 #: templates/admin/reservation-inbox.php:121
 msgid "Upcoming confirmed"
-msgstr "今後の確定済み"
+msgstr "今後の承認済み"
 
 #: src/Reservation/Admin/InboxPage.php:136
 #: templates/admin/reservation-inbox.php:121
@@ -4765,7 +4777,7 @@ msgstr "来店済みにしました。"
 
 #: src/Reservation/Admin/InboxPage.php:233
 msgid "Marked as no-show."
-msgstr "無断キャンセル（ノーショー）にしました。"
+msgstr "無断キャンセルにしました。"
 
 #: src/Reservation/Admin/InboxPage.php:234
 msgid "You are now handling this request."
@@ -4813,7 +4825,7 @@ msgstr "レポート"
 
 #: src/Reservation/Domain/ReservationStatus.php:40
 msgid "Accepted"
-msgstr "確定済み"
+msgstr "承認済み"
 
 #: src/Reservation/Domain/ReservationStatus.php:44
 #: templates/admin/reservation-detail.php:229
@@ -4823,7 +4835,7 @@ msgstr "来店済み"
 #: src/Reservation/Domain/ReservationStatus.php:45
 #: templates/admin/reservation-detail.php:230
 msgid "No-show"
-msgstr "無断キャンセル（ノーショー）"
+msgstr "無断キャンセル"
 
 #: src/Seo/Admin/SeoAdmin.php:30
 #: src/Seo/Admin/SeoAdmin.php:163
@@ -5210,104 +5222,113 @@ msgstr "電話番号（任意）"
 
 #: templates/admin/access-user-fields.php:82
 msgid "Used for out-of-band identity checks (e.g. two-factor reset)."
-msgstr "別経路での本人確認（二段階認証のリセットなど）に使用します。"
+msgstr "別経路での本人確認（2段階認証のリセットなど）に使用します。"
 
 #: templates/admin/access-user-fields.php:91
+#: templates/admin/access-user-fields.php:94
+msgid "Translation languages"
+msgstr "担当する翻訳言語"
+
+#: templates/admin/access-user-fields.php:99
+msgid "Languages this translator may edit and approve. None selected = all languages."
+msgstr "この翻訳者が編集・承認できる言語です。何も選択しない場合はすべての言語が対象になります。"
+
+#: templates/admin/access-user-fields.php:107
 msgid "Dietary Claims Approver"
 msgstr "食事表示承認者"
 
-#: templates/admin/access-user-fields.php:95
+#: templates/admin/access-user-fields.php:111
 msgid "May approve halal/dietary claims and certificates (CAP-DCA)"
 msgstr "ハラール／食事表示と認証書を承認できる（CAP-DCA）"
 
-#: templates/admin/access-user-fields.php:97
+#: templates/admin/access-user-fields.php:113
 msgid "Owner request reference (required for a Super Administrator)"
 msgstr "オーナー依頼の参照番号（スーパー管理者の場合は必須）"
 
-#: templates/admin/access-user-fields.php:103
+#: templates/admin/access-user-fields.php:119
 msgid "Only Head Office users (or a Super Administrator on Owner request) can hold this permission; never vendor accounts."
 msgstr "この権限を持てるのは本部ユーザー（またはオーナーの依頼によるスーパー管理者）のみです。ベンダーアカウントには付与できません。"
 
-#: templates/admin/access-user-fields.php:110
+#: templates/admin/access-user-fields.php:126
 msgid "Account status"
 msgstr "アカウントの状態"
 
-#: templates/admin/access-user-fields.php:114
+#: templates/admin/access-user-fields.php:130
 msgid "Account disabled (cannot log in; all sessions end immediately; branch assignments are kept)"
 msgstr "アカウントを無効にする（ログイン不可、すべてのセッションを直ちに終了、店舗の割り当ては保持）"
 
 #. translators: %s: date/time
-#: templates/admin/access-user-fields.php:119
+#: templates/admin/access-user-fields.php:135
 #, php-format
 msgid "Access window ends: %s"
 msgstr "アクセス期間の終了：%s"
 
 #. translators: %s: date/time
-#: templates/admin/access-user-fields.php:121
+#: templates/admin/access-user-fields.php:137
 #, php-format
 msgid "Last login: %s"
 msgstr "最終ログイン：%s"
 
-#: templates/admin/access-user-fields.php:127
-#: templates/admin/access-user-fields.php:134
+#: templates/admin/access-user-fields.php:143
+#: templates/admin/access-user-fields.php:150
 msgid "Vendor account"
 msgstr "ベンダーアカウント"
 
-#: templates/admin/access-user-fields.php:130
+#: templates/admin/access-user-fields.php:146
 msgid "Offshore/vendor account: kept disabled, time-boxed access only, never sees customer personal data"
 msgstr "海外／ベンダーアカウント：通常は無効、期間限定のアクセスのみ、お客様の個人情報は表示されない"
 
-#: templates/admin/access-user-fields.php:139
+#: templates/admin/access-user-fields.php:155
 msgid "Enable vendor access until (JST)"
 msgstr "ベンダーアクセスを有効にする期限（日本時間）"
 
-#: templates/admin/access-user-fields.php:142
+#: templates/admin/access-user-fields.php:158
 msgid "At most 72 hours. The account is disabled again automatically at the end of the window."
 msgstr "最長 72 時間。期間が終了すると自動的に再び無効になります。"
 
-#: templates/admin/access-user-fields.php:144
+#: templates/admin/access-user-fields.php:160
 msgid "End the access window now"
 msgstr "アクセス期間を今すぐ終了"
 
-#: templates/admin/access-user-fields.php:150
+#: templates/admin/access-user-fields.php:166
 msgid "Break-glass (customer data) until (JST)"
 msgstr "緊急アクセス（お客様データ）の期限（日本時間）"
 
 #. translators: %s: date/time
-#: templates/admin/access-user-fields.php:152
+#: templates/admin/access-user-fields.php:168
 #, php-format
 msgid "Current: %s"
 msgstr "現在：%s"
 
-#: templates/admin/access-user-fields.php:154
+#: templates/admin/access-user-fields.php:170
 msgid "Owner approval reference (no personal data)"
 msgstr "オーナー承認の参照番号（個人情報は含めない）"
 
-#: templates/admin/access-user-fields.php:156
+#: templates/admin/access-user-fields.php:172
 msgid "At most 8 hours. Allows viewing reservations and customer details only — export and data-subject tools stay blocked."
 msgstr "最長 8 時間。予約リクエストとお客様の詳細の閲覧のみ可能です。エクスポートと本人請求の対応機能は引き続き利用できません。"
 
-#: templates/admin/access-user-fields.php:158
+#: templates/admin/access-user-fields.php:174
 msgid "Revoke break-glass now"
 msgstr "緊急アクセスを今すぐ取り消す"
 
-#: templates/admin/access-user-fields.php:166
+#: templates/admin/access-user-fields.php:182
 msgid "Two-factor authentication"
-msgstr "二段階認証"
+msgstr "2段階認証"
 
 #. translators: %d: number of codes
-#: templates/admin/access-user-fields.php:169
+#: templates/admin/access-user-fields.php:185
 #, php-format
 msgid "Enrolled — %d recovery codes left"
 msgstr "登録済み — 残りのリカバリーコード %d 個"
 
-#: templates/admin/access-user-fields.php:174
+#: templates/admin/access-user-fields.php:190
 msgid "Reset two-factor (lost device). Confirm the person's identity by a known phone number or in person first. All sessions end; the user enrols again at next login."
-msgstr "二段階認証をリセット（端末の紛失）。先に、登録済みの電話番号または対面で本人確認を行ってください。すべてのセッションが終了し、ユーザーは次回ログイン時に再登録します。"
+msgstr "2段階認証をリセット（端末の紛失）。先に、登録済みの電話番号または対面で本人確認を行ってください。すべてのセッションが終了し、ユーザーは次回ログイン時に再登録します。"
 
-#: templates/admin/access-user-fields.php:176
+#: templates/admin/access-user-fields.php:192
 msgid "Set up two-factor authentication at my next login"
-msgstr "次回ログイン時に二段階認証を設定する"
+msgstr "次回ログイン時に2段階認証を設定する"
 
 #: templates/admin/audit-log.php:32
 msgid "Read-only record of changes and security events. Times are Japan time (JST). Personal data is masked."
@@ -5394,7 +5415,7 @@ msgstr "時刻はすべて日本時間です。変更は直ちに反映され、
 #: templates/admin/branch-hours.php:52
 #, php-format
 msgid "This affects %d pending or confirmed requests. They are marked \"Needs action\"."
-msgstr "これは未確定または確定済みのリクエスト %d 件に影響します。これらは「要対応」に設定されます。"
+msgstr "これは未対応または承認済みのリクエスト %d 件に影響します。これらは「要対応」に設定されます。"
 
 #. translators: %d: number of reservations
 #: templates/admin/branch-hours.php:53
@@ -5413,7 +5434,7 @@ msgstr "何も保存されていません。次の点を修正してください
 #: templates/admin/branch-hours.php:70
 #, php-format
 msgid "This affects %d pending or confirmed requests"
-msgstr "これは未確定または確定済みのリクエスト %d 件に影響します"
+msgstr "これは未対応または承認済みのリクエスト %d 件に影響します"
 
 #. translators: %d: number of reservations
 #: templates/admin/branch-hours.php:71
@@ -5423,7 +5444,7 @@ msgstr "これらはキャンセルされません。スタッフがお客様に
 #: templates/admin/branch-hours.php:73
 #: templates/admin/branch-hours.php:211
 #: templates/admin/reservation-detail.php:237
-#: templates/admin/settings-languages.php:69
+#: templates/admin/settings-languages.php:74
 msgid "Date"
 msgstr "日付"
 
@@ -6223,7 +6244,7 @@ msgstr "担当を外れる"
 
 #: templates/admin/reservation-detail.php:179
 msgid "Accept"
-msgstr "承認"
+msgstr "承認する"
 
 #: templates/admin/reservation-detail.php:182
 #: templates/admin/reservation-detail.php:198
@@ -6241,7 +6262,7 @@ msgstr "承認してお客様にメールを送信"
 
 #: templates/admin/reservation-detail.php:190
 msgid "Decline"
-msgstr "お断り"
+msgstr "お断りする"
 
 #: templates/admin/reservation-detail.php:200
 msgid "Suggest up to two other times (optional)"
@@ -6264,7 +6285,7 @@ msgstr "お断りしてお客様にメールを送信"
 #: templates/admin/reservation-detail.php:212
 #: templates/admin/reservation-detail.php:222
 msgid "Cancel request"
-msgstr "リクエストをキャンセル"
+msgstr "キャンセルする"
 
 #: templates/admin/reservation-detail.php:216
 msgid "No email will be sent to the guest."
@@ -6663,14 +6684,20 @@ msgstr[0] "%d 件が未翻訳または未レビュー"
 msgid "None reported"
 msgstr "報告なし"
 
-#: templates/admin/settings-languages.php:67
+#. translators: %d: percent
+#: templates/admin/settings-languages.php:61
+#, php-format
+msgid "Launch-critical content: %d%% approved"
+msgstr "公開に必須（LCCS）のコンテンツ：%d%% 承認済み"
+
+#: templates/admin/settings-languages.php:72
 msgid "Reviewer name"
 msgstr "レビュー担当者の氏名"
 
-#: templates/admin/settings-languages.php:81
+#: templates/admin/settings-languages.php:86
 msgid "Hiding a live language removes it from search results and links. Continue?"
 msgstr "公開中の言語を非公開にすると、検索結果とリンクから削除されます。続行しますか？"
 
-#: templates/admin/settings-languages.php:81
+#: templates/admin/settings-languages.php:86
 msgid "Hide"
 msgstr "非公開にする"

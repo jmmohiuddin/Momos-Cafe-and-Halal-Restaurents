@@ -17,7 +17,7 @@ final class M0001_CreateTables implements MigrationInterface {
 		$p  = $wpdb->prefix;
 		$cc = $wpdb->get_charset_collate();
 
-		$sql = [];
+		$sql   = [];
 		$sql[] = "CREATE TABLE {$p}momo_branch_hours (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   branch_id bigint(20) unsigned NOT NULL,

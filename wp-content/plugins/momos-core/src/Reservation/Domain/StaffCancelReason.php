@@ -8,10 +8,10 @@ namespace Momos\Reservation\Domain;
  */
 enum StaffCancelReason: string {
 	case CustomerRequestByPhone = 'customer_request_by_phone';
-	case BranchUnableToServe = 'branch_unable_to_serve';
-	case Duplicate = 'duplicate';
-	case SuspectedSpam = 'suspected_spam';
-	case Other = 'other';
+	case BranchUnableToServe    = 'branch_unable_to_serve';
+	case Duplicate              = 'duplicate';
+	case SuspectedSpam          = 'suspected_spam';
+	case Other                  = 'other';
 
 	/** @return list<string> */
 	public static function values(): array {

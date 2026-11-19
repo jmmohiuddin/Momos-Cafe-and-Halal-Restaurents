@@ -78,10 +78,10 @@ final class HoursValidator {
 		$periods = [];
 		$by_day  = [];
 		for ( $w = 1; $w <= 7; $w++ ) {
-			$rows = isset( $input[ $w ] ) && is_array( $input[ $w ] ) ? $input[ $w ] : [];
+			$rows                         = isset( $input[ $w ] ) && is_array( $input[ $w ] ) ? $input[ $w ] : [];
 			[ $day_errors, $day_periods ] = self::validate_day( $rows, $lo_required, 'w' . $w, self::weekday_name( $w ) );
-			$errors      += $day_errors;
-			$by_day[ $w ] = $day_periods;
+			$errors                      += $day_errors;
+			$by_day[ $w ]                 = $day_periods;
 		}
 		// Overlap with the after-midnight tail of the previous weekday (weekday 1's previous = 7).
 		for ( $w = 1; $w <= 7; $w++ ) {
@@ -210,7 +210,7 @@ final class HoursValidator {
 		usort( $sorted, static fn( $a, $b ) => self::minutes( $a )[0] <=> self::minutes( $b )[0] );
 		for ( $i = 1, $c = count( $sorted ); $i < $c; $i++ ) {
 			if ( self::minutes( $sorted[ $i ] )[0] < self::minutes( $sorted[ $i - 1 ] )[1] ) {
-				$idx                                     = array_search( $sorted[ $i ], $periods, true );
+				$idx = array_search( $sorted[ $i ], $periods, true );
 				$errors[ $key_prefix . 'p' . ( (int) $idx + 1 ) ] ??= self::label_for( $day_name, (int) $idx + 1 ) . __( 'Periods on the same day must not overlap.', 'momos-core' );
 			}
 		}

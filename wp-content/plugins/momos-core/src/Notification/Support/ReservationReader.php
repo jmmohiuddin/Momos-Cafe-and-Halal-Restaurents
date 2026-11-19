@@ -49,7 +49,7 @@ final class ReservationReader {
 	 */
 	public static function light( string $where, array $args, int $limit = 200 ): array {
 		global $wpdb;
-		$t    = Tables::reservations();
+		$t      = Tables::reservations();
 		$args[] = $limit;
 		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, public_ref, branch_id, status, requested_date, requested_time, party_size FROM {$t} WHERE {$where} ORDER BY requested_start_utc ASC, id ASC LIMIT %d", $args ), ARRAY_A ); // phpcs:ignore
 	}

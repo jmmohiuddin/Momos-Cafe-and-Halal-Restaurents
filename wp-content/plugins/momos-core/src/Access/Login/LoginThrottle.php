@@ -20,13 +20,13 @@ use Momos\Kernel\Support\Hash;
  * user, wrong password, disabled and expired accounts; the lockout message states when to retry.
  */
 final class LoginThrottle {
-	public const MAX_FAILURES   = 10;
-	public const WINDOW         = 900;
-	public const LOCK_SECONDS   = 3600;
-	public const LOSTPW_PER_HOUR = 5;
+	public const MAX_FAILURES        = 10;
+	public const WINDOW              = 900;
+	public const LOCK_SECONDS        = 3600;
+	public const LOSTPW_PER_HOUR     = 5;
 	public const SITE_ALERT_PER_HOUR = 20;
 
-	private static ?int $locked_until = null;
+	private static ?int $locked_until   = null;
 	private static bool $lostpw_blocked = false;
 
 	public static function register(): void {
@@ -75,8 +75,8 @@ final class LoginThrottle {
 	 * Returns the lock expiry when this failure caused or met a lock.
 	 */
 	public static function fail( ?int $user_id, ?string $ip, bool $invalid_username = false ): ?int {
-		$now    = self::now();
-		$locked = null;
+		$now     = self::now();
+		$locked  = null;
 		$targets = [];
 		if ( null !== $ip && '' !== $ip ) {
 			$targets[] = [ 'ip', $ip ];
@@ -85,8 +85,8 @@ final class LoginThrottle {
 			$targets[] = [ 'user', (string) $user_id ];
 		}
 		foreach ( $targets as [ $bucket, $subject ] ) {
-			$v          = self::load( $bucket, $subject );
-			$v['fails'] = array_values( array_filter( $v['fails'], static fn( int $t ) => $t > $now - self::WINDOW ) );
+			$v            = self::load( $bucket, $subject );
+			$v['fails']   = array_values( array_filter( $v['fails'], static fn( int $t ) => $t > $now - self::WINDOW ) );
 			$v['fails'][] = $now;
 			$v['fails']   = array_slice( $v['fails'], -self::MAX_FAILURES );
 			$immediate    = 'ip' === $bucket && $invalid_username && self::lock_invalid_usernames();
@@ -157,7 +157,7 @@ final class LoginThrottle {
 		if ( $error instanceof \WP_Error && 'momos_locked' === $error->get_error_code() ) {
 			return; // Already locked; not counted again.
 		}
-		$user  = self::lookup( (string) $username );
+		$user    = self::lookup( (string) $username );
 		$unknown = null === $user && '' !== trim( (string) $username );
 		$until   = self::fail( $user ? (int) $user->ID : null, RequestContext::ip(), $unknown );
 		if ( null !== $until && ! $unknown ) {

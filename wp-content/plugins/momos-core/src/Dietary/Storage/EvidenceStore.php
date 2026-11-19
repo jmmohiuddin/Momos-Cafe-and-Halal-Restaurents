@@ -70,8 +70,8 @@ final class EvidenceStore {
 		if ( ! isset( self::MIMES[ $mime ] ) ) {
 			throw new \InvalidArgumentException( __( 'Evidence files must be PDF, JPEG or PNG and at most 10 MB.', 'momos-core' ) );
 		}
-		$dir  = self::ensure_dir();
-		$sub  = Clock::utc()->format( 'Y' );
+		$dir = self::ensure_dir();
+		$sub = Clock::utc()->format( 'Y' );
 		if ( ! is_dir( $dir . '/' . $sub ) ) {
 			wp_mkdir_p( $dir . '/' . $sub );
 		}

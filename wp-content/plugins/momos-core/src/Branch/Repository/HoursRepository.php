@@ -128,8 +128,8 @@ final class HoursRepository {
 
 	private static function delete_set_rows( int $branch_id, ?string $valid_from, ?string $valid_until ): void {
 		global $wpdb;
-		$t     = Tables::hours();
-		$where = $wpdb->prepare( 'branch_id = %d', $branch_id );
+		$t      = Tables::hours();
+		$where  = $wpdb->prepare( 'branch_id = %d', $branch_id );
 		$where .= null === $valid_from ? ' AND valid_from IS NULL' : $wpdb->prepare( ' AND valid_from = %s', $valid_from );
 		$where .= null === $valid_until ? ' AND valid_until IS NULL' : $wpdb->prepare( ' AND valid_until = %s', $valid_until );
 		$wpdb->query( "DELETE FROM {$t} WHERE {$where}" ); // phpcs:ignore -- built from prepared fragments.

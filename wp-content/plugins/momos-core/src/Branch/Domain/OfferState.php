@@ -5,11 +5,11 @@ namespace Momos\Branch\Domain;
 
 /** Computed offer state (spec §3.7, Doc 07 labels). */
 enum OfferState: string {
-	case Draft = 'draft';
-	case Pending = 'pending';
+	case Draft     = 'draft';
+	case Pending   = 'pending';
 	case Scheduled = 'scheduled';
-	case Active = 'active';
-	case Expired = 'expired';
+	case Active    = 'active';
+	case Expired   = 'expired';
 
 	/** @return list<string> */
 	public static function values(): array {

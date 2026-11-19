@@ -17,7 +17,7 @@ use Momos\Kernel\Log\Logger;
  * accepting requests without an active recipient or with a period lacking last order.
  */
 final class IntegrityJob {
-	public const HOOK            = 'momos_job_branch_integrity';
+	public const HOOK             = 'momos_job_branch_integrity';
 	public const RETENTION_MONTHS = 24;
 
 	public static function register(): void {
@@ -32,8 +32,8 @@ final class IntegrityJob {
 		}
 		try {
 			global $wpdb;
-			$cutoff = Clock::jst()->modify( '-' . self::RETENTION_MONTHS . ' months' )->format( 'Y-m-d' );
-			$purged = ClosureRepository::purge_before( $cutoff );
+			$cutoff  = Clock::jst()->modify( '-' . self::RETENTION_MONTHS . ' months' )->format( 'Y-m-d' );
+			$purged  = ClosureRepository::purge_before( $cutoff );
 			$orphans = 0;
 			foreach ( [ Tables::hours(), Tables::closures() ] as $t ) {
 				$orphans += (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t} x LEFT JOIN {$wpdb->posts} p ON p.ID = x.branch_id AND p.post_type = 'momo_branch' WHERE p.ID IS NULL" ); // phpcs:ignore

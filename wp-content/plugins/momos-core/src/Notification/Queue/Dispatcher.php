@@ -24,9 +24,9 @@ use Momos\Notification\Transport\TransportFactory;
  * run concurrently: the conditional claim UPDATE gives each row to exactly one worker.
  */
 final class Dispatcher {
-	public const ACTION   = 'momos_send_notification';
-	public const RUNNER   = 'momos_job_notification_dispatch';
-	public const BATCH    = 25;
+	public const ACTION     = 'momos_send_notification';
+	public const RUNNER     = 'momos_job_notification_dispatch';
+	public const BATCH      = 25;
 	public const TIME_LIMIT = 50;
 
 	/** Schedule the immediate async attempt for a committed row. */
@@ -101,7 +101,7 @@ final class Dispatcher {
 				(string) $row['recipient_masked']
 			)
 		);
-		$result = TransportFactory::make()->send( $message );
+		$result  = TransportFactory::make()->send( $message );
 		if ( $result->ok ) {
 			$info = $rendered->fell_back() ? 'requested=' . $rendered->requested_lang . ' used=' . $rendered->lang : null;
 			NotificationRepository::mark_sent( $id, $result->message_id, $rendered->lang, $info ? 'lang_fallback' : null, $info );

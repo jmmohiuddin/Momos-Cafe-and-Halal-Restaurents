@@ -361,8 +361,8 @@ final class StaffReservationController {
 			if ( array_key_exists( 'override_rules', $body ) && ! is_bool( $body['override_rules'] ) ) {
 				throw ReservationError::invalid( [ 'override_rules' => 'invalid_format' ] );
 			}
-			$result = ModificationService::modify( (int) $request['id'], $body, Actor::current_staff() );
-			$data   = Presenter::detail( $result['row'], get_current_user_id() );
+			$result                       = ModificationService::modify( (int) $request['id'], $body, Actor::current_staff() );
+			$data                         = Presenter::detail( $result['row'], get_current_user_id() );
 			$data['notifications_queued'] = $result['notifications_queued'];
 			return new \WP_REST_Response( $data, 200 );
 		} catch ( ReservationError $e ) {

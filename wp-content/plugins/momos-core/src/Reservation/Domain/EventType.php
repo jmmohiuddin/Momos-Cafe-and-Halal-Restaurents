@@ -7,18 +7,18 @@ namespace Momos\Reservation\Domain;
  * Reservation event types (spec §2.3; mirrors CHECK chk_momo_evt_type of M0002).
  */
 enum EventType: string {
-	case Created = 'created';
-	case StatusChanged = 'status_changed';
-	case Assigned = 'assigned';
-	case Released = 'released';
-	case Note = 'note';
-	case Modified = 'modified';
+	case Created            = 'created';
+	case StatusChanged      = 'status_changed';
+	case Assigned           = 'assigned';
+	case Released           = 'released';
+	case Note               = 'note';
+	case Modified           = 'modified';
 	case NotificationFailed = 'notification_failed';
-	case CustomerContacted = 'customer_contacted';
-	case SlaReminder = 'sla_reminder';
-	case SlaEscalated = 'sla_escalated';
-	case ClosureConflict = 'closure_conflict';
-	case PiiPurged = 'pii_purged';
+	case CustomerContacted  = 'customer_contacted';
+	case SlaReminder        = 'sla_reminder';
+	case SlaEscalated       = 'sla_escalated';
+	case ClosureConflict    = 'closure_conflict';
+	case PiiPurged          = 'pii_purged';
 
 	/** @return list<string> */
 	public static function values(): array {

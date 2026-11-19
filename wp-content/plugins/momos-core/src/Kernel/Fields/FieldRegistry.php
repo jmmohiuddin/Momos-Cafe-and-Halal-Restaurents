@@ -40,11 +40,11 @@ final class FieldRegistry {
 		if ( empty( $group['key'] ) || empty( $group['fields'] ) || ! is_array( $group['fields'] ) ) {
 			throw new \InvalidArgumentException( 'Field group needs key and fields' );
 		}
-		$group['title']    = $group['title'] ?? $group['key'];
-		$group['context']  = $group['context'] ?? 'normal';
-		$group['priority'] = $group['priority'] ?? 'high';
-		$group['order']    = $group['order'] ?? 10;
-		$group['fields']   = array_map( [ self::class, 'normalize_field' ], $group['fields'] );
+		$group['title']                = $group['title'] ?? $group['key'];
+		$group['context']              = $group['context'] ?? 'normal';
+		$group['priority']             = $group['priority'] ?? 'high';
+		$group['order']                = $group['order'] ?? 10;
+		$group['fields']               = array_map( [ self::class, 'normalize_field' ], $group['fields'] );
 		self::$groups[ $group['key'] ] = $group;
 
 		if ( isset( $group['options_page'] ) ) {
@@ -193,7 +193,7 @@ final class FieldRegistry {
 			if ( 'message' === $f['type'] ) {
 				continue;
 			}
-			$exists              = metadata_exists( 'post', $post_id, $f['name'] );
+			$exists               = metadata_exists( 'post', $post_id, $f['name'] );
 			$values[ $f['name'] ] = $exists ? get_post_meta( $post_id, $f['name'], true ) : ( $f['default'] ?? null );
 		}
 		return $values;
@@ -236,8 +236,8 @@ final class FieldRegistry {
 		foreach ( $groups as $g ) {
 			$current = $post_id ? self::post_values( $post_id, $g ) : [];
 			foreach ( $g['fields'] as $f ) {
-				$name = $f['name'];
-				$val  = ( null !== $submitted && array_key_exists( $name, $submitted ) && self::can_edit( $f, $post_id ) )
+				$name            = $f['name'];
+				$val             = ( null !== $submitted && array_key_exists( $name, $submitted ) && self::can_edit( $f, $post_id ) )
 					? Sanitizer::sanitize( $f, $submitted[ $name ] )
 					: ( $current[ $name ] ?? ( $f['default'] ?? null ) );
 				$merged[ $name ] = $val;
@@ -487,20 +487,26 @@ final class FieldRegistry {
 			}
 		}
 		foreach ( array_keys( $taxes ) as $tax ) {
-			add_action( $tax . '_add_form_fields', static function () use ( $tax ): void {
-				foreach ( self::groups_for( 'term:' . $tax ) as $g ) {
-					wp_nonce_field( 'momos_fields_' . $g['key'], '_momos_nonce_' . $g['key'] );
-					Renderer::group( $g, [], 0, 'term_add' );
+			add_action(
+				$tax . '_add_form_fields',
+				static function () use ( $tax ): void {
+					foreach ( self::groups_for( 'term:' . $tax ) as $g ) {
+						wp_nonce_field( 'momos_fields_' . $g['key'], '_momos_nonce_' . $g['key'] );
+						Renderer::group( $g, [], 0, 'term_add' );
+					}
 				}
-			} );
-			add_action( $tax . '_edit_form_fields', static function ( \WP_Term $term ) use ( $tax ): void {
-				foreach ( self::groups_for( 'term:' . $tax ) as $g ) {
-					echo '<tr class="form-field"><th scope="row">' . esc_html( (string) $g['title'] ) . '</th><td>';
-					wp_nonce_field( 'momos_fields_' . $g['key'], '_momos_nonce_' . $g['key'] );
-					Renderer::group( $g, self::term_values( $term->term_id, $g ), $term->term_id, 'term' );
-					echo '</td></tr>';
+			);
+			add_action(
+				$tax . '_edit_form_fields',
+				static function ( \WP_Term $term ) use ( $tax ): void {
+					foreach ( self::groups_for( 'term:' . $tax ) as $g ) {
+						echo '<tr class="form-field"><th scope="row">' . esc_html( (string) $g['title'] ) . '</th><td>';
+						wp_nonce_field( 'momos_fields_' . $g['key'], '_momos_nonce_' . $g['key'] );
+						Renderer::group( $g, self::term_values( $term->term_id, $g ), $term->term_id, 'term' );
+						echo '</td></tr>';
+					}
 				}
-			} );
+			);
 			$save = static function ( int $term_id ) use ( $tax ): void {
 				$submitted = self::submitted_fields();
 				if ( null === $submitted ) {

@@ -43,9 +43,9 @@ final class LanguageGate {
 			wp_die( esc_html__( 'You do not have permission to change public languages.', 'momos-core' ), 403 );
 		}
 		check_admin_referer( self::ACTION );
-		$lang = isset( $_POST['lang'] ) ? sanitize_key( wp_unslash( (string) $_POST['lang'] ) ) : '';
-		$op   = isset( $_POST['op'] ) ? sanitize_key( wp_unslash( (string) $_POST['op'] ) ) : '';
-		$sign = [
+		$lang   = isset( $_POST['lang'] ) ? sanitize_key( wp_unslash( (string) $_POST['lang'] ) ) : '';
+		$op     = isset( $_POST['op'] ) ? sanitize_key( wp_unslash( (string) $_POST['op'] ) ) : '';
+		$sign   = [
 			'by'  => isset( $_POST['signoff_by'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['signoff_by'] ) ) : '',
 			'at'  => isset( $_POST['signoff_at'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['signoff_at'] ) ) : '',
 			'ref' => isset( $_POST['signoff_ref'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['signoff_ref'] ) ) : '',

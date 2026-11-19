@@ -58,7 +58,7 @@ final class Content {
 				++$n;
 				$text = trim( wp_strip_all_tags( $m[2] ) );
 				if ( preg_match( '/\sid="([^"]+)"/', $m[1], $idm ) ) {
-					$id = $idm[1];
+					$id    = $idm[1];
 					$attrs = $m[1];
 				} else {
 					$id    = 'section-' . $n;
@@ -128,8 +128,8 @@ final class Content {
 	 * @return array{items:list<array{id:int,title:string,excerpt:string,date_iso:string,date:string,url:string,image_id:int}>,pages:int}
 	 */
 	public static function news( int $page, ?string $lang = null ): array {
-		$lang = $lang ?? Locale::current();
-		$q    = new \WP_Query(
+		$lang  = $lang ?? Locale::current();
+		$q     = new \WP_Query(
 			[
 				'post_type'           => 'post',
 				'post_status'         => 'publish',
@@ -179,7 +179,7 @@ final class Content {
 				'meta_query'     => array_merge( [ [ 'key' => 'momo_gallery_include', 'value' => '1' ] ], Translations::meta_query( $lang ) ), // phpcs:ignore
 			]
 		);
-		$out = [];
+		$out  = [];
 		foreach ( array_map( 'intval', $ids ) as $id ) {
 			if ( '1' === (string) get_post_meta( $id, 'momo_image_illustrative', true ) ) {
 				continue;

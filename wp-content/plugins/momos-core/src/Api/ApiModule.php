@@ -100,8 +100,8 @@ final class ApiModule implements ModuleInterface {
 
 		// ErrorNormaliser: core codes → catalogue codes.
 		if ( $status >= 400 && is_array( $data ) && isset( $data['code'] ) ) {
-			$code = (string) $data['code'];
-			$new  = null;
+			$code   = (string) $data['code'];
+			$new    = null;
 			$fields = [];
 			if ( in_array( $code, [ 'rest_invalid_param', 'rest_missing_callback_param' ], true ) ) {
 				$new = 'invalid_param';

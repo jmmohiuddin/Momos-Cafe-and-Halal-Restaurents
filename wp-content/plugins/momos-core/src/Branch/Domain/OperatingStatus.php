@@ -5,7 +5,7 @@ namespace Momos\Branch\Domain;
 
 /** Branch operating status (spec §3.7, FR-BR-004, BR-BR-04). */
 enum OperatingStatus: string {
-	case Open = 'open';
+	case Open              = 'open';
 	case TemporarilyClosed = 'temporarily_closed';
 	case ClosedPermanently = 'closed_permanently';
 

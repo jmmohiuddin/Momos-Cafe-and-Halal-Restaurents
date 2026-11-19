@@ -46,10 +46,10 @@ final class Catalogue {
 
 	/** Doc 05 variant names → catalogue names. */
 	public const ALIASES = [
-		'user.role_assigned'       => 'user.role_changed',
-		'user.capability_granted'  => 'user.cap_dca_granted',
-		'dsr.anonymised'           => 'dsr.anonymized',
-		'momo_disabled'            => 'user.disabled',
+		'user.role_assigned'      => 'user.role_changed',
+		'user.capability_granted' => 'user.cap_dca_granted',
+		'dsr.anonymised'          => 'dsr.anonymized',
+		'momo_disabled'           => 'user.disabled',
 	];
 
 	/** @return list<string> */

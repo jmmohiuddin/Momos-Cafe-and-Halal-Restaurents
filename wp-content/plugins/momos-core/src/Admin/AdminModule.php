@@ -17,10 +17,13 @@ final class AdminModule implements ModuleInterface {
 
 	public function register(): void {
 		add_action( 'admin_menu', [ self::class, 'menu' ], 9 );
-		add_filter( 'momos/migrations', static function ( array $list ): array {
-			$list[] = new Migration\M0005_DefaultSettings();
-			return $list;
-		} );
+		add_filter(
+			'momos/migrations',
+			static function ( array $list ): array {
+				$list[] = new Migration\M0005_DefaultSettings();
+				return $list;
+			}
+		);
 		Settings\BrandFields::register();
 		Settings\SettingsFields::register();
 		Settings\ReservationOptions::register();

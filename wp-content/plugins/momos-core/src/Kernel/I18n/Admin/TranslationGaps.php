@@ -147,7 +147,7 @@ final class TranslationGaps {
 			if ( ! self::post_included( $p, $now ) ) {
 				continue;
 			}
-			$lccs  = match ( $post_type ) {
+			$lccs = match ( $post_type ) {
 				'page' => '1' === (string) get_post_meta( $id, 'momo_lccs', true ),
 				'momo_branch', 'momo_dish' => true,
 				default => false,
@@ -272,9 +272,9 @@ final class TranslationGaps {
 			if ( ! Strings::is_customer_key( $key ) ) {
 				continue;
 			}
-			$g                        = Strings::group_of( $key ) ?: 'other';
-			$groups[ $g ]['keys'][]   = $key;
-			$groups[ $g ]['lccs']     = ( $groups[ $g ]['lccs'] ?? false ) || Strings::is_lccs_key( $key );
+			$g                      = Strings::group_of( $key ) ?: 'other';
+			$groups[ $g ]['keys'][] = $key;
+			$groups[ $g ]['lccs']   = ( $groups[ $g ]['lccs'] ?? false ) || Strings::is_lccs_key( $key );
 		}
 		ksort( $groups );
 		$out = [];

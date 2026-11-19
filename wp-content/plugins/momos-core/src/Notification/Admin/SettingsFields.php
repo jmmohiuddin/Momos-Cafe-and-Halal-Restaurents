@@ -144,15 +144,15 @@ final class SettingsFields {
 		$beat   = (string) get_option( 'momos_job_heartbeat_queue', '' );
 		echo '<h2>' . esc_html__( 'Email transport (read-only)', 'momos-core' ) . '</h2><table class="widefat striped" style="max-width:640px"><tbody>';
 		$rows = [
-			__( 'Transport', 'momos-core' )                  => $s['transport'],
-			__( 'SMTP host', 'momos-core' )                  => $s['host'],
-			__( 'Port / TLS', 'momos-core' )                 => $s['port'] . ' / ' . $s['tls'],
-			__( 'Fallback connection', 'momos-core' )        => $s['fallback'],
-			__( 'From address', 'momos-core' )               => $s['from'],
-			__( 'Sandbox (staging reroute)', 'momos-core' )  => $s['sandbox'],
+			__( 'Transport', 'momos-core' )               => $s['transport'],
+			__( 'SMTP host', 'momos-core' )               => $s['host'],
+			__( 'Port / TLS', 'momos-core' )              => $s['port'] . ' / ' . $s['tls'],
+			__( 'Fallback connection', 'momos-core' )     => $s['fallback'],
+			__( 'From address', 'momos-core' )            => $s['from'],
+			__( 'Sandbox (staging reroute)', 'momos-core' ) => $s['sandbox'],
 			__( 'Last queue heartbeat (UTC)', 'momos-core' ) => '' !== $beat ? $beat : '—',
-			__( 'Queued now', 'momos-core' )                 => (string) $counts['queued'],
-			__( 'Failed in the last 24 h', 'momos-core' )    => (string) $counts['failed_24h'],
+			__( 'Queued now', 'momos-core' )              => (string) $counts['queued'],
+			__( 'Failed in the last 24 h', 'momos-core' ) => (string) $counts['failed_24h'],
 		];
 		foreach ( $rows as $label => $value ) {
 			echo '<tr><th scope="row">' . esc_html( $label ) . '</th><td><code>' . esc_html( (string) $value ) . '</code></td></tr>';

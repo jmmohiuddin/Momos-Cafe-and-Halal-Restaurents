@@ -259,7 +259,7 @@ final class ScheduleService {
 		}
 		$key = $branch_id . '|' . $date_ymd;
 		if ( ! array_key_exists( $key, self::$closures ) ) {
-			$grouped               = ClosureRepository::group_by_date( ClosureRepository::rows_on( $branch_id, $date_ymd ) );
+			$grouped                = ClosureRepository::group_by_date( ClosureRepository::rows_on( $branch_id, $date_ymd ) );
 			self::$closures[ $key ] = $grouped[ $date_ymd ] ?? null;
 		}
 		return self::$closures[ $key ];
@@ -281,9 +281,9 @@ final class ScheduleService {
 
 	/** @return list<array<string,mixed>> rows for a weekday under the set precedence for $date */
 	private static function weekly_rows_for( int $branch_id, int $weekday, string $date_ymd ): array {
-		$rows    = self::weekly_rows( $branch_id );
-		$dated   = array_filter( $rows, static fn( $r ) => null !== $r['valid_from'] && $r['valid_from'] <= $date_ymd && ( null === $r['valid_until'] || $r['valid_until'] >= $date_ymd ) );
-		$starts  = array_unique( array_map( static fn( $r ) => $r['valid_from'], $dated ) );
+		$rows   = self::weekly_rows( $branch_id );
+		$dated  = array_filter( $rows, static fn( $r ) => null !== $r['valid_from'] && $r['valid_from'] <= $date_ymd && ( null === $r['valid_until'] || $r['valid_until'] >= $date_ymd ) );
+		$starts = array_unique( array_map( static fn( $r ) => $r['valid_from'], $dated ) );
 		rsort( $starts );
 		foreach ( $starts as $start ) {
 			$set = array_values( array_filter( $dated, static fn( $r ) => $r['valid_from'] === $start && $r['weekday'] === $weekday ) );

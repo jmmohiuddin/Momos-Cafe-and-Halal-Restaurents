@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 echo $v['headline'] . "\n" . str_repeat( '=', 40 ) . "\n\n"; // phpcs:ignore -- plain text
-include __DIR__ . '/_blocks.txt.php';
+require __DIR__ . '/_blocks.txt.php';
 if ( ! empty( $v['button'] ) ) {
 	echo $v['button']['label'] . ":\n" . $v['button']['url'] . "\n\n"; // phpcs:ignore
 }

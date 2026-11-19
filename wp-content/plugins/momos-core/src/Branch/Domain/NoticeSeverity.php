@@ -5,7 +5,7 @@ namespace Momos\Branch\Domain;
 
 /** Notice severity (G15, FR-BR-009). */
 enum NoticeSeverity: string {
-	case Info = 'info';
+	case Info    = 'info';
 	case Warning = 'warning';
 
 	/** @return list<string> */

@@ -91,7 +91,7 @@ final class CertificateExpiryJob {
 			}
 		}
 		foreach ( get_users( [ 'capability' => ClaimFieldGuard::CAP, 'fields' => [ 'ID', 'user_email' ] ] ) as $u ) {
-			$email = strtolower( (string) $u->user_email );
+			$email  = strtolower( (string) $u->user_email );
 			$active = (bool) apply_filters( 'momos/access/user_active', true, (int) $u->ID );
 			if ( ! $active || ! is_email( $email ) || isset( $out[ $email ] ) ) {
 				continue;

@@ -36,22 +36,30 @@ final class CacheInvalidator {
 		add_action( 'momos/branch/settings_changed', $branch );
 		add_action( 'momos/branch/identity_changed', static fn() => self::purge( [ 'momo-global' ] ) );
 		add_action( 'momos/offer/visibility_changed', static fn( $id, $global = false ) => self::purge( $global ? [ 'momo-global' ] : [ 'momo-offers', 'momo-home' ] ), 10, 2 );
-		add_action( 'momos/branch_menu_item/updated', static function ( $item ): void {
-			$item = (array) $item;
-			self::purge( array_filter( [ isset( $item['dish_id'] ) ? 'momo-dish-' . (int) $item['dish_id'] : null, isset( $item['branch_id'] ) ? 'momo-branch-' . (int) $item['branch_id'] : null, 'momo-menu' ] ) );
-		} );
+		add_action(
+			'momos/branch_menu_item/updated',
+			static function ( $item ): void {
+				$item = (array) $item;
+				self::purge( array_filter( [ isset( $item['dish_id'] ) ? 'momo-dish-' . (int) $item['dish_id'] : null, isset( $item['branch_id'] ) ? 'momo-branch-' . (int) $item['branch_id'] : null, 'momo-menu' ] ) );
+			}
+		);
 		foreach ( [ 'momos/dish/published', 'momos/dish/retired', 'momos/dietary/review_required' ] as $h ) {
 			add_action( $h, static fn( $id ) => self::purge( [ 'momo-dish-' . (int) $id, 'momo-menu', 'momo-home' ] ) );
 		}
 		add_action( 'momos/dietary/claims_changed', static fn() => self::purge( [ 'momo-halal', 'momo-menu', 'momo-home', 'momo-branches' ] ) );
 		add_action( 'momos/certificate/status_changed', static fn() => self::purge( [ 'momo-halal', 'momo-menu', 'momo-home', 'momo-branches' ] ) );
 		add_action( 'momos/i18n/translation_saved', static fn( $type, $id ) => 'post' === $type ? self::purge( [ 'momo-post-' . (int) $id ] ) : self::purge( [ 'momo-global' ] ), 10, 2 );
-		add_action( 'save_post', static function ( $id, $post ): void {
-			if ( ! wp_is_post_revision( $id ) && 'publish' === ( $post->post_status ?? '' ) ) {
-				$map = [ 'momo_branch' => 'momo-branch-', 'momo_dish' => 'momo-dish-' ];
-				self::purge( [ ( $map[ $post->post_type ] ?? 'momo-post-' ) . (int) $id, 'momo-home', 'page' === $post->post_type ? 'momo-global' : 'momo-menu' ] );
-			}
-		}, 99, 2 );
+		add_action(
+			'save_post',
+			static function ( $id, $post ): void {
+				if ( ! wp_is_post_revision( $id ) && 'publish' === ( $post->post_status ?? '' ) ) {
+					$map = [ 'momo_branch' => 'momo-branch-', 'momo_dish' => 'momo-dish-' ];
+					self::purge( [ ( $map[ $post->post_type ] ?? 'momo-post-' ) . (int) $id, 'momo-home', 'page' === $post->post_type ? 'momo-global' : 'momo-menu' ] );
+				}
+			},
+			99,
+			2
+		);
 	}
 
 	public static function adapter(): string {
@@ -68,11 +76,13 @@ final class CacheInvalidator {
 	public static function tag_queried_object(): void {
 		$o = get_queried_object();
 		if ( $o instanceof \WP_Post ) {
-			self::tag( match ( $o->post_type ) {
+			self::tag(
+				match ( $o->post_type ) {
 				'momo_branch' => 'momo-branch-' . $o->ID,
 				'momo_dish' => 'momo-dish-' . $o->ID,
 				default => 'momo-post-' . $o->ID,
-			} );
+				}
+			);
 		} elseif ( $o instanceof \WP_Term ) {
 			self::tag( 'momo-cat-' . $o->term_id, 'momo-menu' );
 		}
@@ -193,11 +203,14 @@ final class CacheInvalidator {
 			$bodies = array_map( static fn( $chunk ) => [ 'files' => $chunk ], array_chunk( $urls, 30 ) );
 		}
 		foreach ( $bodies as $body ) {
-			$res = wp_remote_post( $endpoint, [
-				'timeout' => 5,
-				'headers' => [ 'Authorization' => 'Bearer ' . $token, 'Content-Type' => 'application/json' ],
-				'body'    => (string) wp_json_encode( $body ),
-			] );
+			$res = wp_remote_post(
+				$endpoint,
+				[
+					'timeout' => 5,
+					'headers' => [ 'Authorization' => 'Bearer ' . $token, 'Content-Type' => 'application/json' ],
+					'body'    => (string) wp_json_encode( $body ),
+				]
+			);
 			if ( is_wp_error( $res ) || wp_remote_retrieve_response_code( $res ) >= 300 ) {
 				throw new \RuntimeException( 'Cloudflare purge failed' );
 			}

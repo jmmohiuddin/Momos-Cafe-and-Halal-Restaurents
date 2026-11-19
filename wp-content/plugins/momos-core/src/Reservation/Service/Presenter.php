@@ -261,7 +261,7 @@ final class Presenter {
 		foreach ( [ 'consent_at', 'updated_at', 'confirmed_at', 'rejected_at', 'cancelled_at', 'expired_at', 'attended_at', 'pii_purged_at' ] as $k ) {
 			$out[ $k ] = self::iso_jst( $row[ $k ] ?? null );
 		}
-		$out['events'] = array_map(
+		$out['events']                  = array_map(
 			static fn( $e ) => [
 				'id'            => (int) $e['id'],
 				'type'          => (string) $e['event_type'],
@@ -311,8 +311,8 @@ final class Presenter {
 		$rows = \Momos\Notification\Admin\NotificationPanel::api_rows( $reservation_id, $user_id ?? get_current_user_id() );
 		$out  = [];
 		foreach ( $rows as $n ) {
-			$id    = (int) $n['id'];
-			$item  = $n;
+			$id                      = (int) $n['id'];
+			$item                    = $n;
 			$item['template']        = (string) $n['template_key'];
 			$item['variant']         = $n['template_variant'];
 			$item['language']        = (string) $n['lang'];

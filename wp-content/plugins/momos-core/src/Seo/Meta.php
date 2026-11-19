@@ -207,7 +207,7 @@ final class Meta {
 		if ( $c['id'] > 0 ) {
 			$ids[] = (int) ( Context::CATEGORY === $c['kind'] ? get_term_meta( $c['id'], 'momo_og_image', true ) : get_post_meta( $c['id'], 'momo_og_image', true ) );
 			if ( Context::CATEGORY !== $c['kind'] ) {
-				$thumb = (int) get_post_thumbnail_id( $c['id'] );
+				$thumb  = (int) get_post_thumbnail_id( $c['id'] );
 				$strict = Context::BRANCH === $c['kind'] || 'about' === $c['role'];
 				if ( $thumb && ! ( $strict && '1' === (string) get_post_meta( $thumb, 'momo_image_illustrative', true ) ) ) {
 					$ids[] = $thumb;

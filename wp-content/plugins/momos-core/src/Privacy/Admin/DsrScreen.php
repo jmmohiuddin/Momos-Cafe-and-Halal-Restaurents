@@ -21,10 +21,10 @@ use Momos\Privacy\Retention\RetentionJob;
  * version history (read-only).
  */
 final class DsrScreen {
-	public const SLUG   = 'momos-dsr';
-	public const CAP    = 'momo_manage_dsr';
-	public const NONCE  = 'momos_dsr';
-	public const TTL    = 15 * MINUTE_IN_SECONDS;
+	public const SLUG    = 'momos-dsr';
+	public const CAP     = 'momo_manage_dsr';
+	public const NONCE   = 'momos_dsr';
+	public const TTL     = 15 * MINUTE_IN_SECONDS;
 	public const ACTIONS = [ 'search', 'export', 'correct', 'anonymize' ];
 
 	public static function register(): void {
@@ -185,15 +185,15 @@ final class DsrScreen {
 			$branch = DsrService::branch( (int) $r['branch_id'] );
 			$status = \Momos\Reservation\Domain\ReservationStatus::tryFrom( (string) $r['status'] );
 			$view[] = [
-				'id'          => (int) $r['id'],
-				'ref'         => \Momos\Kernel\Support\Crockford::display( (string) $r['public_ref'] ),
-				'branch'      => $branch['code'],
-				'when'        => $r['requested_date'] . ' ' . substr( (string) $r['requested_time'], 0, 5 ),
-				'status'      => $status ? $status->staffLabel() : (string) $r['status'],
-				'lang'        => (string) $r['preferred_lang'],
-				'created'     => wp_date( 'Y-m-d H:i', (int) Clock::from_mysql_utc( (string) $r['created_at'] )?->getTimestamp(), Clock::tz() ),
-				'blocked'     => DsrService::is_active_future( $r, $now ),
-				'detail_url'  => class_exists( \Momos\Reservation\Admin\InboxPage::class ) ? \Momos\Reservation\Admin\InboxPage::url( [ 'id' => (int) $r['id'] ] ) : '',
+				'id'         => (int) $r['id'],
+				'ref'        => \Momos\Kernel\Support\Crockford::display( (string) $r['public_ref'] ),
+				'branch'     => $branch['code'],
+				'when'       => $r['requested_date'] . ' ' . substr( (string) $r['requested_time'], 0, 5 ),
+				'status'     => $status ? $status->staffLabel() : (string) $r['status'],
+				'lang'       => (string) $r['preferred_lang'],
+				'created'    => wp_date( 'Y-m-d H:i', (int) Clock::from_mysql_utc( (string) $r['created_at'] )?->getTimestamp(), Clock::tz() ),
+				'blocked'    => DsrService::is_active_future( $r, $now ),
+				'detail_url' => class_exists( \Momos\Reservation\Admin\InboxPage::class ) ? \Momos\Reservation\Admin\InboxPage::url( [ 'id' => (int) $r['id'] ] ) : '',
 			];
 		}
 		$retention = RetentionJob::last();

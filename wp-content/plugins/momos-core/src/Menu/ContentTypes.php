@@ -21,14 +21,14 @@ final class ContentTypes {
 			self::DISH,
 			[
 				'labels'              => [
-					'name'               => __( 'Dishes', 'momos-core' ),
-					'singular_name'      => __( 'Dish', 'momos-core' ),
-					'add_new_item'       => __( 'Add dish', 'momos-core' ),
-					'edit_item'          => __( 'Edit dish', 'momos-core' ),
-					'all_items'          => __( 'All dishes', 'momos-core' ),
-					'search_items'       => __( 'Search dishes', 'momos-core' ),
-					'not_found'          => __( 'No dishes found.', 'momos-core' ),
-					'menu_name'          => __( 'Menu', 'momos-core' ),
+					'name'          => __( 'Dishes', 'momos-core' ),
+					'singular_name' => __( 'Dish', 'momos-core' ),
+					'add_new_item'  => __( 'Add dish', 'momos-core' ),
+					'edit_item'     => __( 'Edit dish', 'momos-core' ),
+					'all_items'     => __( 'All dishes', 'momos-core' ),
+					'search_items'  => __( 'Search dishes', 'momos-core' ),
+					'not_found'     => __( 'No dishes found.', 'momos-core' ),
+					'menu_name'     => __( 'Menu', 'momos-core' ),
 				],
 				'public'              => true,
 				'publicly_queryable'  => true,
@@ -62,22 +62,22 @@ final class ContentTypes {
 			self::CATEGORY,
 			self::DISH,
 			[
-				'labels'            => [
+				'labels'             => [
 					'name'          => __( 'Menu categories', 'momos-core' ),
 					'singular_name' => __( 'Menu category', 'momos-core' ),
 					'add_new_item'  => __( 'Add menu category', 'momos-core' ),
 					'edit_item'     => __( 'Edit menu category', 'momos-core' ),
 				],
-				'public'            => true,
+				'public'             => true,
 				'publicly_queryable' => true,
-				'hierarchical'      => true, // Registered hierarchical; Phase 1 enforces top-level only (CategoryGuard).
-				'show_ui'           => true,
-				'show_admin_column' => true,
-				'show_in_rest'      => true,
-				'rest_base'         => 'momo_menu_category',
-				'rewrite'           => false,
-				'query_var'         => 'momo_menu_category',
-				'capabilities'      => $term_caps,
+				'hierarchical'       => true, // Registered hierarchical; Phase 1 enforces top-level only (CategoryGuard).
+				'show_ui'            => true,
+				'show_admin_column'  => true,
+				'show_in_rest'       => true,
+				'rest_base'          => 'momo_menu_category',
+				'rewrite'            => false,
+				'query_var'          => 'momo_menu_category',
+				'capabilities'       => $term_caps,
 			]
 		);
 		register_taxonomy(

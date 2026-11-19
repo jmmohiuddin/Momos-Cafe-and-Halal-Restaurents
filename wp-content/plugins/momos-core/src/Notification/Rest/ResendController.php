@@ -47,7 +47,7 @@ final class ResendController {
 		if ( $out['ok'] ) {
 			return new \WP_REST_Response( [ 'notification_id' => $out['id'], 'status' => 'queued' ], 201 );
 		}
-		$map = [
+		$map                  = [
 			'forbidden_branch'   => [ 403, __( 'You do not have access to this branch.', 'momos-core' ) ],
 			'not_found'          => [ 404, __( 'Not found.', 'momos-core' ) ],
 			'invalid_transition' => [ 409, __( 'This email cannot be resent.', 'momos-core' ) ],

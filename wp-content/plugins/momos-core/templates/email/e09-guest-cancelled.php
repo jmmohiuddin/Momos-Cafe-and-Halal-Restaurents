@@ -20,7 +20,7 @@ return [
 	'headline'     => $t( 'staff.email.headline.e09' ),
 	'blocks'       => [
 		[ 'type' => 'p', 'text' => $t( 'staff.email.e09.intro' ), 'args' => [ 'time' => EmailFormatter::staff_datetime( $cancelled, $d['lang'] ) ] ],
-		include __DIR__ . '/_staff-rows.php',
+		require __DIR__ . '/_staff-rows.php',
 	],
 	'button'       => [ 'label' => $t( 'staff.email.open_admin' ), 'url' => $d['admin_url'] ],
 ];

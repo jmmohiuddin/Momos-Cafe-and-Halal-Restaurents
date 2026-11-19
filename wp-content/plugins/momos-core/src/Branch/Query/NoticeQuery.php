@@ -101,19 +101,19 @@ final class NoticeQuery {
 			$url = momos_url( $url, $lang );
 		}
 		return [
-			'id'         => $id,
-			'title'      => Translations::post( $id, 'title', $lang ),
-			'body'       => $body,
-			'severity'   => 'warning' === get_post_meta( $id, 'momo_notice_severity', true ) ? 'warning' : 'info',
-			'scope'      => $scope,
-			'branch_ids' => $branches,
-			'link_url'   => '' !== $label ? $url : '',
-			'link_label' => '' !== $url ? $label : '',
-			'start_utc'  => $start->format( 'c' ),
-			'end_utc'    => $end ? $end->format( 'c' ) : null,
-			'start_ms'   => $start->getTimestamp() * 1000,
-			'end_ms'     => $end ? $end->getTimestamp() * 1000 : null,
-			'upcoming'   => $start > $now,
+			'id'          => $id,
+			'title'       => Translations::post( $id, 'title', $lang ),
+			'body'        => $body,
+			'severity'    => 'warning' === get_post_meta( $id, 'momo_notice_severity', true ) ? 'warning' : 'info',
+			'scope'       => $scope,
+			'branch_ids'  => $branches,
+			'link_url'    => '' !== $label ? $url : '',
+			'link_label'  => '' !== $url ? $label : '',
+			'start_utc'   => $start->format( 'c' ),
+			'end_utc'     => $end ? $end->format( 'c' ) : null,
+			'start_ms'    => $start->getTimestamp() * 1000,
+			'end_ms'      => $end ? $end->getTimestamp() * 1000 : null,
+			'upcoming'    => $start > $now,
 			'dismissible' => NoticeScope::SiteWide->value === $scope && 'warning' !== get_post_meta( $id, 'momo_notice_severity', true ),
 		];
 	}

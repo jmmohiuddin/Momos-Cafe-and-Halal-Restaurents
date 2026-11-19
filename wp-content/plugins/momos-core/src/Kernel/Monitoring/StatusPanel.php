@@ -55,7 +55,7 @@ final class StatusPanel {
 		}
 		echo '<h2>' . esc_html__( 'Monitoring — scheduled jobs', 'momos-core' ) . '</h2><table class="widefat striped"><thead><tr><th>' . esc_html__( 'Job', 'momos-core' ) . '</th><th>' . esc_html__( 'Interval', 'momos-core' ) . '</th><th>' . esc_html__( 'Last success (JST)', 'momos-core' ) . '</th><th>' . esc_html__( 'State', 'momos-core' ) . '</th></tr></thead><tbody>';
 		foreach ( Schedule::health() as $hook => $h ) {
-			$last = $h['last'] ? wp_date( 'Y-m-d H:i', (int) strtotime( $h['last'] ), new \DateTimeZone( 'Asia/Tokyo' ) ) : '—';
+			$last  = $h['last'] ? wp_date( 'Y-m-d H:i', (int) strtotime( $h['last'] ), new \DateTimeZone( 'Asia/Tokyo' ) ) : '—';
 			$state = [ 'ok' => __( 'OK', 'momos-core' ), 'late' => __( 'Late', 'momos-core' ), 'never' => __( 'Not run yet', 'momos-core' ) ][ $h['state'] ];
 			echo '<tr><td><code>' . esc_html( $hook ) . '</code></td><td>' . esc_html( (string) round( $h['interval'] / 60 ) ) . ' min</td><td>' . esc_html( $last ) . '</td><td>' . esc_html( $state ) . '</td></tr>';
 		}

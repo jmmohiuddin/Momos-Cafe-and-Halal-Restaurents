@@ -138,7 +138,7 @@ final class Widgets {
 	}
 
 	public static function recent_changes(): void {
-		$res = \Momos\Audit\AuditRepository::search( [ 'from' => Clock::jst()->modify( '-6 days' )->format( 'Y-m-d' ), 'to' => Clock::jst()->format( 'Y-m-d' ), 'page' => 1 ] );
+		$res  = \Momos\Audit\AuditRepository::search( [ 'from' => Clock::jst()->modify( '-6 days' )->format( 'Y-m-d' ), 'to' => Clock::jst()->format( 'Y-m-d' ), 'page' => 1 ] );
 		$rows = array_slice( $res['rows'], 0, 20 );
 		if ( ! $rows ) {
 			echo '<p>' . esc_html__( 'No changes in the last 7 days.', 'momos-core' ) . '</p>';

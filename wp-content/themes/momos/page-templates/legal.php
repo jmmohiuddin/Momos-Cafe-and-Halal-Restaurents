@@ -12,9 +12,9 @@
 defined( 'ABSPATH' ) || exit;
 
 get_header();
-$momos_id    = (int) get_queried_object_id();
-$momos_meta  = \Momos\Presentation\View\Content::legal_meta( $momos_id );
-$momos_body  = \Momos\Presentation\View\Content::with_toc( \Momos\Presentation\View\Content::body( $momos_id ) );
+$momos_id     = (int) get_queried_object_id();
+$momos_meta   = \Momos\Presentation\View\Content::legal_meta( $momos_id );
+$momos_body   = \Momos\Presentation\View\Content::with_toc( \Momos\Presentation\View\Content::body( $momos_id ) );
 $momos_is_ext = \Momos\Presentation\SystemPages::legal_id( 'ext_trans' ) === $momos_id;
 get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => \Momos\Presentation\View\Content::title( $momos_id ) ] );
 ?>

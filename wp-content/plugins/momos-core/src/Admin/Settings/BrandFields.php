@@ -20,8 +20,8 @@ final class BrandFields {
 
 	public static function register_groups(): void {
 		OptionsPage::add( self::PAGE, __( 'Brand', 'momos-core' ), 'momo_manage_brand' );
-		$cap   = 'momo_manage_brand';
-		$pages = [
+		$cap    = 'momo_manage_brand';
+		$pages  = [
 			'momo_privacy_page'            => __( 'Privacy Policy page', 'momos-core' ),
 			'momo_reservation_policy_page' => __( 'Reservation Policy page', 'momos-core' ),
 			'momo_terms_page'              => __( 'Terms of Use page', 'momos-core' ),

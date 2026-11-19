@@ -34,7 +34,11 @@ defined( 'ABSPATH' ) || exit;
 					<td><?php echo esc_html( (string) $r['lang'] ); ?></td>
 					<td><?php echo esc_html( (string) $r['field'] ); ?></td>
 					<td><bdi><?php echo esc_html( (string) $r['term'] ); ?></bdi></td>
-					<td><?php if ( '' !== $r['edit_link'] ) : ?><a href="<?php echo esc_url( (string) $r['edit_link'] ); ?>"><?php esc_html_e( 'Edit', 'momos-core' ); ?></a><?php endif; ?></td>
+					<td>
+					<?php
+					if ( '' !== $r['edit_link'] ) :
+						?>
+						<a href="<?php echo esc_url( (string) $r['edit_link'] ); ?>"><?php esc_html_e( 'Edit', 'momos-core' ); ?></a><?php endif; ?></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>

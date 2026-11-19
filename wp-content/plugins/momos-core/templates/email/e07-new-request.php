@@ -14,13 +14,13 @@ use Momos\Notification\Template\Renderer;
 
 defined( 'ABSPATH' ) || exit;
 
-$r     = $d['reservation'];
-$lang  = $d['lang'];
-$s     = $d['settings'];
-$rows  = include __DIR__ . '/_staff-rows.php';
-$plang = (string) ( $r['preferred_lang'] ?? 'ja' );
+$r              = $d['reservation'];
+$lang           = $d['lang'];
+$s              = $d['settings'];
+$rows           = include __DIR__ . '/_staff-rows.php';
+$plang          = (string) ( $r['preferred_lang'] ?? 'ja' );
 $rows['rows'][] = [ $t( 'staff.email.label.lang' ), Lang::native( $plang ) ];
-$created = Clock::from_mysql_utc( (string) $r['created_at'] );
+$created        = Clock::from_mysql_utc( (string) $r['created_at'] );
 if ( $created ) {
 	$rows['rows'][] = [ $t( 'staff.email.label.created' ), EmailFormatter::staff_datetime( $created, $lang ) ];
 }

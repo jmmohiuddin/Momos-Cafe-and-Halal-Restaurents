@@ -68,7 +68,7 @@ final class ActivityLogger {
 			return true;
 		}
 		$registered = strtotime( (string) $u->user_registered . ' UTC' );
-		return false === $registered || abs( current_time( 'timestamp', true ) - $registered ) < 60;
+		return false === $registered || abs( time() - $registered ) < 60;
 	}
 
 	/**

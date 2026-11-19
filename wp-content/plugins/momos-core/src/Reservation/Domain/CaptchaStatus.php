@@ -7,9 +7,9 @@ namespace Momos\Reservation\Domain;
  * Captcha outcome stored with a submission (CHECK chk_momo_res_captcha; FR-RES-007).
  */
 enum CaptchaStatus: string {
-	case Verified = 'verified';
+	case Verified         = 'verified';
 	case UnverifiedOutage = 'unverified_outage';
-	case NotApplicable = 'not_applicable';
+	case NotApplicable    = 'not_applicable';
 
 	/** @return list<string> */
 	public static function values(): array {

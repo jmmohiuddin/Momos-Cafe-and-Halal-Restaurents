@@ -101,7 +101,7 @@ final class BranchRepository {
 				'meta_value'       => $code, // phpcs:ignore
 			]
 		);
-		$b = $ids ? self::get( (int) $ids[0] ) : null;
+		$b   = $ids ? self::get( (int) $ids[0] ) : null;
 		if ( ! $b || ( $b['is_test'] && ! $include_test ) ) {
 			return null;
 		}

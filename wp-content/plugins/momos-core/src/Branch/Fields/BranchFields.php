@@ -35,9 +35,9 @@ final class BranchFields {
 	}
 
 	public static function register_groups(): void {
-		$id   = 'momo_edit_branch_identity';
-		$st   = 'momo_edit_branch_settings';
-		$unk  = [ 'unknown' => __( 'Unknown (not shown)', 'momos-core' ) ];
+		$id  = 'momo_edit_branch_identity';
+		$st  = 'momo_edit_branch_settings';
+		$unk = [ 'unknown' => __( 'Unknown (not shown)', 'momos-core' ) ];
 		FieldRegistry::group(
 			[
 				'key'       => self::G4,
@@ -76,12 +76,12 @@ final class BranchFields {
 		$yes_no = [ 'yes' => __( 'Yes', 'momos-core' ), 'no' => __( 'No', 'momos-core' ) ];
 		FieldRegistry::group(
 			[
-				'key'       => self::G5,
-				'title'     => __( 'Access & facilities', 'momos-core' ),
-				'post_type' => 'momo_branch',
-				'order'     => 20,
+				'key'         => self::G5,
+				'title'       => __( 'Access & facilities', 'momos-core' ),
+				'post_type'   => 'momo_branch',
+				'order'       => 20,
 				'description' => __( '"Unknown" values are never shown to customers. Only enter owner-confirmed facts.', 'momos-core' ),
-				'fields'    => [
+				'fields'      => [
 					[
 						'name'         => 'momo_access_directions',
 						'label'        => __( 'Access directions', 'momos-core' ),
@@ -105,20 +105,20 @@ final class BranchFields {
 					[ 'name' => 'momo_wifi', 'label' => __( 'Wi-Fi', 'momos-core' ), 'type' => 'select', 'no_empty' => true, 'default' => 'unknown', 'edit_cap' => $id, 'choices' => $yes_no + $unk ],
 					[ 'name' => 'momo_map_preview_image', 'label' => __( 'Map preview image (own/licensed, no Google imagery)', 'momos-core' ), 'type' => 'image', 'edit_cap' => $id ],
 				],
-				'on_save'   => [ self::class, 'mirror_directions' ],
+				'on_save'     => [ self::class, 'mirror_directions' ],
 			]
 		);
 
 		$d = BranchSettingsRepository::DEFAULTS;
 		FieldRegistry::group(
 			[
-				'key'       => self::G6,
-				'title'     => __( 'Reservation settings', 'momos-core' ),
-				'post_type' => 'momo_branch',
-				'order'     => 30,
-				'view_cap'  => 'momo_view_reservations',
+				'key'         => self::G6,
+				'title'       => __( 'Reservation settings', 'momos-core' ),
+				'post_type'   => 'momo_branch',
+				'order'       => 30,
+				'view_cap'    => 'momo_view_reservations',
 				'description' => __( 'Changes apply to new requests and modifications only. Head Office only.', 'momos-core' ),
-				'fields'    => [
+				'fields'      => [
 					[ 'name' => 'momo_res_enabled', 'label' => __( 'Accept online requests', 'momos-core' ), 'type' => 'true_false', 'default' => $d['momo_res_enabled'], 'edit_cap' => $st, 'column' => true ],
 					[ 'name' => 'momo_res_party_min', 'label' => __( 'Minimum party size', 'momos-core' ), 'type' => 'number', 'min' => 1, 'max' => 20, 'default' => (string) $d['momo_res_party_min'], 'edit_cap' => $st ],
 					[ 'name' => 'momo_res_party_max', 'label' => __( 'Maximum party size', 'momos-core' ), 'type' => 'number', 'min' => 1, 'max' => 50, 'default' => (string) $d['momo_res_party_max'], 'edit_cap' => $st ],

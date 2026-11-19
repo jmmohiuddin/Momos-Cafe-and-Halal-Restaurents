@@ -17,4 +17,12 @@ if ( '' === $momos_html ) {
 	return; // FR-BR-003: no price, no label.
 }
 ?>
-<span class="momo-price"><?php echo wp_kses( $momos_html, [ 'bdi' => [ 'dir' => true ] ] ); ?><?php if ( ! empty( $args['sample'] ) ) : ?> <span class="momo-sample" lang="en">SAMPLE</span><?php endif; ?><?php if ( ! empty( $args['context'] ) ) : ?><span class="momo-price__ctx"><?php echo esc_html( (string) $args['context'] ); ?></span><?php endif; ?></span>
+<span class="momo-price"><?php echo wp_kses( $momos_html, [ 'bdi' => [ 'dir' => true ] ] ); ?>
+<?php
+if ( ! empty( $args['sample'] ) ) :
+	?>
+	<span class="momo-sample" lang="en">SAMPLE</span><?php endif; ?>
+	<?php
+	if ( ! empty( $args['context'] ) ) :
+		?>
+	<span class="momo-price__ctx"><?php echo esc_html( (string) $args['context'] ); ?></span><?php endif; ?></span>

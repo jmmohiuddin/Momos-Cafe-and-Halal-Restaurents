@@ -21,7 +21,7 @@ final class TemplateRegistry {
 		'E06' => [ 'slug' => 'e06-updated', 'audience' => 'customer', 'variants' => [ 'pending', 'confirmed', 'new_link' ], 'needs_reservation' => true ],
 		'E07' => [ 'slug' => 'e07-new-request', 'audience' => 'staff', 'variants' => [], 'needs_reservation' => true ],
 		'E08' => [ 'slug' => 'e08-attention', 'audience' => 'staff', 'variants' => [ 'sla_reminder', 'sla_escalation', 'notify_failed' ], 'needs_reservation' => true ],
-		'E09' => [ 'slug' => 'e09-guest-cancelled', 'audience' => 'staff', 'variants' => [ ], 'needs_reservation' => true ],
+		'E09' => [ 'slug' => 'e09-guest-cancelled', 'audience' => 'staff', 'variants' => [], 'needs_reservation' => true ],
 		'E10' => [ 'slug' => 'e10-digest', 'audience' => 'staff', 'variants' => [ 'branch', 'head_office' ], 'needs_reservation' => false ],
 		'E11' => [ 'slug' => 'e11-certificate-expiry', 'audience' => 'staff', 'variants' => [ 'cert_30', 'cert_7', 'cert_expired' ], 'needs_reservation' => false ],
 	];

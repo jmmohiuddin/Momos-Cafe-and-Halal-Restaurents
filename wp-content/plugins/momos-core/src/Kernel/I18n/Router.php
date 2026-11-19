@@ -11,7 +11,7 @@ namespace Momos\Kernel\I18n;
  * posts, pages and terms produced on the front end carry the current language prefix.
  */
 final class Router {
-	private static ?string $original_uri = null;
+	private static ?string $original_uri   = null;
 	private static bool $disabled_language = false;
 
 	public static function register(): void {

@@ -13,7 +13,7 @@ abstract class Clock {
 
 	public static function get(): Clock {
 		if ( null === self::$instance ) {
-			$frozen = defined( 'MOMOS_FROZEN_NOW' ) ? (string) MOMOS_FROZEN_NOW : (string) get_option( 'momos_frozen_now', '' );
+			$frozen         = defined( 'MOMOS_FROZEN_NOW' ) ? (string) MOMOS_FROZEN_NOW : (string) get_option( 'momos_frozen_now', '' );
 			self::$instance = ( '' !== $frozen && ! \Momos\Kernel\Env::is_production() ) ? new FrozenClock( new \DateTimeImmutable( $frozen ) ) : new SystemClock();
 		}
 		return self::$instance;

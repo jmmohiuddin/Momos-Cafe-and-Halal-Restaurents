@@ -5,10 +5,10 @@ namespace Momos\Branch\Domain;
 
 /** Opening period label; equals DB CHECK chk_momo_hours_label (spec §3.4/§3.7). */
 enum PeriodLabel: string {
-	case Lunch = 'lunch';
+	case Lunch  = 'lunch';
 	case Dinner = 'dinner';
 	case AllDay = 'all_day';
-	case Other = 'other';
+	case Other  = 'other';
 
 	/** @return list<string> */
 	public static function values(): array {

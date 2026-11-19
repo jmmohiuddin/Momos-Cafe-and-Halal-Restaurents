@@ -14,8 +14,8 @@ use Momos\Kernel\I18n\Lang;
 use Momos\Reservation\Admin\ReportPage;
 use Momos\Reservation\Domain\ReservationStatus;
 
-$pct  = static fn( ?float $v ): string => null === $v ? __( 'Not enough data for this period', 'momos-core' ) : number_format_i18n( $v * 100, 1 ) . '%';
-$mins = static fn( ?int $v ): string => null === $v ? __( 'Not enough data for this period', 'momos-core' ) : sprintf( /* translators: %d minutes */ __( '%d min', 'momos-core' ), $v );
+$pct   = static fn( ?float $v ): string => null === $v ? __( 'Not enough data for this period', 'momos-core' ) : number_format_i18n( $v * 100, 1 ) . '%';
+$mins  = static fn( ?int $v ): string => null === $v ? __( 'Not enough data for this period', 'momos-core' ) : sprintf( /* translators: %d minutes */ __( '%d min', 'momos-core' ), $v );
 $table = static function ( string $caption, string $col, array $groups ) use ( $pct, $mins ): void {
 	?>
 	<table class="widefat striped momos-table" style="margin-block-end:24px">
@@ -23,7 +23,10 @@ $table = static function ( string $caption, string $col, array $groups ) use ( $
 		<thead><tr>
 			<th scope="col"><?php echo esc_html( $col ); ?></th>
 			<th scope="col"><?php esc_html_e( 'Requests', 'momos-core' ); ?></th>
-			<?php foreach ( ReservationStatus::cases() as $s ) : ?><th scope="col"><?php echo esc_html( $s->staffLabel() ); ?></th><?php endforeach; ?>
+			<?php
+			foreach ( ReservationStatus::cases() as $s ) :
+				?>
+				<th scope="col"><?php echo esc_html( $s->staffLabel() ); ?></th><?php endforeach; ?>
 			<th scope="col"><?php esc_html_e( 'Acceptance rate', 'momos-core' ); ?></th>
 			<th scope="col"><?php esc_html_e( 'Expiry rate', 'momos-core' ); ?></th>
 			<th scope="col"><?php esc_html_e( 'No-show rate', 'momos-core' ); ?></th>
@@ -39,7 +42,10 @@ $table = static function ( string $caption, string $col, array $groups ) use ( $
 			<tr>
 				<th scope="row"><?php echo esc_html( (string) $key ); ?></th>
 				<td><?php echo (int) $m['created']; ?></td>
-				<?php foreach ( ReservationStatus::values() as $s ) : ?><td><?php echo (int) $m['counts'][ $s ]; ?></td><?php endforeach; ?>
+				<?php
+				foreach ( ReservationStatus::values() as $s ) :
+					?>
+					<td><?php echo (int) $m['counts'][ $s ]; ?></td><?php endforeach; ?>
 				<td><?php echo esc_html( $pct( $m['acceptance_rate'] ) ); ?></td>
 				<td><?php echo esc_html( $pct( $m['expiry_rate'] ) ); ?></td>
 				<td><?php echo esc_html( $pct( $m['no_show_rate'] ) ); ?></td>
@@ -52,12 +58,15 @@ $table = static function ( string $caption, string $col, array $groups ) use ( $
 	</table>
 	<?php
 };
-$t = $report['total'];
-include __DIR__ . '/reservation-styles.php';
+$t     = $report['total'];
+require __DIR__ . '/reservation-styles.php';
 ?>
 <div class="wrap momos-admin momos-res">
 	<h1><?php esc_html_e( 'Reservation report', 'momos-core' ); ?></h1>
-	<?php if ( $error ) : ?><div class="notice notice-error" role="alert"><p><?php echo esc_html( $error ); ?></p></div><?php endif; ?>
+	<?php
+	if ( $error ) :
+		?>
+		<div class="notice notice-error" role="alert"><p><?php echo esc_html( $error ); ?></p></div><?php endif; ?>
 	<form method="get" class="momos-filters">
 		<input type="hidden" name="page" value="<?php echo esc_attr( ReportPage::SLUG ); ?>">
 		<label><?php esc_html_e( 'From', 'momos-core' ); ?><input type="date" name="date_from" value="<?php echo esc_attr( $from ); ?>"></label>
@@ -71,13 +80,19 @@ include __DIR__ . '/reservation-styles.php';
 		<label><?php esc_html_e( 'Branch', 'momos-core' ); ?>
 			<select name="branch">
 				<option value=""><?php esc_html_e( 'All in my scope', 'momos-core' ); ?></option>
-				<?php foreach ( $branches as $b ) : ?><option value="<?php echo esc_attr( $b['code'] ); ?>" <?php selected( $branch, $b['code'] ); ?>><?php echo esc_html( $b['code'] . ' — ' . $b['name'] ); ?></option><?php endforeach; ?>
+				<?php
+				foreach ( $branches as $b ) :
+					?>
+					<option value="<?php echo esc_attr( $b['code'] ); ?>" <?php selected( $branch, $b['code'] ); ?>><?php echo esc_html( $b['code'] . ' — ' . $b['name'] ); ?></option><?php endforeach; ?>
 			</select>
 		</label>
 		<label><?php esc_html_e( 'Reply language', 'momos-core' ); ?>
 			<select name="lang">
 				<option value=""><?php esc_html_e( 'All', 'momos-core' ); ?></option>
-				<?php foreach ( Lang::codes() as $c ) : ?><option value="<?php echo esc_attr( $c ); ?>" <?php selected( $lang, $c ); ?>><?php echo esc_html( Lang::native( $c ) ); ?></option><?php endforeach; ?>
+				<?php
+				foreach ( Lang::codes() as $c ) :
+					?>
+					<option value="<?php echo esc_attr( $c ); ?>" <?php selected( $lang, $c ); ?>><?php echo esc_html( Lang::native( $c ) ); ?></option><?php endforeach; ?>
 			</select>
 		</label>
 		<button type="submit" class="button button-primary"><?php esc_html_e( 'Apply', 'momos-core' ); ?></button>

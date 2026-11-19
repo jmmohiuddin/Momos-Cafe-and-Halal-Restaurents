@@ -149,7 +149,7 @@ final class RecipientResolver {
 	 * @return list<array{type:string,email:string,lang:string,user_id:?int}>
 	 */
 	public static function filter( array $recipients, string $template, ?array $reservation ): array {
-		$allowed  = [];
+		$allowed = [];
 		foreach ( $recipients as $r ) {
 			$allowed[ $r['email'] ] = $r;
 		}

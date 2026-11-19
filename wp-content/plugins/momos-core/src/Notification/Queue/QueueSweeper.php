@@ -13,8 +13,8 @@ use Momos\Notification\Repository\NotificationRepository;
  * Crash recovery, re-enqueue, heartbeat and alerts every 5 minutes (NFR-OBS-01, SEC-083; spec §4.10).
  */
 final class QueueSweeper {
-	public const HOOK            = 'momos_job_notification_sweeper';
-	public const STALE_MINUTES   = 10;
+	public const HOOK              = 'momos_job_notification_sweeper';
+	public const STALE_MINUTES     = 10;
 	public const QUEUE_AGE_MINUTES = 15;
 
 	/** @return array{recovered:int,failed:int,requeued:int} */

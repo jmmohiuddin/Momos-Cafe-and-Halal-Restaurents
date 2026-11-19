@@ -73,7 +73,7 @@ final class UsersList {
 			return $actions;
 		}
 		if ( ! AccountStatus::is_vendor( $uid ) ) {
-			$do                     = AccountStatus::is_disabled( $uid ) ? 'enable' : 'disable';
+			$do                      = AccountStatus::is_disabled( $uid ) ? 'enable' : 'disable';
 			$actions['momos_status'] = sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=momos_user_status&do=' . $do . '&user=' . $uid ), 'momos_user_status_' . $uid ) ),

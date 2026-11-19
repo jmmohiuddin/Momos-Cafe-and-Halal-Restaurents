@@ -20,7 +20,7 @@ use Momos\Reservation\Admin\InboxPage;
 use Momos\Reservation\Domain\ReservationStatus;
 
 $get = static fn( string $k ): string => isset( $_GET[ $k ] ) ? sanitize_text_field( wp_unslash( (string) $_GET[ $k ] ) ) : ''; // phpcs:ignore
-include __DIR__ . '/reservation-styles.php';
+require __DIR__ . '/reservation-styles.php';
 ?>
 <div class="wrap momos-admin momos-res" id="momos-inbox" data-total="<?php echo (int) $total; ?>">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Reservation requests', 'momos-core' ); ?></h1>
@@ -47,7 +47,11 @@ include __DIR__ . '/reservation-styles.php';
 					$n = array_sum( $counts );
 				}
 				?>
-				<li><a class="momos-chip" href="<?php echo esc_url( InboxPage::url( [ 'view' => $key ] ) ); ?>" <?php echo $view === $key ? 'aria-current="page"' : ''; ?>><?php echo esc_html( $def['label'] ); ?><?php if ( null !== $n ) : ?><span class="count"><?php echo (int) $n; ?></span><?php endif; ?></a></li>
+				<li><a class="momos-chip" href="<?php echo esc_url( InboxPage::url( [ 'view' => $key ] ) ); ?>" <?php echo $view === $key ? 'aria-current="page"' : ''; ?>><?php echo esc_html( $def['label'] ); ?>
+				<?php
+				if ( null !== $n ) :
+					?>
+					<span class="count"><?php echo (int) $n; ?></span><?php endif; ?></a></li>
 			<?php endforeach; ?>
 		</ul>
 	</nav>
@@ -143,18 +147,44 @@ include __DIR__ . '/reservation-styles.php';
 					</td>
 					<td data-label="<?php esc_attr_e( 'Party', 'momos-core' ); ?>"><?php echo (int) $r['party_size']; ?></td>
 					<td data-label="<?php esc_attr_e( 'Guest', 'momos-core' ); ?>"><bdi dir="auto"><?php echo esc_html( $r['guest_given_name'] ); ?></bdi> <span class="momos-muted">(<?php echo esc_html( Lang::native( $r['preferred_lang'] ) ); ?>)</span></td>
-					<td data-label="<?php esc_attr_e( 'Branch', 'momos-core' ); ?>"><?php echo esc_html( $r['branch_code'] ); ?><?php if ( $r['flags']['test_branch'] ) : ?> <span class="momos-flag momos-flag--warn">TEST</span><?php endif; ?></td>
+					<td data-label="<?php esc_attr_e( 'Branch', 'momos-core' ); ?>"><?php echo esc_html( $r['branch_code'] ); ?>
+					<?php
+					if ( $r['flags']['test_branch'] ) :
+						?>
+						<span class="momos-flag momos-flag--warn">TEST</span><?php endif; ?></td>
 					<td data-label="<?php esc_attr_e( 'Status', 'momos-core' ); ?>"><span class="momos-badge momos-badge--<?php echo esc_attr( $status->value ); ?>"><?php echo esc_html( $status->staffLabel() ); ?></span>
-						<?php if ( 'overdue' === $r['sla_state'] ) : ?> <span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Overdue', 'momos-core' ); ?></span><?php elseif ( 'due' === $r['sla_state'] ) : ?> <span class="momos-flag momos-flag--warn"><?php esc_html_e( 'Reply soon', 'momos-core' ); ?></span><?php endif; ?>
+						<?php
+						if ( 'overdue' === $r['sla_state'] ) :
+							?>
+							<span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Overdue', 'momos-core' ); ?></span>
+							<?php
+elseif ( 'due' === $r['sla_state'] ) :
+	?>
+							<span class="momos-flag momos-flag--warn"><?php esc_html_e( 'Reply soon', 'momos-core' ); ?></span><?php endif; ?>
 					</td>
 					<td data-label="<?php esc_attr_e( 'Received', 'momos-core' ); ?>"><?php echo esc_html( human_time_diff( (int) strtotime( (string) $r['created_at'] ), \Momos\Kernel\Clock\Clock::utc()->getTimestamp() ) ); ?></td>
 					<td data-label="<?php esc_attr_e( 'Handled by', 'momos-core' ); ?>"><?php echo $r['handled_by'] ? esc_html( sprintf( /* translators: %s: staff name */ __( 'Claimed by %s', 'momos-core' ), $r['handled_by']['name'] ) ) : esc_html__( 'Unclaimed', 'momos-core' ); ?></td>
 					<td data-label="<?php esc_attr_e( 'Flags', 'momos-core' ); ?>">
-						<?php if ( $r['flags']['needs_action'] ) : ?><span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Needs action', 'momos-core' ); ?></span><?php endif; ?>
-						<?php if ( $r['flags']['customer_not_notified'] ) : ?><span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Guest not notified — call', 'momos-core' ); ?></span><?php endif; ?>
-						<?php if ( $r['flags']['carrier_email'] ) : ?><span class="momos-flag"><?php esc_html_e( 'Carrier email', 'momos-core' ); ?></span><?php endif; ?>
-						<?php if ( $r['flags']['has_special_request'] ) : ?><span class="momos-flag"><?php esc_html_e( 'Special request', 'momos-core' ); ?></span><?php endif; ?>
-						<?php if ( $r['flags']['captcha_unverified'] ) : ?><span class="momos-flag momos-flag--warn"><?php esc_html_e( 'Spam check unavailable', 'momos-core' ); ?></span><?php endif; ?>
+						<?php
+						if ( $r['flags']['needs_action'] ) :
+							?>
+							<span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Needs action', 'momos-core' ); ?></span><?php endif; ?>
+						<?php
+						if ( $r['flags']['customer_not_notified'] ) :
+							?>
+							<span class="momos-flag momos-flag--alert"><?php esc_html_e( 'Guest not notified — call', 'momos-core' ); ?></span><?php endif; ?>
+						<?php
+						if ( $r['flags']['carrier_email'] ) :
+							?>
+							<span class="momos-flag"><?php esc_html_e( 'Carrier email', 'momos-core' ); ?></span><?php endif; ?>
+						<?php
+						if ( $r['flags']['has_special_request'] ) :
+							?>
+							<span class="momos-flag"><?php esc_html_e( 'Special request', 'momos-core' ); ?></span><?php endif; ?>
+						<?php
+						if ( $r['flags']['captcha_unverified'] ) :
+							?>
+							<span class="momos-flag momos-flag--warn"><?php esc_html_e( 'Spam check unavailable', 'momos-core' ); ?></span><?php endif; ?>
 					</td>
 				</tr>
 			<?php endforeach; ?>
@@ -162,9 +192,15 @@ include __DIR__ . '/reservation-styles.php';
 		</table>
 		<?php if ( $pages > 1 ) : ?>
 			<nav class="momos-pagination" aria-label="<?php esc_attr_e( 'Pages', 'momos-core' ); ?>">
-				<?php if ( $page > 1 ) : ?><a class="button" href="<?php echo esc_url( InboxPage::url( array_merge( $base_q, [ 'paged' => $page - 1 ] ) ) ); ?>"><?php esc_html_e( 'Previous', 'momos-core' ); ?></a><?php endif; ?>
+				<?php
+				if ( $page > 1 ) :
+					?>
+					<a class="button" href="<?php echo esc_url( InboxPage::url( array_merge( $base_q, [ 'paged' => $page - 1 ] ) ) ); ?>"><?php esc_html_e( 'Previous', 'momos-core' ); ?></a><?php endif; ?>
 				<span><?php echo esc_html( sprintf( /* translators: 1: page, 2: pages, 3: total */ __( 'Page %1$d of %2$d (%3$d requests)', 'momos-core' ), $page, $pages, $total ) ); ?></span>
-				<?php if ( $page < $pages ) : ?><a class="button" href="<?php echo esc_url( InboxPage::url( array_merge( $base_q, [ 'paged' => $page + 1 ] ) ) ); ?>"><?php esc_html_e( 'Next', 'momos-core' ); ?></a><?php endif; ?>
+				<?php
+				if ( $page < $pages ) :
+					?>
+					<a class="button" href="<?php echo esc_url( InboxPage::url( array_merge( $base_q, [ 'paged' => $page + 1 ] ) ) ); ?>"><?php esc_html_e( 'Next', 'momos-core' ); ?></a><?php endif; ?>
 			</nav>
 		<?php endif; ?>
 	<?php endif; ?>

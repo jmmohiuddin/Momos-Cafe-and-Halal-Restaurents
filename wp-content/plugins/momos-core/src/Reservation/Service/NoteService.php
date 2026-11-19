@@ -67,8 +67,8 @@ final class NoteService {
 				}
 				switch ( $type ) {
 					case 'claim':
-						$prev    = ! empty( $row['handled_by'] ) ? get_userdata( (int) $row['handled_by'] ) : null;
-						$eid     = EventRepository::add( $id, EventType::Assigned, $actor, null, null, null, null, [ 'previous_handler_id' => $prev ? (int) $prev->ID : null, 'previous_handler_display' => $prev ? (string) $prev->display_name : null ] );
+						$prev = ! empty( $row['handled_by'] ) ? get_userdata( (int) $row['handled_by'] ) : null;
+						$eid  = EventRepository::add( $id, EventType::Assigned, $actor, null, null, null, null, [ 'previous_handler_id' => $prev ? (int) $prev->ID : null, 'previous_handler_display' => $prev ? (string) $prev->display_name : null ] );
 						momos_audit( 'reservation.claimed', 'reservation', $id, $branch_id, [ 'previous_handler_id' => $prev ? (int) $prev->ID : null ] );
 						return $eid;
 					case 'release':
@@ -84,8 +84,8 @@ final class NoteService {
 				}
 			}
 		);
-		$event = (array) EventRepository::find( $event_id );
-		$fresh = (array) ReservationRepository::find( $id );
+		$event     = (array) EventRepository::find( $event_id );
+		$fresh     = (array) ReservationRepository::find( $id );
 		return [
 			'event_id' => $event_id,
 			'type'     => $type,

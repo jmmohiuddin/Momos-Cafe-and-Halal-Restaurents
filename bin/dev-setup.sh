@@ -17,7 +17,7 @@ if ! mysqladmin ping --silent 2>/dev/null; then
   for i in $(seq 1 30); do mysqladmin ping --silent 2>/dev/null && break; sleep 1; done
 fi
 mysql -uroot -e "CREATE DATABASE IF NOT EXISTS \`$DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci; CREATE USER IF NOT EXISTS 'momos'@'127.0.0.1' IDENTIFIED BY 'momos_dev_pw'; CREATE USER IF NOT EXISTS 'momos'@'localhost' IDENTIFIED BY 'momos_dev_pw'; GRANT ALL ON \`$DB\`.* TO 'momos'@'127.0.0.1'; GRANT ALL ON \`$DB\`.* TO 'momos'@'localhost'; FLUSH PRIVILEGES;"
-if [ "$RESET" = 1 ]; then mysql -uroot -e "DROP DATABASE \`$DB\`; CREATE DATABASE \`$DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"; fi
+if [ "$RESET" = 1 ]; then mysql -uroot -e "DROP DATABASE IF EXISTS \`$DB\`; CREATE DATABASE \`$DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"; fi
 
 # 2. Dependencies
 [ -d "$ROOT/vendor" ] || ( cd "$ROOT" && composer install -q --no-interaction )
@@ -45,7 +45,9 @@ $WPCLI option update time_format 'H:i' >/dev/null
 $WPCLI rewrite structure '/news/%postname%/' >/dev/null
 $WPCLI theme activate momos >/dev/null 2>&1 || true
 $WPCLI momos migrate
-if [ "$SEED" = 1 ]; then $WPCLI momos seed --demo || true; fi
+# Japanese core language pack for the bilingual admin (needs downloads.wordpress.org; skipped when offline).
+$WPCLI language core install ja >/dev/null 2>&1 || echo "note: WordPress ja language pack not installed (offline?) — core admin menus stay English"
+if [ "$SEED" = 1 ]; then $WPCLI momos seed --demo; fi
 $WPCLI rewrite flush >/dev/null
 echo "Ready: $URL  (admin: $URL/wp-admin  user superadmin)"
 echo "Start the server with: bin/serve.sh"

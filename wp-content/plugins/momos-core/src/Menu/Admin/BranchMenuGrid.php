@@ -63,8 +63,8 @@ final class BranchMenuGrid {
 			momos_audit( 'access.denied', 'branch', $branch_id, $branch_id, [ 'reason' => 'forbidden_branch', 'screen' => self::SLUG ] );
 			wp_die( esc_html__( 'You do not have access to this branch.', 'momos-core' ), 403 );
 		}
-		$per   = 100;
-		$list  = $branch_id ? BranchMenuController::list_items( $branch_id, [ 'category' => $category, 'offered' => null, 'availability' => '', 'q' => $q ], $paged, $per, Locale::admin( $user_id ) ) : [ 'items' => [], 'total' => 0 ];
+		$per    = 100;
+		$list   = $branch_id ? BranchMenuController::list_items( $branch_id, [ 'category' => $category, 'offered' => null, 'availability' => '', 'q' => $q ], $paged, $per, Locale::admin( $user_id ) ) : [ 'items' => [], 'total' => 0 ];
 		$notice = get_transient( 'momos_bmg_notice_' . $user_id );
 		delete_transient( 'momos_bmg_notice_' . $user_id );
 		$view = [

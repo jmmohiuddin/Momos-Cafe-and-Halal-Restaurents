@@ -11,6 +11,11 @@ require_once $tests_dir . '/includes/functions.php';
 tests_add_filter( 'muplugins_loaded', static function () use ( $root ): void {
 	require_once $root . '/wp-content/plugins/momos-core/momos-core.php';
 } );
+// Admin strings stay in English (msgids) in tests: the site locale is Japanese, and assertions are written
+// against the English source. Tests that need the Japanese catalog set $GLOBALS['momos_tests_load_ja'] = true.
+tests_add_filter( 'override_load_textdomain', static function ( $override, $domain ) {
+	return in_array( $domain, [ 'momos-core', 'momos' ], true ) && empty( $GLOBALS['momos_tests_load_ja'] ) ? true : $override;
+}, 10, 2 );
 tests_add_filter( 'setup_theme', static function () use ( $root ): void {
 	register_theme_directory( $root . '/wp-content/themes' );
 	switch_theme( 'momos' );

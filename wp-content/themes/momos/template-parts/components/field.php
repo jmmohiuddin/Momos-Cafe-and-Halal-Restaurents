@@ -10,10 +10,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$momos_id    = (string) $args['id'];
-$momos_type  = (string) ( $args['type'] ?? 'text' );
-$momos_req   = ! empty( $args['required'] );
-$momos_desc  = [];
+$momos_id   = (string) $args['id'];
+$momos_type = (string) ( $args['type'] ?? 'text' );
+$momos_req  = ! empty( $args['required'] );
+$momos_desc = [];
 if ( ! empty( $args['help'] ) ) {
 	$momos_desc[] = $momos_id . '-help';
 }
@@ -24,16 +24,16 @@ $momos_max  = isset( $args['maxlength'] ) ? (int) $args['maxlength'] : 0;
 $momos_dir  = in_array( $momos_type, [ 'email', 'tel', 'url' ], true ) ? 'ltr' : ( in_array( $momos_type, [ 'text', 'textarea' ], true ) ? 'auto' : null );
 $momos_attr = array_merge(
 	[
-		'id'               => $momos_id,
-		'name'             => (string) ( $args['name'] ?? $momos_id ),
-		'class'            => 'momo-input',
-		'required'         => $momos_req,
-		'aria-invalid'     => ! empty( $args['error'] ) ? 'true' : null,
-		'aria-describedby' => $momos_desc ? implode( ' ', $momos_desc ) : null,
-		'autocomplete'     => $args['autocomplete'] ?? null,
-		'maxlength'        => $momos_max ? (string) $momos_max : null,
-		'dir'              => $momos_dir,
-		'inputmode'        => $args['inputmode'] ?? null,
+		'id'                => $momos_id,
+		'name'              => (string) ( $args['name'] ?? $momos_id ),
+		'class'             => 'momo-input',
+		'required'          => $momos_req,
+		'aria-invalid'      => ! empty( $args['error'] ) ? 'true' : null,
+		'aria-describedby'  => $momos_desc ? implode( ' ', $momos_desc ) : null,
+		'autocomplete'      => $args['autocomplete'] ?? null,
+		'maxlength'         => $momos_max ? (string) $momos_max : null,
+		'dir'               => $momos_dir,
+		'inputmode'         => $args['inputmode'] ?? null,
 		'data-momo-counter' => $momos_max ? (string) $momos_max : null,
 	],
 	(array) ( $args['attrs'] ?? [] )

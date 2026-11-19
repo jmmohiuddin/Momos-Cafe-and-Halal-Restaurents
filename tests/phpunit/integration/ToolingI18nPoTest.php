@@ -79,6 +79,7 @@ final class ToolingI18nPoTest extends TestCase {
 
 	public function test_mo_translates_admin_menu_labels(): void {
 		unload_textdomain( 'momos-core' );
+		$GLOBALS['momos_tests_load_ja'] = true;
 		$this->assertTrue( load_textdomain( 'momos-core', self::DIR . 'momos-core-ja.mo', 'ja' ) );
 		try {
 			$this->assertSame( '監査ログ', __( 'Audit log', 'momos-core' ) );
@@ -86,6 +87,7 @@ final class ToolingI18nPoTest extends TestCase {
 			$this->assertSame( '店舗別メニュー', __( 'Branch menus', 'momos-core' ) );
 		} finally {
 			unload_textdomain( 'momos-core' );
+			unset( $GLOBALS['momos_tests_load_ja'] );
 		}
 	}
 

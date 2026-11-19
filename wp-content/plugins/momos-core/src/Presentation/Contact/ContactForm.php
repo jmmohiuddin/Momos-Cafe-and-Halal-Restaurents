@@ -147,7 +147,7 @@ final class ContactForm {
 				$in['message'],
 			]
 		);
-		$ok = self::deliver( $to, $subject, $body, $in, $lang );
+		$ok      = self::deliver( $to, $subject, $body, $in, $lang );
 		if ( ! $ok ) {
 			Logger::error( 'contact.mail_failed', [] ); // No PII.
 		}

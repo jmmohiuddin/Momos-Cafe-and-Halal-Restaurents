@@ -18,10 +18,10 @@ final class MaintenancePage {
 
 	/** @param list<string>|null $langs */
 	public static function html( ?array $langs = null, ?string $phone_e164 = null ): string {
-		$langs = $langs ?? Lang::enabled();
-		$phone = $phone_e164 ?? (string) Brand::option( 'momo_default_phone' );
-		$phone = preg_match( '/^\+[1-9]\d{6,14}$/', $phone ) ? $phone : '';
-		$fonts = [
+		$langs  = $langs ?? Lang::enabled();
+		$phone  = $phone_e164 ?? (string) Brand::option( 'momo_default_phone' );
+		$phone  = preg_match( '/^\+[1-9]\d{6,14}$/', $phone ) ? $phone : '';
+		$fonts  = [
 			'ja' => '"Hiragino Sans","Yu Gothic","Meiryo",sans-serif',
 			'ar' => 'Tahoma,"Segoe UI",sans-serif',
 			'ur' => 'Tahoma,"Segoe UI",sans-serif',

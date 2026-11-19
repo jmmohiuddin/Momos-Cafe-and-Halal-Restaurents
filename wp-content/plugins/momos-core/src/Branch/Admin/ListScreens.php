@@ -191,7 +191,7 @@ final class ListScreens {
 		if ( 'momo_offer' !== $post->post_type || ! current_user_can( 'create_momo_offers' ) || ! current_user_can( 'read_post', $post->ID ) ) {
 			return $actions;
 		}
-		$url = wp_nonce_url( add_query_arg( [ 'action' => 'momos_duplicate_offer', 'offer' => $post->ID ], admin_url( 'admin-post.php' ) ), 'momos_duplicate_offer_' . $post->ID );
+		$url                        = wp_nonce_url( add_query_arg( [ 'action' => 'momos_duplicate_offer', 'offer' => $post->ID ], admin_url( 'admin-post.php' ) ), 'momos_duplicate_offer_' . $post->ID );
 		$actions['momos_duplicate'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Duplicate as draft', 'momos-core' ) . '</a>';
 		return $actions;
 	}

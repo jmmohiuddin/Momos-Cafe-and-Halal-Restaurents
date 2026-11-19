@@ -23,9 +23,14 @@ final class NotificationModule implements ModuleInterface {
 	public function register(): void {
 		// Worker: immediate async attempt after commit + retry single actions + every-minute runner.
 		add_action( 'momos/notification/queued', [ Queue\Dispatcher::class, 'schedule_async' ], 10, 1 );
-		add_action( Queue\Dispatcher::ACTION, static function ( $id ): void {
-			Queue\Dispatcher::send( (int) $id );
-		}, 10, 1 );
+		add_action(
+			Queue\Dispatcher::ACTION,
+			static function ( $id ): void {
+				Queue\Dispatcher::send( (int) $id );
+			},
+			10,
+			1
+		);
 		Schedule::recurring( Queue\Dispatcher::RUNNER, 60 );
 		add_action( Queue\Dispatcher::RUNNER, [ Queue\Dispatcher::class, 'run_due' ] );
 		Schedule::recurring( Queue\QueueSweeper::HOOK, 300 );

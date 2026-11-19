@@ -19,11 +19,11 @@ use Momos\Kernel\Support\Crockford;
  * is on, or the environment is production; otherwise for users who enrolled or opted in.
  */
 final class TwoFactor {
-	public const META_SECRET   = 'momo_2fa_secret';
-	public const META_ENROLLED = 'momo_2fa_enrolled_at';
-	public const META_LAST     = 'momo_2fa_last_step';
-	public const META_RECOVERY = 'momo_2fa_recovery';
-	public const META_OPTIN    = 'momo_2fa_optin';
+	public const META_SECRET    = 'momo_2fa_secret';
+	public const META_ENROLLED  = 'momo_2fa_enrolled_at';
+	public const META_LAST      = 'momo_2fa_last_step';
+	public const META_RECOVERY  = 'momo_2fa_recovery';
+	public const META_OPTIN     = 'momo_2fa_optin';
 	public const RECOVERY_COUNT = 10;
 
 	public static function enforced(): bool {

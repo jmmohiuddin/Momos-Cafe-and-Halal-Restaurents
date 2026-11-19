@@ -36,11 +36,15 @@ final class Logger {
 	}
 
 	/** @param array<string,mixed> $c */
-	public static function info( string $event, array $c = [] ): void { self::log( 'info', $event, $c ); }
+	public static function info( string $event, array $c = [] ): void {
+		self::log( 'info', $event, $c ); }
 	/** @param array<string,mixed> $c */
-	public static function warning( string $event, array $c = [] ): void { self::log( 'warning', $event, $c ); }
+	public static function warning( string $event, array $c = [] ): void {
+		self::log( 'warning', $event, $c ); }
 	/** @param array<string,mixed> $c */
-	public static function error( string $event, array $c = [] ): void { self::log( 'error', $event, $c ); }
+	public static function error( string $event, array $c = [] ): void {
+		self::log( 'error', $event, $c ); }
 	/** @param array<string,mixed> $c */
-	public static function critical( string $event, array $c = [] ): void { self::log( 'critical', $event, $c ); }
+	public static function critical( string $event, array $c = [] ): void {
+		self::log( 'critical', $event, $c ); }
 }

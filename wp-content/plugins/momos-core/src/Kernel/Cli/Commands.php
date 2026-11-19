@@ -21,32 +21,41 @@ use Momos\Kernel\Migration\M0002_Constraints;
  */
 final class Commands {
 	public static function register(): void {
-		\WP_CLI::add_command( 'momos migrate', static function ( $args, $assoc ): void {
-			$ran = Runner::run( isset( $assoc['force'] ) );
-			\WP_CLI::success( $ran ? 'Applied: ' . implode( ', ', $ran ) : 'Database is up to date.' );
-		} );
-
-		\WP_CLI::add_command( 'momos jobs', static function ( $args ): void {
-			$sub = $args[0] ?? 'list';
-			if ( 'sync' === $sub ) {
-				Schedule::sync();
-				\WP_CLI::success( 'Recurring jobs registered: ' . count( Schedule::all() ) );
-			} elseif ( 'run' === $sub ) {
-				Schedule::run_all_now();
-				\WP_CLI::success( 'All momos jobs executed once.' );
-			} else {
-				$rows = [];
-				foreach ( Schedule::health() as $hook => $h ) {
-					$rows[] = [ 'job' => $hook, 'interval_min' => (int) round( $h['interval'] / 60 ), 'last' => $h['last'] ?? '-', 'state' => $h['state'] ];
-				}
-				\WP_CLI\Utils\format_items( 'table', $rows, [ 'job', 'interval_min', 'last', 'state' ] );
+		\WP_CLI::add_command(
+			'momos migrate',
+			static function ( $args, $assoc ): void {
+				$ran = Runner::run( isset( $assoc['force'] ) );
+				\WP_CLI::success( $ran ? 'Applied: ' . implode( ', ', $ran ) : 'Database is up to date.' );
 			}
-		} );
+		);
 
-		\WP_CLI::add_command( 'momos cache', static function ( $args, $assoc ): void {
-			CacheInvalidator::purge_all();
-			\WP_CLI::success( 'Purge requested (adapter: ' . CacheInvalidator::adapter() . ').' );
-		} );
+		\WP_CLI::add_command(
+			'momos jobs',
+			static function ( $args ): void {
+				$sub = $args[0] ?? 'list';
+				if ( 'sync' === $sub ) {
+					Schedule::sync();
+					\WP_CLI::success( 'Recurring jobs registered: ' . count( Schedule::all() ) );
+				} elseif ( 'run' === $sub ) {
+					Schedule::run_all_now();
+					\WP_CLI::success( 'All momos jobs executed once.' );
+				} else {
+					$rows = [];
+					foreach ( Schedule::health() as $hook => $h ) {
+						$rows[] = [ 'job' => $hook, 'interval_min' => (int) round( $h['interval'] / 60 ), 'last' => $h['last'] ?? '-', 'state' => $h['state'] ];
+					}
+					\WP_CLI\Utils\format_items( 'table', $rows, [ 'job', 'interval_min', 'last', 'state' ] );
+				}
+			}
+		);
+
+		\WP_CLI::add_command(
+			'momos cache',
+			static function ( $args, $assoc ): void {
+				CacheInvalidator::purge_all();
+				\WP_CLI::success( 'Purge requested (adapter: ' . CacheInvalidator::adapter() . ').' );
+			}
+		);
 
 		\WP_CLI::add_command( 'momos smoke', [ self::class, 'smoke' ] );
 		\WP_CLI::add_command( 'momos sanitize', [ self::class, 'sanitize' ] );
@@ -120,8 +129,8 @@ final class Commands {
 			\WP_CLI::error( 'This rewrites personal data. Re-run with --yes.' );
 		}
 		global $wpdb;
-		$r = Tables::reservations();
-		$counts = [];
+		$r                       = Tables::reservations();
+		$counts                  = [];
 		$counts['reservations'] = (int) $wpdb->query( "UPDATE {$r} SET guest_name = CONCAT('Guest ', id), email = CONCAT('res', id, '@example.com'), phone_e164 = NULL, special_request = NULL, message_to_customer = NULL, ip_hash = NULL, user_agent_hash = NULL WHERE pii_purged_at IS NULL" ); // phpcs:ignore
 		$counts['events']        = (int) $wpdb->query( 'UPDATE ' . Tables::events() . ' SET note = NULL, payload = NULL, actor_display = NULL' ); // phpcs:ignore
 		$counts['notifications'] = (int) $wpdb->query( 'UPDATE ' . Tables::notifications() . " SET recipient_email = 'masked@example.com', recipient_masked = 'm***@e***.com', provider_message_id = NULL, last_error = NULL" ); // phpcs:ignore

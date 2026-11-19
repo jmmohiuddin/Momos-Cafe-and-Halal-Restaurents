@@ -84,7 +84,10 @@ $notice    = $view['notice'];
 					<?php echo $item['thumbnail_id'] ? wp_get_attachment_image( (int) $item['thumbnail_id'], [ 48, 48 ], false, [ 'alt' => '' ] ) : ''; // phpcs:ignore ?>
 					<strong><?php echo esc_html( (string) $item['name'] ); ?></strong><br>
 					<code><?php echo esc_html( (string) $item['dish_sku'] ); ?></code>
-					<?php if ( $item['is_variant'] ) : ?><span class="momos-badge"><?php esc_html_e( 'Variant', 'momos-core' ); ?></span><?php endif; ?>
+					<?php
+					if ( $item['is_variant'] ) :
+						?>
+						<span class="momos-badge"><?php esc_html_e( 'Variant', 'momos-core' ); ?></span><?php endif; ?>
 				</td>
 				<td>
 					<?php if ( $perm['offered'] ) : ?>
@@ -152,7 +155,7 @@ $notice    = $view['notice'];
 		<?php endforeach; ?>
 		</tbody>
 	</table>
-	<?php if ( $view['pages'] > 1 ) : ?>
+		<?php if ( $view['pages'] > 1 ) : ?>
 		<p class="momos-pagination">
 			<?php
 			echo wp_kses_post(

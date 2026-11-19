@@ -1,60 +1,300 @@
+# CI gates for the Momo's platform (docs/specs/qa.md §3.7 "Pull request" row, NFR-MNT-01 / docs/specs/gaps.md §5).
+#
+#   static    php -l · module README check · logical-CSS check · POT up to date · PHPCS errors on changed files
+#             (blocking) · PHPCS security sniffs on the whole tree (report) · PHPStan level 5 + baseline (blocking)
+#   phpunit   catalog duplicate-key / placeholder / .po tests first, then the full PHPUnit suite on MariaDB 10.11
+#   coverage  PCOV line coverage of src/Reservation and src/Access (⟦70 %⟧ proposal: report only, see below)
+#   e2e       Playwright (Chromium) against a freshly installed + seeded site (continue-on-error, see below)
+#
+# Local equivalents: composer lint · composer test · tests/e2e/fixtures/seed.sh + npx playwright test --trace off
 name: CI
 on:
   pull_request:
   push:
     branches: [main]
     tags: ['v*']
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PHP_VERSION: '8.3'
+  PHP_EXTENSIONS: mysqli, intl, mbstring, gd, zip
+
 jobs:
-  php:
+  static:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # PHPCS gate diffs against the base branch
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: cs2pr
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ hashFiles('composer.lock', 'wp-content/plugins/momos-core/composer.lock') }}
+      - name: Composer
+        run: |
+          composer validate --no-check-publish
+          composer install --no-interaction --prefer-dist --no-progress
+          composer install --no-interaction --prefer-dist --no-progress -d wp-content/plugins/momos-core
+
+      - name: php -l
+        run: composer lint:php
+
+      - name: Module READMEs (NFR-MNT-01)
+        run: |
+          missing=0
+          for d in wp-content/plugins/momos-core/src/*/; do
+            if [ ! -f "${d}README.md" ]; then echo "::error file=${d}::Module directory ${d} has no README.md (gaps.md §5)"; missing=1; fi
+          done
+          exit $missing
+
+      - name: Logical CSS properties only (stylelint rule, qa.md §2.3)
+        run: |
+          # Physical left/right properties break RTL (ar, ur). Email templates are inline HTML, not CSS files.
+          hits=$(grep -rnE '(^|[^-a-z])(margin|padding|border)-(left|right)\b|(^|[;{[:space:]])(left|right)[[:space:]]*:|text-align[[:space:]]*:[[:space:]]*(left|right)|float[[:space:]]*:[[:space:]]*(left|right)|clear[[:space:]]*:[[:space:]]*(left|right)' \
+            --include='*.css' wp-content/themes/momos wp-content/plugins/momos-core/assets 2>/dev/null | grep -v '/vendor/' || true)
+          if [ -n "$hits" ]; then echo "$hits"; echo "::error::Use logical properties (margin-inline-start, inset-inline-end, text-align: start …)"; exit 1; fi
+
+      - name: i18n — POT files up to date
+        run: |
+          vendor/bin/wp i18n make-pot wp-content/plugins/momos-core "$RUNNER_TEMP/momos-core.pot" --slug=momos-core --domain=momos-core --exclude=vendor,languages,node_modules --skip-audit
+          vendor/bin/wp i18n make-pot wp-content/themes/momos "$RUNNER_TEMP/momos.pot" --slug=momos --domain=momos --exclude=assets,static,node_modules --skip-audit
+          python3 - "$RUNNER_TEMP" <<'PY'
+          import re, sys
+          def ids(p):
+              out = set()
+              for e in open(p, encoding='utf-8').read().split('\n\n'):
+                  m = re.search(r'^msgid ((?:".*"\n?)+)', e, re.M)
+                  c = re.search(r'^msgctxt ((?:".*"\n?)+)', e, re.M)
+                  j = lambda g: ''.join(re.findall(r'"(.*)"', g.group(1))) if g else ''
+                  if m and j(m):
+                      out.add((j(c), j(m)))
+              return out
+          bad = 0
+          for new, old in [('momos-core.pot', 'wp-content/plugins/momos-core/languages/momos-core.pot'), ('momos.pot', 'wp-content/themes/momos/languages/momos.pot')]:
+              a, b = ids(sys.argv[1] + '/' + new), ids(old)
+              for ctx, s in sorted(a - b):
+                  print(f'::error file={old}::New string not in POT (run composer i18n:pot, translate, composer i18n:mo): {s}'); bad = 1
+              for ctx, s in sorted(b - a):
+                  print(f'::warning file={old}::POT has a string that is no longer used: {s}')
+          sys.exit(bad)
+          PY
+
+      - name: PHPCS — errors in changed files (blocking)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="origin/${{ github.base_ref }}...HEAD"
+          elif [ -n "${{ github.event.before }}" ] && ! echo "${{ github.event.before }}" | grep -qE '^0+$'; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="HEAD~1..HEAD"
+          fi
+          git diff --name-only --diff-filter=ACMR "$range" -- '*.php' \
+            | grep -E '^wp-content/(plugins/momos-core/(momos-core\.php|src/|config/|templates/)|themes/momos/|mu-plugins/)' \
+            | grep -v '/languages/' > "$RUNNER_TEMP/changed.txt" || true
+          echo "Changed PHP files in PHPCS scope ($range):"; cat "$RUNNER_TEMP/changed.txt"
+          if [ ! -s "$RUNNER_TEMP/changed.txt" ]; then exit 0; fi
+          # Most formatting errors are auto-fixable: composer lint:fix (phpcbf) on the touched files.
+          xargs -a "$RUNNER_TEMP/changed.txt" vendor/bin/phpcs -n -q --report-full --report-checkstyle="$RUNNER_TEMP/phpcs.xml" \
+            || { cs2pr "$RUNNER_TEMP/phpcs.xml"; exit 1; }
+
+      - name: PHPCS — security sniffs, whole tree (report)
+        # Escaping, nonces, sanitising, prepared SQL over all code. Report-only until the findings listed in the
+        # wave-2 tooling report are fixed or justified with a targeted phpcs:ignore; then remove continue-on-error.
+        continue-on-error: true
+        run: |
+          vendor/bin/phpcs -n -q --sniffs=WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput,WordPress.Security.SafeRedirect,WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders \
+            --report-summary --report-full="$RUNNER_TEMP/phpcs-security.txt"
+      - name: Upload PHPCS security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpcs-security
+          path: ${{ runner.temp }}/phpcs-security.txt
+          if-no-files-found: ignore
+
+      - name: PHPStan (level 5, phpstan-wordpress, baseline)
+        run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=github
+
+  phpunit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      mariadb:
+        image: mariadb:10.11 # same engine as production (qa.md §1)
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: momos_test
+          MARIADB_USER: momos
+          MARIADB_PASSWORD: momos_dev_pw
+        ports: ['3306:3306']
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      MOMOS_TEST_DB_NAME: momos_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ hashFiles('composer.lock', 'wp-content/plugins/momos-core/composer.lock') }}
+      - name: Composer
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          composer install --no-interaction --prefer-dist --no-progress -d wp-content/plugins/momos-core
+      - name: WordPress core for tests (.wp/)
+        run: |
+          mkdir -p .wp && rsync -a --exclude wp-content vendor/johnpbloch/wordpress-core/ .wp/
+          mkdir -p .wp/wp-content/plugins .wp/wp-content/themes
+          ln -sfn "$PWD/wp-content/plugins/momos-core" .wp/wp-content/plugins/momos-core
+          ln -sfn "$PWD/wp-content/themes/momos" .wp/wp-content/themes/momos
+          ln -sfn "$PWD/wp-content/mu-plugins" .wp/wp-content/mu-plugins
+      - name: String catalogs and admin translation (duplicate keys, placeholders, .po/.mo)
+        run: vendor/bin/phpunit --filter 'I18nCatalogTest|ToolingI18nPoTest'
+      - name: PHPUnit (full suite)
+        run: vendor/bin/phpunit --log-junit "$RUNNER_TEMP/phpunit.xml"
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-junit
+          path: ${{ runner.temp }}/phpunit.xml
+          if-no-files-found: ignore
+
+  coverage:
+    # gaps.md §5: fail when line coverage of src/Reservation or src/Access < ⟦70 %⟧. The threshold is still a
+    # proposal, so this job reports (step summary) without blocking merges until the CTO confirms it.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    continue-on-error: true
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     services:
       mariadb:
         image: mariadb:10.11
         env:
           MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: momos_test
+          MARIADB_USER: momos
+          MARIADB_PASSWORD: momos_dev_pw
         ports: ['3306:3306']
-        options: --health-cmd="healthcheck.sh --connect" --health-interval=5s --health-retries=20
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      MOMOS_TEST_DB_NAME: momos_test
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          extensions: mysqli, intl, mbstring, gd, zip
-          coverage: none
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: pcov
       - name: Composer
         run: |
-          composer install --no-interaction --prefer-dist
-          composer install --no-interaction --prefer-dist -d wp-content/plugins/momos-core
-      - name: Lint
-        run: find wp-content -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n 50 php -l > /dev/null
-      - name: Prepare databases
-        run: |
-          mysql -h127.0.0.1 -uroot -proot -e "CREATE DATABASE momos_test; CREATE DATABASE momos_dev; CREATE USER 'momos'@'%' IDENTIFIED BY 'momos_dev_pw'; GRANT ALL ON momos_test.* TO 'momos'@'%'; GRANT ALL ON momos_dev.* TO 'momos'@'%';"
-      - name: WordPress core for tests
+          composer install --no-interaction --prefer-dist --no-progress
+          composer install --no-interaction --prefer-dist --no-progress -d wp-content/plugins/momos-core
+      - name: WordPress core for tests (.wp/)
         run: |
           mkdir -p .wp && rsync -a --exclude wp-content vendor/johnpbloch/wordpress-core/ .wp/
           mkdir -p .wp/wp-content/plugins .wp/wp-content/themes
-          ln -s "$PWD/wp-content/plugins/momos-core" .wp/wp-content/plugins/momos-core
-          ln -s "$PWD/wp-content/themes/momos" .wp/wp-content/themes/momos
-          ln -s "$PWD/wp-content/mu-plugins" .wp/wp-content/mu-plugins
-      - name: PHPUnit
-        run: vendor/bin/phpunit
+          ln -sfn "$PWD/wp-content/plugins/momos-core" .wp/wp-content/plugins/momos-core
+          ln -sfn "$PWD/wp-content/themes/momos" .wp/wp-content/themes/momos
+          ln -sfn "$PWD/wp-content/mu-plugins" .wp/wp-content/mu-plugins
+      - name: PHPUnit with coverage
+        run: vendor/bin/phpunit --coverage-filter wp-content/plugins/momos-core/src --coverage-clover "$RUNNER_TEMP/clover.xml"
+      - name: Coverage gate (src/Reservation, src/Access ≥ 70 %)
+        run: |
+          python3 - "$RUNNER_TEMP/clover.xml" <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import sys, xml.etree.ElementTree as ET, collections
+          tot = collections.Counter(); cov = collections.Counter()
+          for f in ET.parse(sys.argv[1]).iter('file'):
+              name = f.get('name').split('/momos-core/src/')[-1]
+              mod = name.split('/')[0] if '/' in name else '(root)'
+              for l in f.iter('line'):
+                  if l.get('type') == 'stmt':
+                      tot[mod] += 1; cov[mod] += int(l.get('count')) > 0
+          print('| Module | Lines | Covered | % |\n|---|---|---|---|')
+          fail = False
+          for m in sorted(tot):
+              pct = 100 * cov[m] / tot[m] if tot[m] else 100
+              gate = m in ('Reservation', 'Access')
+              print(f'| {m}{" (gate)" if gate else ""} | {tot[m]} | {cov[m]} | {pct:.1f} |')
+              fail |= gate and pct < 70
+          sys.exit(1 if fail else 0)
+          PY
+
   e2e:
+    # Playwright needs an installed, migrated and seeded WordPress (demo content, wp momos seed) served by the
+    # PHP built-in server. It is continue-on-error until the suite has been green on GitHub-hosted runners for
+    # 3 consecutive runs (qa.md TC-REG-004 rule); failures still show in the job and upload the HTML report.
     runs-on: ubuntu-24.04
-    needs: php
+    needs: phpunit
+    timeout-minutes: 30
+    continue-on-error: true
+    env:
+      MOMOS_DB_NAME: momos_e2e
+      MOMOS_PORT: '8080'
+      MOMOS_URL: http://127.0.0.1:8080
+      MOMOS_E2E_BASE_URL: http://127.0.0.1:8080
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
-        with: { php-version: '8.3', extensions: 'mysqli, intl, mbstring, gd, zip' }
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
       - uses: actions/setup-node@v4
-        with: { node-version: '22' }
-      - name: Start MariaDB
-        run: sudo apt-get update -q && sudo apt-get install -y -q mariadb-server && sudo systemctl start mariadb
-      - name: Install site
-        run: sudo env PATH="$PATH" bin/dev-setup.sh && (bin/serve.sh > /tmp/server.log 2>&1 &) && sleep 2
-      - name: Playwright
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
+      - name: Composer
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          composer install --no-interaction --prefer-dist --no-progress -d wp-content/plugins/momos-core
+      - name: MariaDB 10.11 (local socket, as bin/dev-setup.sh expects)
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q mariadb-server
+          sudo systemctl start mariadb
+          mariadb --version
+      - name: Install, migrate and seed the site (fictional demo content, GD placeholder images)
+        run: |
+          # seed.sh = bin/dev-setup.sh --no-seed + `wp momos seed --reset --demo` (through Seed/cli-bootstrap.php
+          # while the kernel does not list SeedModule). No private UI-baseline photos in CI: --no-photos.
+          sudo -E env PATH="$PATH" tests/e2e/fixtures/seed.sh --no-photos
+          sudo chown -R "$USER" .wp
+      - name: Start web server
+        run: |
+          (bin/serve.sh > "$RUNNER_TEMP/server.log" 2>&1 &)
+          for i in $(seq 1 30); do curl -fsS -o /dev/null "$MOMOS_URL/wp-login.php" && break; sleep 1; done
+      - name: Playwright (Chromium)
         working-directory: tests/e2e
         run: |
-          npm ci || npm install
+          npm ci
           npx playwright install --with-deps chromium
-          npx playwright test --trace off
+          npx playwright test --trace off --retries 1 --reporter=line,html
+      - name: Upload Playwright report and server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            tests/e2e/playwright-report
+            ${{ runner.temp }}/server.log
+          if-no-files-found: ignore

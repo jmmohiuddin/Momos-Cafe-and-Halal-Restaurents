@@ -5,10 +5,10 @@ namespace Momos\Branch\Domain;
 
 /** Offer call-to-action type (G17, FR-CORP-010). */
 enum OfferCta: string {
-	case None = 'none';
+	case None         = 'none';
 	case RequestTable = 'request_table';
-	case Menu = 'menu';
-	case Dish = 'dish';
+	case Menu         = 'menu';
+	case Dish         = 'dish';
 
 	/** @return list<string> */
 	public static function values(): array {

@@ -77,11 +77,11 @@ final class AllergenPresenter {
 	 * @return array<string,mixed> see class doc; strings are plain text in $lang
 	 */
 	public static function for_dish( int $dish_id, string $lang ): array {
-		$states  = self::states( $dish_id );
-		$cat     = self::catalogue( $lang );
-		$review  = '1' === (string) get_post_meta( $dish_id, 'momo_allergen_review_required', true );
-		$by      = [ 'contains' => [], 'may_contain' => [], 'not_verified' => [] ];
-		$groups  = [
+		$states         = self::states( $dish_id );
+		$cat            = self::catalogue( $lang );
+		$review         = '1' === (string) get_post_meta( $dish_id, 'momo_allergen_review_required', true );
+		$by             = [ 'contains' => [], 'may_contain' => [], 'not_verified' => [] ];
+		$groups         = [
 			'mandatory'   => [ 'key' => 'mandatory', 'label' => momos_t( 'allergen.group.mandatory', [], $lang ), 'rows' => [] ],
 			'recommended' => [ 'key' => 'recommended', 'label' => momos_t( 'allergen.group.recommended', [], $lang ), 'rows' => [] ],
 			'other'       => [ 'key' => 'other', 'label' => momos_t( 'allergen.group.other', [], $lang ), 'rows' => [] ],
@@ -133,10 +133,10 @@ final class AllergenPresenter {
 				]
 			),
 			'labels'          => [
-				'caption'     => momos_t( 'allergen.table.caption', [], $lang ),
-				'allergen'    => momos_t( 'allergen.table.allergen', [], $lang ),
-				'status'      => momos_t( 'allergen.table.status', [], $lang ),
-				'toggle'      => momos_t( 'allergen.toggle.relevant', [], $lang ),
+				'caption'  => momos_t( 'allergen.table.caption', [], $lang ),
+				'allergen' => momos_t( 'allergen.table.allergen', [], $lang ),
+				'status'   => momos_t( 'allergen.table.status', [], $lang ),
+				'toggle'   => momos_t( 'allergen.toggle.relevant', [], $lang ),
 			],
 		];
 	}
@@ -150,8 +150,8 @@ final class AllergenPresenter {
 		$terms = Allergens::terms_by_code();
 		$out   = [];
 		foreach ( Allergens::config() as $a ) {
-			$t    = $terms[ $a['code'] ] ?? null;
-			$name = $t ? Translations::term( $t, 'name', $lang ) : ( Lang::SOURCE === $lang ? $a['ja'] : ( 'en' === $lang ? $a['en'] : '' ) );
+			$t                 = $terms[ $a['code'] ] ?? null;
+			$name              = $t ? Translations::term( $t, 'name', $lang ) : ( Lang::SOURCE === $lang ? $a['ja'] : ( 'en' === $lang ? $a['en'] : '' ) );
 			$out[ $a['code'] ] = [ 'name' => $name, 'class' => $a['class'], 'term_id' => $t ? (int) $t->term_id : 0, 'icon_id' => $t ? (int) get_term_meta( $t->term_id, 'momo_alg_icon', true ) : 0 ];
 		}
 		foreach ( Allergens::custom_terms() as $t ) {

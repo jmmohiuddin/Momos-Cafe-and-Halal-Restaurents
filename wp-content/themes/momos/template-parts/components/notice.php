@@ -19,14 +19,14 @@ $momos_card = ! empty( $args['card'] );
 $momos_id   = 'momo-notice-' . ( ! empty( $args['id'] ) ? (int) $args['id'] : substr( md5( $momos_body ), 0, 8 ) );
 $momos_long = mb_strlen( $momos_body ) > 80;
 $momos_attr = [
-	'class'                  => 'momo-notice momo-notice--' . $momos_sev . ( $momos_card ? ' momo-notice--card' : '' ) . ( $momos_long ? ' is-collapsible' : '' ),
-	'role'                   => 'region',
-	'aria-label'             => momos_s( 'a11y.notice' ),
-	'id'                     => $momos_id,
-	'hidden'                 => ! empty( $args['upcoming'] ),
-	'data-momo-notice'       => ! empty( $args['dismissible'] ) ? 'dismissible' : 'static',
-	'data-start'             => isset( $args['start_ms'] ) ? (string) $args['start_ms'] : null,
-	'data-end'               => isset( $args['end_ms'] ) ? (string) $args['end_ms'] : null,
+	'class'            => 'momo-notice momo-notice--' . $momos_sev . ( $momos_card ? ' momo-notice--card' : '' ) . ( $momos_long ? ' is-collapsible' : '' ),
+	'role'             => 'region',
+	'aria-label'       => momos_s( 'a11y.notice' ),
+	'id'               => $momos_id,
+	'hidden'           => ! empty( $args['upcoming'] ),
+	'data-momo-notice' => ! empty( $args['dismissible'] ) ? 'dismissible' : 'static',
+	'data-start'       => isset( $args['start_ms'] ) ? (string) $args['start_ms'] : null,
+	'data-end'         => isset( $args['end_ms'] ) ? (string) $args['end_ms'] : null,
 ];
 ?>
 <div<?php echo momos_attrs( $momos_attr ); // phpcs:ignore WordPress.Security.EscapeOutput ?>>

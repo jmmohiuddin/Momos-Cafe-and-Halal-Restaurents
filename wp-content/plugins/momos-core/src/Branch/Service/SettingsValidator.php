@@ -145,12 +145,12 @@ final class SettingsValidator {
 	 * @return list<string>
 	 */
 	public static function enable_errors( int $branch_id, array $recipients ): array {
-		$post    = get_post( $branch_id );
-		$status  = (string) get_post_meta( $branch_id, 'momo_operating_status', true );
-		$active  = array_filter( $recipients, static fn( $r ) => ! empty( $r['active'] ) && '0' !== (string) $r['active'] );
-		$rows    = HoursRepository::all_rows( $branch_id );
-		$no_lo   = array_filter( $rows, static fn( $r ) => null === $r['last_order_at'] );
-		$ok      = $post && 'publish' === $post->post_status && ( '' === $status || OperatingStatus::Open->value === $status ) && $active && $rows && ! $no_lo;
+		$post   = get_post( $branch_id );
+		$status = (string) get_post_meta( $branch_id, 'momo_operating_status', true );
+		$active = array_filter( $recipients, static fn( $r ) => ! empty( $r['active'] ) && '0' !== (string) $r['active'] );
+		$rows   = HoursRepository::all_rows( $branch_id );
+		$no_lo  = array_filter( $rows, static fn( $r ) => null === $r['last_order_at'] );
+		$ok     = $post && 'publish' === $post->post_status && ( '' === $status || OperatingStatus::Open->value === $status ) && $active && $rows && ! $no_lo;
 		return $ok ? [] : [ __( 'Online requests can be turned on only when the branch is published and open, has an active recipient and every opening period has a last-order time.', 'momos-core' ) ];
 	}
 

@@ -18,7 +18,8 @@ if ( ! $momos_items ) {
 ?>
 <nav class="momo-bar" aria-label="<?php echo esc_attr( momos_s( 'a11y.nav.quick' ) ); ?>" data-momo-bar>
 	<?php foreach ( $momos_items as $momos_i ) : ?>
-		<a class="momo-bar__item<?php echo $momos_i['primary'] ? ' momo-bar__item--primary' : ''; ?>" href="<?php echo esc_url( $momos_i['url'] ); ?>"<?php
+		<a class="momo-bar__item<?php echo $momos_i['primary'] ? ' momo-bar__item--primary' : ''; ?>" href="<?php echo esc_url( $momos_i['url'] ); ?>"
+		<?php
 		echo momos_attrs( // phpcs:ignore WordPress.Security.EscapeOutput
 			[
 				'target'           => $momos_i['external'] ? '_blank' : null,
@@ -29,6 +30,7 @@ if ( ! $momos_items ) {
 				'data-momo-branch' => $momos_i['branch'],
 			]
 		);
-		?>><?php momos_the_icon( $momos_i['icon'], 'momo-icon--lg' ); ?><span><?php echo esc_html( $momos_i['label'] ); ?></span><?php echo ( $momos_i['external'] && '' === $momos_i['aria'] ) ? momos_new_tab_hint() : ''; // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+		?>
+		><?php momos_the_icon( $momos_i['icon'], 'momo-icon--lg' ); ?><span><?php echo esc_html( $momos_i['label'] ); ?></span><?php echo ( $momos_i['external'] && '' === $momos_i['aria'] ) ? momos_new_tab_hint() : ''; // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 	<?php endforeach; ?>
 </nav>
