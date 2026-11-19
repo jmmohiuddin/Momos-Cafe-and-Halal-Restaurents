@@ -1,0 +1,67 @@
+# Static analysis for the Momo's platform (NFR-MNT-01, docs/specs/gaps.md §5).
+# Run: composer phpstan   (or vendor/bin/phpstan analyse --memory-limit=1G)
+# Level 5 now; gaps.md targets level 6 with 0 errors. The baseline freezes the findings that existed when the
+# gate was introduced (wave 2) so that CI fails only on NEW errors; fix entries and regenerate with
+#   composer phpstan:baseline
+# Never add new entries by hand to hide a new finding.
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+	- phpstan-baseline.neon
+
+parameters:
+	level: 5
+	phpVersion: 80300
+	paths:
+		- wp-content/plugins/momos-core/momos-core.php
+		- wp-content/plugins/momos-core/src
+		- wp-content/plugins/momos-core/config
+		- wp-content/plugins/momos-core/templates
+		- wp-content/themes/momos
+		- wp-content/mu-plugins
+	excludePaths:
+		analyse:
+			- wp-content/themes/momos/assets
+			- wp-content/themes/momos/static
+	bootstrapFiles:
+		- tests/phpstan/bootstrap.php
+		# Runtime dependencies of momos-core (Action Scheduler as_* functions, libphonenumber-lite).
+		- wp-content/plugins/momos-core/vendor/autoload.php
+	# Values in tests/phpstan/bootstrap.php are placeholders: analyse these as `string`, not as the literal.
+	dynamicConstantNames:
+		- MOMOS_CORE_VERSION
+		- MOMOS_CORE_FILE
+		- MOMOS_CORE_DIR
+		- MOMOS_CORE_URL
+		- AUTH_COOKIE
+		- SECURE_AUTH_COOKIE
+		- LOGGED_IN_COOKIE
+		- COOKIEPATH
+		- SITECOOKIEPATH
+		- PLUGINS_COOKIE_PATH
+		- ADMIN_COOKIE_PATH
+		- DB_NAME
+	scanFiles:
+		- wp-content/plugins/momos-core/vendor/woocommerce/action-scheduler/functions.php
+		# WP-CLI commands (Kernel\Cli, Seed, Privacy\Cli, Reservation\Cli).
+		- vendor/wp-cli/wp-cli/php/utils.php
+		- vendor/wp-cli/wp-cli/php/class-wp-cli.php
+		- vendor/wp-cli/wp-cli/php/class-wp-cli-command.php
+	scanDirectories:
+		- wp-content/plugins/momos-core/vendor/woocommerce/action-scheduler/classes
+	# Templates (email/admin/theme) receive their variables from the including method or load_template().
+	ignoreErrors:
+		-
+			identifier: variable.undefined
+			paths:
+				- wp-content/plugins/momos-core/templates/*
+				- wp-content/themes/momos/template-parts/*
+		# phpstan-wordpress: job/action callbacks return a summary array that tests and WP-CLI read; WordPress
+		# ignores the return value of an action callback, so this is not a defect.
+		- identifier: return.void
+		# Optional deployment constants are read only after defined()/Env::is_configured() checks.
+		-
+			identifier: constant.notFound
+			message: '#^Constant MOMOS_[A-Z0-9_]+ not found\.$#'
+	reportUnmatchedIgnoredErrors: false
+	treatPhpDocTypesAsCertain: false
+	tmpDir: .phpstan-cache

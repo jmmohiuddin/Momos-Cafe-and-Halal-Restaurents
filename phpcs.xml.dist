@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<!--
+  Coding standard for the Momo's platform (NFR-MNT-01, docs/specs/gaps.md §5, docs/ENGINEERING.md §4–5).
+  WordPress-Extra (WPCS 3.x, includes WordPress-Core and the WordPress.Security sniffs) + PHPCompatibilityWP
+  for PHP 8.3. Exclusions below are the deliberate deviations from WPCS that ENGINEERING.md §5 allows;
+  everything security-related (escaping, nonces, sanitising, prepared SQL) stays enabled.
+
+  Run: composer lint            (php -l + phpcs + phpstan)
+       composer phpcs           (full report)
+       vendor/bin/phpcs -n      (errors only, as the CI gate)
+-->
+<ruleset name="Momos">
+	<description>WordPress-Extra + PHPCompatibilityWP 8.3 for momos-core, the momos theme and the mu-plugin loader.</description>
+
+	<file>wp-content/plugins/momos-core/momos-core.php</file>
+	<file>wp-content/plugins/momos-core/src</file>
+	<file>wp-content/plugins/momos-core/config</file>
+	<file>wp-content/plugins/momos-core/templates</file>
+	<file>wp-content/themes/momos</file>
+	<file>wp-content/mu-plugins</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*/static/*</exclude-pattern>
+	<!-- Customer/email string catalogs are data files (key => string), linted by tests/phpunit I18nCatalogTest. -->
+	<exclude-pattern>*/languages/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="basepath" value="."/>
+	<arg name="parallel" value="8"/>
+	<arg value="sp"/>
+
+	<!-- PHP 8.3 only (Requires PHP: 8.3 in the plugin and theme headers). -->
+	<config name="testVersion" value="8.3-"/>
+	<!-- Matches "Requires at least: 7.1" (deprecated-function sniffs). -->
+	<config name="minimum_wp_version" value="7.1"/>
+
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress-Extra">
+		<!-- ENGINEERING.md §5: short array syntax is the house style. -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- ENGINEERING.md §5: Yoda conditions are optional. -->
+		<exclude name="WordPress.PHP.YodaConditions"/>
+		<!-- PSR-4 class files (src/Branch/BranchModule.php), see NFR-MNT-01. -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!-- `?:` and `??=` are idiomatic in PHP 8.3 strict-typed code. -->
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+		<!-- DEC-009: the 8 custom tables are queried directly by design (always through $wpdb->prepare(); the
+		     PreparedSQL sniffs below stay on). Object caching is handled per service where it matters. -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery"/>
+		<exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching"/>
+		<!-- Migrations (MigrationInterface::up) run CREATE/ALTER TABLE by design. -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery.SchemaChange"/>
+		<!-- Namespaced, final classes: one class per file, PSR-4. Multiple-object-per-file is still checked by Generic. -->
+		<exclude name="Universal.Files.SeparateFunctionsFromOO"/>
+		<!-- Docblocks are required where they explain intent (ENGINEERING.md); punctuation of inline comments is not a gate. -->
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
+		<exclude name="Squiz.Commenting.FileComment"/>
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<!-- House style keeps short associative arrays on one line (CONTRACTS.md examples); alignment is cosmetic. -->
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound"/>
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine"/>
+	</rule>
+
+	<!-- PHPCompatibility 9.3 flags every function or method whose name starts with mysql_ (e.g. Clock::mysql_utc());
+	     the removed ext/mysql is not used anywhere (the code uses $wpdb). -->
+	<rule ref="PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved">
+		<severity>0</severity>
+	</rule>
+
+	<!-- Domain exceptions are caught and converted to WP_Error/REST responses or admin notices that escape on
+	     output; they are not echoed. Kept visible as a warning so a new direct echo of a message is noticed. -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<type>warning</type>
+	</rule>
+
+	<!-- Capabilities registered by Access\Roles\RoleInstaller from config/capabilities.php (TRD §2.7.2) and the
+	     meta capabilities mapped by Access\MetaCapMapper (TRD §2.7.3). Keep in sync with config/capabilities.php. -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="create_momo_branches"/>
+				<element value="create_momo_certificates"/>
+				<element value="create_momo_dishes"/>
+				<element value="create_momo_notices"/>
+				<element value="create_momo_offers"/>
+				<element value="delete_momo_branches"/>
+				<element value="delete_momo_dishes"/>
+				<element value="delete_momo_notices"/>
+				<element value="delete_momo_offers"/>
+				<element value="delete_others_momo_branches"/>
+				<element value="delete_others_momo_dishes"/>
+				<element value="delete_others_momo_notices"/>
+				<element value="delete_others_momo_offers"/>
+				<element value="delete_private_momo_branches"/>
+				<element value="delete_published_momo_branches"/>
+				<element value="delete_published_momo_dishes"/>
+				<element value="delete_published_momo_notices"/>
+				<element value="delete_published_momo_offers"/>
+				<element value="edit_momo_branches"/>
+				<element value="edit_momo_certificates"/>
+				<element value="edit_momo_dishes"/>
+				<element value="edit_momo_notices"/>
+				<element value="edit_momo_offers"/>
+				<element value="edit_others_momo_branches"/>
+				<element value="edit_others_momo_certificates"/>
+				<element value="edit_others_momo_dishes"/>
+				<element value="edit_others_momo_notices"/>
+				<element value="edit_others_momo_offers"/>
+				<element value="edit_private_momo_branches"/>
+				<element value="edit_published_momo_branches"/>
+				<element value="edit_published_momo_certificates"/>
+				<element value="edit_published_momo_dishes"/>
+				<element value="edit_published_momo_notices"/>
+				<element value="edit_published_momo_offers"/>
+				<element value="momo_access_all_branches"/>
+				<element value="momo_approve_translations"/>
+				<element value="momo_edit_branch_availability"/>
+				<element value="momo_edit_branch_hours"/>
+				<element value="momo_edit_branch_identity"/>
+				<element value="momo_edit_branch_menu"/>
+				<element value="momo_edit_branch_prices"/>
+				<element value="momo_edit_branch_settings"/>
+				<element value="momo_edit_dietary_claims"/>
+				<element value="momo_export_reservations"/>
+				<element value="momo_manage_brand"/>
+				<element value="momo_manage_certificates"/>
+				<element value="momo_manage_dsr"/>
+				<element value="momo_manage_languages"/>
+				<element value="momo_manage_menu_categories"/>
+				<element value="momo_manage_staff"/>
+				<element value="momo_preview_languages"/>
+				<element value="momo_process_reservations"/>
+				<element value="momo_publish_legal_pages"/>
+				<element value="momo_translate"/>
+				<element value="momo_view_audit_log"/>
+				<element value="momo_view_customer_pii"/>
+				<element value="momo_view_notification_log"/>
+				<element value="momo_view_reservation_reports"/>
+				<element value="momo_view_reservations"/>
+				<element value="publish_momo_branches"/>
+				<element value="publish_momo_certificates"/>
+				<element value="publish_momo_dishes"/>
+				<element value="publish_momo_notices"/>
+				<element value="publish_momo_offers"/>
+				<element value="read_private_momo_branches"/>
+				<element value="read_private_momo_certificates"/>
+				<element value="read_private_momo_dishes"/>
+				<element value="read_private_momo_offers"/>
+				<element value="momo_view_reservation"/>
+				<element value="momo_process_reservation"/>
+				<element value="momo_edit_branch"/>
+				<element value="momo_edit_branch_menu_item"/>
+				<element value="momo_download_evidence"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Text domain: admin strings are `momos-core` (ENGINEERING.md §3); the theme renders through momos-core. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="momos-core"/>
+				<element value="momos"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Global prefixes: Momos\ namespace, momos_ functions/hooks/options, momo_ data keys (TRD field names). -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="momos"/>
+				<element value="Momos"/>
+				<element value="momo"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Hooks use the documented `momos/<module>/<event>` form (SDD §2.5). -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/-."/>
+		</properties>
+	</rule>
+
+	<!-- Kernel escaping/sanitising helpers that are safe by construction. -->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customAutoEscapedFunctions" type="array">
+				<element value="momos_icon"/>
+				<element value="momos_bdi"/>
+				<element value="momos_ltr"/>
+				<element value="momos_attrs"/>
+				<element value="momos_new_tab_hint"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Templates and the capability table are included from inside a method or load_template(), so their
+	     variables are local to that function, not globals. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+		<exclude-pattern>*/themes/momos/*</exclude-pattern>
+		<exclude-pattern>*/momos-core/templates/*</exclude-pattern>
+		<exclude-pattern>*/momos-core/config/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.GlobalVariablesOverride.Prohibited">
+		<exclude-pattern>*/momos-core/templates/*</exclude-pattern>
+	</rule>
+
+	<!-- PHPCompatibility 9.3 predates enums: `$this` and `self` inside an enum method are valid PHP 8.1+. -->
+	<rule ref="PHPCompatibility.Variables.ForbiddenThisUseContexts.OutsideObjectContext">
+		<severity>0</severity>
+	</rule>
+	<rule ref="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.SelfOutsideClassScopeFound">
+		<severity>0</severity>
+	</rule>
+	<!-- PHPCompatibility 9.3 mistakes implode( momos_t( 'separator' ), $parts ) for the removed reversed order. -->
+	<rule ref="PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder">
+		<severity>0</severity>
+	</rule>
+</ruleset>

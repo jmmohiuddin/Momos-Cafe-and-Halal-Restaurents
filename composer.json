@@ -7,18 +7,45 @@
     "php": ">=8.3"
   },
   "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "johnpbloch/wordpress-core": "7.1.5",
-    "wp-cli/wp-cli-bundle": "^2.11",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6",
-    "yoast/phpunit-polyfills": "^2.0",
-    "wp-phpunit/wp-phpunit": "*"
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "wp-cli/wp-cli-bundle": "^2.11",
+    "wp-coding-standards/wpcs": "^3.1",
+    "wp-phpunit/wp-phpunit": "*",
+    "yoast/phpunit-polyfills": "^2.0"
   },
   "config": {
     "allow-plugins": true,
     "sort-packages": true,
-    "platform": { "php": "8.3.6" }
+    "platform": {
+      "php": "8.3.6"
+    }
   },
   "scripts": {
-    "test": "phpunit -c phpunit.xml.dist"
+    "test": "phpunit -c phpunit.xml.dist",
+    "lint:php": "find wp-content/plugins/momos-core wp-content/themes/momos wp-content/mu-plugins tests -name '*.php' -not -path '*/vendor/*' -not -path '*/node_modules/*' -print0 | xargs -0 -n 50 -P 4 php -d display_errors=stderr -l > /dev/null",
+    "phpcs": "phpcs",
+    "phpcs:errors": "phpcs -n",
+    "lint:fix": "phpcbf",
+    "phpstan": "phpstan analyse --memory-limit=2G --no-progress",
+    "phpstan:baseline": "phpstan analyse --memory-limit=2G --no-progress --generate-baseline=phpstan-baseline.neon",
+    "lint": [
+      "@lint:php",
+      "@phpcs:errors",
+      "@phpstan"
+    ]
+  },
+  "scripts-descriptions": {
+    "lint": "php -l + PHPCS (errors only) + PHPStan with baseline: the static gates of CI (qa.md §2.3, NFR-MNT-01).",
+    "lint:php": "Syntax-check every PHP file of momos-core, the theme, the mu-plugin and tests.",
+    "phpcs": "Full PHPCS report (WordPress-Extra + PHPCompatibilityWP 8.3, phpcs.xml.dist), warnings included.",
+    "phpcs:errors": "PHPCS errors only.",
+    "lint:fix": "Auto-fix PHPCS formatting violations (phpcbf). Coordinate first: touches many files.",
+    "phpstan": "PHPStan level 5 + phpstan-wordpress with phpstan-baseline.neon.",
+    "phpstan:baseline": "Regenerate phpstan-baseline.neon (only after fixing findings, never to hide new ones)."
   }
 }

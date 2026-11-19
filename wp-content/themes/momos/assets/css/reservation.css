@@ -56,7 +56,6 @@
 .momo-res-timeline{margin:0;padding:0;list-style:none;display:grid;gap:var(--momo-space-3);border-inline-start:2px solid var(--momo-color-border);padding-inline-start:var(--momo-space-4)}
 .momo-res-timeline li{display:grid;gap:2px;position:relative}
 .momo-res-timeline li::before{content:"";position:absolute;inset-inline-start:calc(-1 * var(--momo-space-4) - 6px);inset-block-start:.45em;inline-size:10px;block-size:10px;border-radius:50%;background:var(--momo-color-brand)}
-.momo-res-cancel{border-inline-start:4px solid var(--momo-color-error)}
 .momo-res-skel-card{display:grid;gap:var(--momo-space-3)}
 .momo-res-skel-card[hidden],[data-res-result][hidden],[data-res-invalid][hidden]{display:none}
 .momo-res-phones .momo-stack{margin-block-start:var(--momo-space-3)}
