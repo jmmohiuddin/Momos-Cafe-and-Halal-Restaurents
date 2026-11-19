@@ -25,6 +25,13 @@ final class ReservationModule implements ModuleInterface {
 		Job\IntegrityJob::register();
 		Service\FlagService::register();
 		Front\CustomerPages::register();
+		add_filter(
+			'momos/migrations',
+			static function ( array $list ): array {
+				$list[] = new Migration\M0030_InboxIndexes();
+				return $list;
+			}
+		);
 		add_filter( 'map_meta_cap', [ self::class, 'map_meta_cap' ], 10, 4 );
 		add_action( 'momos/branch/schedule_changed', [ self::class, 'purge_rules_cache' ], 20, 1 );
 		add_action( 'momos/branch/settings_changed', [ self::class, 'purge_rules_cache' ], 20, 1 );

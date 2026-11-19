@@ -22,6 +22,19 @@ final class SeoSitemapSchemaTest extends SeoTestCaseTest {
 		return array_column( Sitemap::urls( $type, $lang ), 'loc' );
 	}
 
+	/** QA-048 (§9.5, FR-SEO-004): `momo_is_sample = 1` dishes are never listed, in any environment or language. */
+	public function test_sample_dishes_are_not_listed_qa_048(): void {
+		$home = untrailingslashit( (string) get_option( 'home' ) );
+		$cat  = $this->category( 'qsamp', [ 'en' => [ 'name' => 'Samples' ] ] );
+		$this->dish( 'D7201', $cat, [ 'en' => [ 'title' => 'Real' ] ] );
+		$this->dish( 'D7202', $cat, [ 'en' => [ 'title' => 'Demo' ] ], [ 'momo_is_sample' => '1' ] );
+		Sitemap::bump();
+		$this->assertSame( [ $home . '/en/menu/qsamp/d7201/' ], $this->locs( 'dishes', 'en' ) );
+		$this->assertSame( [ $home . '/menu/qsamp/d7201/' ], $this->locs( 'dishes', 'ja' ) );
+		$xml = (string) Sitemap::render_file( 'en', 'dishes' );
+		$this->assertStringNotContainsString( 'd7202', $xml );
+	}
+
 	public function test_sitemaps_list_only_visible_indexable_items_per_language(): void {
 		$home   = untrailingslashit( (string) get_option( 'home' ) );
 		$open   = $this->branch( 'QSA', [ 'en' => [ 'title' => 'Open' ] ] );

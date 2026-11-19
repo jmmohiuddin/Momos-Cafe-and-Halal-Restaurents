@@ -6,6 +6,7 @@ namespace Momos\Reservation\Repository;
 use Momos\Kernel\Clock\Clock;
 use Momos\Kernel\Db\Tables;
 use Momos\Kernel\Support\Crockford;
+use Momos\Reservation\Domain\ReservationStatus;
 use Momos\Reservation\Domain\Scope;
 
 /**
@@ -229,6 +230,12 @@ final class ReservationRepository {
 		}
 		if ( ! empty( $f['exclude_branch_ids'] ) ) {
 			$w[] = 'branch_id NOT IN (' . implode( ',', array_map( 'intval', (array) $f['exclude_branch_ids'] ) ) . ')';
+		}
+		// Every status selected (view "all") is no filter at all; omitting it lets the sort index be used
+		// instead of a full scan + filesort (TC-PERF-005).
+		$statuses = array_values( array_unique( array_map( 'strval', (array) ( $f['statuses'] ?? [] ) ) ) );
+		if ( $statuses && ! array_diff( ReservationStatus::values(), $statuses ) && ! array_diff( $statuses, ReservationStatus::values() ) ) {
+			unset( $f['statuses'] );
 		}
 		if ( ! empty( $f['statuses'] ) ) {
 			$w[] = 'status IN (' . implode( ',', array_map( static fn( $s ) => $wpdb->prepare( '%s', $s ), (array) $f['statuses'] ) ) . ')';

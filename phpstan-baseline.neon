@@ -97,12 +97,6 @@ parameters:
 			path: wp-content/plugins/momos-core/src/Kernel/I18n/Translations.php
 
 		-
-			message: '#^Instanceof between Momos\\Access\\AccessModule\|Momos\\Admin\\AdminModule\|Momos\\Admin\\Content\\ContentModule\|Momos\\Api\\ApiModule\|Momos\\Audit\\AuditModule\|Momos\\Branch\\BranchModule\|Momos\\Dietary\\DietaryModule\|Momos\\Kernel\\I18n\\I18nModule\|Momos\\Menu\\MenuModule\|Momos\\Notification\\NotificationModule\|Momos\\Presentation\\PresentationModule\|Momos\\Privacy\\PrivacyModule\|Momos\\Reservation\\ReservationModule\|Momos\\Seo\\SeoModule and Momos\\Kernel\\ModuleInterface will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: wp-content/plugins/momos-core/src/Kernel/Plugin.php
-
-		-
 			message: '#^Method Momos\\Menu\\Domain\\SpiceLevel\:\:choices\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
 			identifier: return.type
 			count: 1

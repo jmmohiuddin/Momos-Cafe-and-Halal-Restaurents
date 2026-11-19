@@ -45,11 +45,14 @@ final class MenuQueryService {
 		if ( ! is_array( $terms ) ) {
 			return [];
 		}
-		$out = [];
-		foreach ( $terms as $t ) {
-			if ( Translations::term_visible( $t, $lang ) && self::dishes_in_category( $t->term_id, $lang, $branch_id ) ) {
-				$out[] = $t;
-			}
+		$visible = array_values( array_filter( $terms, static fn( \WP_Term $t ): bool => Translations::term_visible( $t, $lang ) ) );
+		// One dish query for all categories instead of one per category (NFR-PERF-02).
+		$by_cat = self::dishes_by_category( array_map( static fn( \WP_Term $t ): int => (int) $t->term_id, $visible ), $lang, $branch_id );
+		$out    = array_values( array_filter( $visible, static fn( \WP_Term $t ): bool => ! empty( $by_cat[ (int) $t->term_id ] ) ) );
+		// Category tiles show `momo_cat_image`: load those attachments in one go instead of one per tile.
+		$images = array_filter( array_map( static fn( \WP_Term $t ): int => (int) get_term_meta( $t->term_id, 'momo_cat_image', true ), $out ) );
+		if ( $images ) {
+			_prime_post_caches( array_values( array_unique( $images ) ), false, true );
 		}
 		usort(
 			$out,
@@ -69,16 +72,40 @@ final class MenuQueryService {
 	 * @return list<int>
 	 */
 	public static function dishes_in_category( int $term_id, string $lang, ?int $branch_id = null ): array {
+		$ids = self::dishes_by_category( [ $term_id ], $lang, $branch_id, true )[ $term_id ] ?? [];
+		// The listed dishes are rendered as cards next: load their branch rows with one query.
+		if ( $ids && null === $branch_id ) {
+			BranchMenuItemRepository::prime_offered( $ids );
+			self::prime_offered_branches( $ids );
+		} elseif ( $ids ) {
+			BranchMenuItemRepository::prime_rows( $branch_id, $ids );
+		}
+		return $ids;
+	}
+
+	/**
+	 * Displayable dish IDs per category (direct assignment, as dishes_in_category) with one dish query
+	 * and batched post/meta/term caches — no per-dish queries (NFR-PERF-02, TRD §5).
+	 *
+	 * @param list<int> $term_ids
+	 * @param bool      $cards    the dishes are rendered as cards next (also load tag meta and images)
+	 * @return array<int,list<int>> term_id => dish IDs ordered by menu_order, then title in the language
+	 */
+	private static function dishes_by_category( array $term_ids, string $lang, ?int $branch_id, bool $cards = false ): array {
+		$term_ids = array_values( array_unique( array_filter( array_map( 'intval', $term_ids ) ) ) );
+		if ( ! $term_ids ) {
+			return [];
+		}
 		$q   = new \WP_Query(
 			[
 				'post_type'              => ContentTypes::DISH,
 				'post_status'            => 'publish',
-				'posts_per_page'         => self::CATEGORY_LIMIT,
+				'posts_per_page'         => self::CATEGORY_LIMIT * count( $term_ids ),
 				'fields'                 => 'ids',
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
 				'orderby'                => [ 'menu_order' => 'ASC', 'title' => 'ASC' ],
-				'tax_query'              => [ [ 'taxonomy' => ContentTypes::CATEGORY, 'field' => 'term_id', 'terms' => $term_id, 'include_children' => false ] ], // phpcs:ignore
+				'tax_query'              => [ [ 'taxonomy' => ContentTypes::CATEGORY, 'field' => 'term_id', 'terms' => $term_ids, 'include_children' => false ] ], // phpcs:ignore
 				'meta_query'             => Translations::meta_query( $lang ), // phpcs:ignore
 			]
 		);
@@ -89,9 +116,71 @@ final class MenuQueryService {
 		if ( ! $ids ) {
 			return [];
 		}
-		update_postmeta_cache( $ids ); // One query for all meta (no N+1).
-		$ids = array_values( array_filter( $ids, static fn( int $id ) => self::is_displayable( $id, $lang ) ) );
-		return self::sort_by_order_and_title( $ids, $lang );
+		self::prime( $ids, $cards );
+		$ids    = array_values( array_filter( $ids, static fn( int $id ) => self::is_displayable( $id, $lang ) ) );
+		$wanted = array_flip( $term_ids );
+		$out    = [];
+		foreach ( $ids as $id ) {
+			$terms = get_the_terms( $id, ContentTypes::CATEGORY ); // From the primed relationship cache.
+			foreach ( is_array( $terms ) ? $terms : [] as $t ) {
+				$tid = (int) $t->term_id;
+				if ( isset( $wanted[ $tid ] ) && count( $out[ $tid ] ?? [] ) < self::CATEGORY_LIMIT ) {
+					$out[ $tid ][] = $id;
+				}
+			}
+		}
+		foreach ( $out as $tid => $list ) {
+			$out[ $tid ] = self::sort_by_order_and_title( $list, $lang );
+		}
+		return $out;
+	}
+
+	/**
+	 * Load posts, meta, taxonomy relationships, dietary-tag meta and featured images of many dishes with a
+	 * fixed number of queries, so card rendering does not query per dish.
+	 *
+	 * @param list<int> $ids
+	 * @param bool      $cards also dietary-tag term meta and featured images (card rendering)
+	 */
+	public static function prime( array $ids, bool $cards = true ): void {
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
+		if ( ! $ids ) {
+			return;
+		}
+		_prime_post_caches( $ids, false, true );
+		update_object_term_cache( $ids, ContentTypes::DISH );
+		if ( ! $cards ) {
+			return;
+		}
+		$term_ids = [];
+		$thumbs   = [];
+		foreach ( $ids as $id ) {
+			$terms = get_object_term_cache( $id, ContentTypes::TAG );
+			foreach ( is_array( $terms ) ? $terms : [] as $t ) {
+				$term_ids[] = (int) ( $t instanceof \WP_Term ? $t->term_id : $t );
+			}
+			$thumb = (int) get_post_meta( $id, '_thumbnail_id', true );
+			if ( $thumb > 0 ) {
+				$thumbs[] = $thumb;
+			}
+		}
+		if ( $term_ids ) {
+			update_termmeta_cache( array_values( array_unique( $term_ids ) ) );
+		}
+		if ( $thumbs ) {
+			_prime_post_caches( array_values( array_unique( $thumbs ) ), false, true );
+		}
+	}
+
+	/** @param list<int> $dish_ids load the branch posts behind already primed offered rows */
+	private static function prime_offered_branches( array $dish_ids ): void {
+		$branches = [];
+		foreach ( $dish_ids as $id ) {
+			foreach ( BranchMenuItemRepository::offered_for_dish( $id ) as $row ) {
+				$branches[] = (int) $row['branch_id'];
+			}
+		}
+		Branches::prime( $branches );
 	}
 
 	/**
@@ -117,9 +206,13 @@ final class MenuQueryService {
 		}
 		$public  = array_values( array_filter( Branches::published_ids(), static fn( int $b ) => Branches::is_public( $b ) ) );
 		$offered = BranchMenuItemRepository::dish_ids_offered_anywhere( $public );
-		update_postmeta_cache( $ids );
-		$ids = array_values( array_filter( $ids, static fn( int $id ) => in_array( $id, $offered, true ) && self::is_displayable( $id, $lang ) ) );
-		return array_slice( $ids, 0, max( 0, $limit ) );
+		$ids     = array_values( array_intersect( $ids, $offered ) );
+		self::prime( $ids );
+		$ids = array_slice( array_values( array_filter( $ids, static fn( int $id ) => self::is_displayable( $id, $lang ) ) ), 0, max( 0, $limit ) );
+		if ( $ids ) {
+			BranchMenuItemRepository::prime_offered( $ids ); // Cards read prices/availability next.
+		}
+		return $ids;
 	}
 
 	/** @return list<int> up to $limit displayable dishes of the same primary category */
@@ -225,7 +318,7 @@ final class MenuQueryService {
 	 * @return list<array{id:int,code:string,label:string,is_claim:bool,icon:int}>
 	 */
 	public static function tags( int $dish_id, string $lang ): array {
-		$terms = wp_get_object_terms( $dish_id, ContentTypes::TAG );
+		$terms = get_the_terms( $dish_id, ContentTypes::TAG ); // Object term cache (primed for lists), name order.
 		$out   = [];
 		foreach ( is_array( $terms ) ? $terms : [] as $t ) {
 			$label = Translations::term( $t, 'name', $lang );

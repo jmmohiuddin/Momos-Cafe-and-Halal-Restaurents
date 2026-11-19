@@ -212,6 +212,48 @@
 		<exclude-pattern>*/momos-core/templates/*</exclude-pattern>
 	</rule>
 
+	<!-- PHPMailer's public API is PascalCase (Notification\Transport sets them in the phpmailer_init hook).
+	     WPCS only allows these names through this documented property. -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<properties>
+			<property name="allowed_custom_properties" type="array">
+				<element value="AltBody"/>
+				<element value="CharSet"/>
+				<element value="Encoding"/>
+				<element value="Host"/>
+				<element value="MessageID"/>
+				<element value="Password"/>
+				<element value="Port"/>
+				<element value="Sender"/>
+				<element value="SMTPAuth"/>
+				<element value="SMTPAutoTLS"/>
+				<element value="SMTPSecure"/>
+				<element value="Timeout"/>
+				<element value="Username"/>
+				<element value="XMailer"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Reviewed security-sniff false positives (DEF-017). Each exclusion is file-scoped and the invariant that
+	     makes it safe is enforced by tests/phpunit/integration/ToolingCodingStandardTest, so the exclusion
+	     cannot silently cover a new unsafe line:
+	     - SeoAdmin: every admin-post handler (handle_*) calls self::guard() first, which checks the capability
+	       and check_admin_referer(); WPCS does not recognise a nonce check inside a static helper method.
+	     - Transaction: SAVEPOINT / START TRANSACTION / COMMIT / ROLLBACK statements are string literals chosen
+	       by a ternary; there is nothing to prepare (WPCS does not follow a ternary of literals).
+	     - Email *.txt.php: the text/plain MIME part (PHPMailer AltBody) is not HTML; HTML-escaping it would
+	       corrupt the text (&amp; etc.). HTML parts stay fully checked. -->
+	<rule ref="WordPress.Security.NonceVerification.Missing">
+		<exclude-pattern>*/momos-core/src/Seo/Admin/SeoAdmin\.php$</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.DB.PreparedSQL.NotPrepared">
+		<exclude-pattern>*/momos-core/src/Kernel/Db/Transaction\.php$</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+		<exclude-pattern>*/momos-core/templates/email/*\.txt\.php$</exclude-pattern>
+	</rule>
+
 	<!-- PHPCompatibility 9.3 predates enums: `$this` and `self` inside an enum method are valid PHP 8.1+. -->
 	<rule ref="PHPCompatibility.Variables.ForbiddenThisUseContexts.OutsideObjectContext">
 		<severity>0</severity>

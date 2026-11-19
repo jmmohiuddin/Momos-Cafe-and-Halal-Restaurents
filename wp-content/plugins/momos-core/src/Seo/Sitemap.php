@@ -20,6 +20,8 @@ final class Sitemap {
 	public const PER_FILE   = 1000;
 	public const VERSION    = 'momos_seo_sitemap_ver';
 	private const CACHE_TTL = 6 * HOUR_IN_SECONDS;
+	/** Bumped when the inclusion rules change, so lists cached under the old rules are not served. */
+	private const RULES_REV = 2;
 
 	public static function register(): void {
 		add_filter( 'wp_sitemaps_enabled', '__return_false' );
@@ -132,7 +134,7 @@ final class Sitemap {
 		if ( ! Lang::is_enabled( $lang ) || ! in_array( $type, self::TYPES, true ) ) {
 			return [];
 		}
-		$key    = 'momos_sm_' . md5( get_option( self::VERSION, 0 ) . '|' . $lang . '|' . $type . '|' . implode( ',', Lang::enabled() ) );
+		$key    = 'momos_sm_' . md5( self::RULES_REV . '|' . get_option( self::VERSION, 0 ) . '|' . $lang . '|' . $type . '|' . implode( ',', Lang::enabled() ) );
 		$cached = get_transient( $key );
 		if ( is_array( $cached ) ) {
 			return $cached;
@@ -235,6 +237,11 @@ final class Sitemap {
 		update_postmeta_cache( array_map( 'intval', $ids ) );
 		$out = [];
 		foreach ( array_map( 'intval', $ids ) as $id ) {
+			// §9.5: published, not retired, `momo_is_sample = 0` — demo dishes never reach a sitemap, in any
+			// environment (they stay viewable outside production, where the SAMPLE badge marks them).
+			if ( '1' === (string) get_post_meta( $id, 'momo_is_sample', true ) ) {
+				continue;
+			}
 			if ( ! \Momos\Menu\Service\MenuQueryService::is_displayable( $id, $lang ) ) {
 				continue;
 			}

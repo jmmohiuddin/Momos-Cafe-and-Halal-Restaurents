@@ -32,6 +32,9 @@ return [
 	'res.submit'                 => 'リクエストを送信',
 	'res.submit.busy'            => '送信中…',
 	'res.call_alt'               => 'ご希望の時間がない場合は{branch}（{phone}）へお電話ください。',
+	'res.alt_contact'            => 'このフォームをご利用いただけない場合は、お電話（{phone}）またはメール（{email}）でご連絡ください。',
+	'res.alt_contact.phone'      => 'このフォームをご利用いただけない場合は、お電話（{phone}）でご連絡ください。',
+	'res.alt_contact.email'      => 'このフォームをご利用いただけない場合は、メール（{email}）でご連絡ください。',
 	'res.test_banner'            => 'テスト店舗 — 実在の店舗ではありません',
 	'res.time.jst'               => '{time}',
 	'res.branch.not_accepting'   => '{branch}（オンライン受付停止中）',
@@ -68,6 +71,8 @@ return [
 	'res.err.rate'               => '短時間に多くのリクエストが送信されました。数分後に再度お試しいただくか、{phone}へお電話ください。',
 	'res.err.captcha'            => 'リクエストを確認できませんでした。もう一度お試しください。',
 	'res.err.system'             => 'リクエストを送信できませんでした。もう一度お試しください。解決しない場合は{phone}へお電話ください。',
+	'res.err.rate.no_phone'      => '短時間に多くのリクエストが送信されました。数分後に再度お試しください。',
+	'res.err.system.no_phone'    => 'リクエストを送信できませんでした。もう一度お試しください。',
 	'res.err.reference'          => 'エラー番号：{request_id}',
 
 	'res.submitted.heading'      => 'リクエストを受け付けました（まだ確定していません）',

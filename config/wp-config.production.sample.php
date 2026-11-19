@@ -26,8 +26,10 @@ define( 'WP_ENVIRONMENT_TYPE', 'production' );
 define( 'MOMOS_ENV', 'production' );
 define( 'WP_DEBUG', false );
 define( 'WP_DEBUG_DISPLAY', false );
+define( 'WP_DEBUG_LOG', getenv( 'MOMOS_DEBUG_LOG' ) ?: dirname( __DIR__ ) . '/momos-private/logs/debug.log' ); // outside the web root (spec §9.1)
 define( 'DISALLOW_FILE_EDIT', true );
 define( 'DISALLOW_FILE_MODS', true );
+define( 'DISALLOW_UNFILTERED_HTML', true ); // No unfiltered HTML for any role, ROLE-01 included (SEC-040, spec §9.1).
 define( 'AUTOMATIC_UPDATER_DISABLED', true );
 define( 'WP_AUTO_UPDATE_CORE', false );
 define( 'FORCE_SSL_ADMIN', true );
@@ -37,7 +39,8 @@ define( 'WP_POST_REVISIONS', 20 );
 // momos-core secrets (never stored in the database).
 define( 'MOMOS_TOKEN_KEY_V1', getenv( 'MOMOS_TOKEN_KEY_V1' ) );   // status-link token key (DEC-064); rotate by adding _V2 and MOMOS_TOKEN_KEY_CURRENT=2
 define( 'MOMOS_TOKEN_KEY_CURRENT', (int) ( getenv( 'MOMOS_TOKEN_KEY_CURRENT' ) ?: 1 ) );
-define( 'MOMOS_HMAC_KEY', getenv( 'MOMOS_HMAC_KEY' ) );           // IP/UA hashing and audit row HMAC (DEC-059)
+define( 'MOMOS_HASH_PEPPER', getenv( 'MOMOS_HASH_PEPPER' ) );     // 32 random bytes: IP/UA/email/rate-limit hashing and audit row HMAC (DEC-059). Required: hashing fails closed without it.
+// MOMOS_HMAC_KEY is the legacy alias of the pepper; define only one of them.
 define( 'MOMOS_TURNSTILE_MODE', 'live' );
 define( 'MOMOS_TURNSTILE_SITE_KEY', getenv( 'MOMOS_TURNSTILE_SITE_KEY' ) );
 define( 'MOMOS_TURNSTILE_SECRET', getenv( 'MOMOS_TURNSTILE_SECRET' ) );
@@ -55,7 +58,11 @@ define( 'MOMOS_SMTP_FROM', getenv( 'MOMOS_SMTP_FROM' ) );       // e.g. no-reply
 // Private evidence store outside the web root (FR-DIET-001, SA-001 F098) — include in backups.
 define( 'MOMOS_EVIDENCE_DIR', getenv( 'MOMOS_EVIDENCE_DIR' ) ?: dirname( __DIR__ ) . '/momos-private/evidence' );
 // Real client IP header when behind the CDN (e.g. CF-Connecting-IP); leave unset when not behind a proxy.
+// The header is honoured ONLY for requests whose REMOTE_ADDR is inside MOMOS_TRUSTED_PROXIES (the CDN's
+// published ranges, e.g. https://www.cloudflare.com/ips/ — comma-separated CIDRs, keep in sync); otherwise
+// REMOTE_ADDR is used (SDD §5.14, spec §7.6).
 // define( 'MOMOS_TRUSTED_IP_HEADER', 'CF-Connecting-IP' );
+// define( 'MOMOS_TRUSTED_PROXIES', getenv( 'MOMOS_TRUSTED_PROXIES' ) );
 // Heartbeat (dead-man's switch) URL of the uptime monitor (NFR-OBS-01).
 // define( 'MOMOS_HEARTBEAT_URL', getenv( 'MOMOS_HEARTBEAT_URL' ) );
 

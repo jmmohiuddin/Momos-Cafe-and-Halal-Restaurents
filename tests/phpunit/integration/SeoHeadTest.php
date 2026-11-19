@@ -173,6 +173,31 @@ final class SeoHeadTest extends SeoTestCaseTest {
 		$this->assertFalse( has_action( 'wp_head', 'rel_canonical' ) );
 		$b = $this->branch( 'QHD', [ 'en' => [ 'title' => 'Delta' ] ] );
 		$this->visit( $b, 'en' );
-		$this->assertSame( 'Delta | Momo\'s', Head::document_title( 'fallback' ) );
+		// The document title is HTML (core prints a filtered title verbatim): escaped like core's esc_html.
+		$this->assertSame( 'Delta | Momo&#039;s', Head::document_title( 'fallback' ) );
+	}
+
+	/** QA-067 (TC-PRV-016, IMPL-008): the SEO header replaces Security headers' value and must match it on C10/C11. */
+	public function test_private_result_pages_send_noindex_nofollow_header_qa_067(): void {
+		foreach ( [ 'submitted', 'status' ] as $role ) {
+			$this->visit( SystemPages::id( $role ), 'en' );
+			$this->assertSame( 'private', Context::noindex_reason(), $role );
+			$this->assertSame( 'noindex, nofollow', Head::robots_header( Context::noindex_reason() ), $role );
+		}
+		$this->assertSame( 'noindex, nofollow', Head::robots_header( 'test_branch' ) );
+		$this->assertSame( 'noindex, nofollow', Head::robots_header( 'hidden_language' ) );
+		$this->assertSame( '', Head::robots_header( '' ) );
+		// Outside production the staging header (noindex, nofollow) is never downgraded (FR-SEO-009).
+		$this->assertSame( \Momos\Kernel\Env::is_production() ? 'noindex' : 'noindex, nofollow', Head::robots_header( '404' ) );
+	}
+
+	/** QA-068 (SEC-021): stored markup in an entity title never reaches `<title>` unescaped. */
+	public function test_document_title_escapes_stored_markup_qa_068(): void {
+		$b = $this->branch( 'QHE', [ 'en' => [ 'title' => 'Eps </title><script>alert(1)</script>' ] ] );
+		$this->visit( $b, 'en' );
+		$t = wp_get_document_title();
+		$this->assertStringNotContainsString( '<script>', $t );
+		$this->assertStringNotContainsString( '</title>', $t );
+		$this->assertStringContainsString( '&lt;/title&gt;&lt;script&gt;', $t );
 	}
 }

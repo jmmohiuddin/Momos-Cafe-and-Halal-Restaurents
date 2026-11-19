@@ -29,6 +29,18 @@ final class ExpiryService {
 	}
 
 	/**
+	 * Lazy expiry on read paths (inbox, detail, API-03/11): a failure (e.g. the E05 queue row cannot be
+	 * stored, so the expiry rolled back) is logged and the row is shown as it is; ExpiryJob retries.
+	 */
+	public static function expire_quietly( int $id ): void {
+		try {
+			self::expire_if_due( $id );
+		} catch ( \Throwable $e ) {
+			\Momos\Kernel\Log\Logger::error( 'reservation.expiry_failed', [ 'reservation_id' => $id, 'error' => substr( $e->getMessage(), 0, 200 ) ] );
+		}
+	}
+
+	/**
 	 * Expire the row when due. Returns the updated row when this call expired it, null otherwise.
 	 *
 	 * @return array<string,mixed>|null
@@ -46,6 +58,8 @@ final class ExpiryService {
 					return false;
 				}
 				EventRepository::add( (int) $row['id'], EventType::StatusChanged, Actor::system(), 'pending', 'expired' );
+				$version = (int) ( ReservationRepository::find( (int) $row['id'] )['version'] ?? 0 );
+				NotificationTrigger::status_changed( (int) $row['id'], (int) $row['branch_id'], 'pending', 'expired', $version, 'system', null ); // E05, same transaction.
 				AfterCommit::dispatch( 'momos/reservation/status_changed', (int) $row['id'], 'pending', 'expired', Actor::system()->to_array() );
 				return true;
 			}

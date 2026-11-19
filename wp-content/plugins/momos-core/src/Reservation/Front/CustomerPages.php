@@ -10,7 +10,9 @@ use Momos\Kernel\I18n\Lang;
 use Momos\Kernel\I18n\Locale;
 use Momos\Kernel\I18n\Translations;
 use Momos\Kernel\I18n\Url;
+use Momos\Kernel\Settings;
 use Momos\Presentation\Assets;
+use Momos\Presentation\Format\PhoneFormatter;
 use Momos\Presentation\SystemPages;
 use Momos\Presentation\Templates\TemplateRouter;
 use Momos\Presentation\View\BranchLinks;
@@ -95,6 +97,9 @@ final class CustomerPages {
 			return;
 		}
 		wp_enqueue_style( 'momos-reservation', get_theme_file_uri( 'assets/css/reservation.css' ), [ 'momos-screens' ], Assets::version( 'assets/css/reservation.css' ) );
+		if ( 'reservation' === $role ) {
+			add_action( 'wp_head', [ self::class, 'noscript_style' ], 20 );
+		}
 		$args = [ 'in_footer' => true, 'strategy' => 'defer' ];
 		wp_enqueue_script( 'momos-reservation-common', get_theme_file_uri( 'assets/js/reservation-common.js' ), [], Assets::version( 'assets/js/reservation-common.js' ), $args );
 		$script = [
@@ -107,6 +112,14 @@ final class CustomerPages {
 		if ( 'reservation' === $role && 'live' === TurnstileVerifier::mode() && '' !== TurnstileVerifier::site_key() ) {
 			wp_enqueue_script( 'momos-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', [], null, $args ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- third-party URL must not carry ?ver.
 		}
+	}
+
+	/**
+	 * C09 without JavaScript: the form (visible by default so nothing shifts when the script runs,
+	 * NFR-PERF-01) is hidden and only the `<noscript>` phone list remains (reservation.md §6.1).
+	 */
+	public static function noscript_style(): void {
+		echo '<noscript><style>.momo-res-form{display:none}</style></noscript>' . "\n";
 	}
 
 	/**
@@ -165,6 +178,24 @@ final class CustomerPages {
 		return $out;
 	}
 
+	/**
+	 * Head Office contact for anyone unable to use the form (reasonable accommodation, CMP-032, DEC-036,
+	 * TC-A11Y-012): Brand settings G1 phone and e-mail; empty values are omitted.
+	 *
+	 * @return array{phone:string,tel:string,email:string}
+	 */
+	public static function alt_contact( ?string $lang = null ): array {
+		$e164  = trim( (string) Settings::get( 'momo_contact_phone_e164', '' ) );
+		$phone = trim( (string) Settings::get( 'momo_contact_phone_display', '' ) );
+		$email = sanitize_email( (string) Settings::get( 'momo_contact_email', '' ) );
+		$tel   = preg_match( '/^\+\d{8,15}$/', $e164 ) ? 'tel:' . $e164 : '';
+		return [
+			'phone' => '' !== $tel ? PhoneFormatter::display( $e164, $phone, $lang ?? Locale::current() ) : '', // national in ja, international elsewhere
+			'tel'   => $tel,
+			'email' => is_email( $email ) ? $email : '',
+		];
+	}
+
 	/** `?branch=CODE` (and `date`/`time` from "Request another time" links); invalid values are ignored. @return array{branch:string,date:string,time:string} */
 	public static function prefill(): array {
 		// phpcs:disable WordPress.Security.NonceVerification -- read-only prefill of a public form.
@@ -218,6 +249,7 @@ final class CustomerPages {
 			'any_accepting'    => (bool) array_filter( $branches, static fn( $b ) => $b['accepting'] ),
 			'prefill'          => $prefill,
 			'is_test'          => $test,
+			'alt_contact'      => self::alt_contact( $lang ),
 			'langs'            => $langs,
 			'privacy_url'      => SystemPages::legal_url( 'privacy', $lang ),
 			'res_policy_url'   => SystemPages::legal_url( 'res_policy', $lang ),

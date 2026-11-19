@@ -249,7 +249,7 @@
 	// ---------------------------------------------------------------- branch-dependent UI
 	function renderBranchUi() {
 		var b = branch();
-		ui.testBanner.hidden = !(b && b.is_test);
+		if (ui.testBanner) { ui.testBanner.hidden = !(b && b.is_test); }
 		// Policy link (DEC-054): only when the branch policy page is published in this language.
 		if (b && b.policy_url) {
 			var a = $('a', ui.policy);
@@ -740,6 +740,7 @@
 
 	// ---------------------------------------------------------------- init
 	form.hidden = false;
+	ui.submit.disabled = false; // Server-rendered disabled until the script runs (no native submit).
 	restore();
 	if (f.branch.value && !branches[f.branch.value]) { f.branch.value = ''; }
 	captchaInit();

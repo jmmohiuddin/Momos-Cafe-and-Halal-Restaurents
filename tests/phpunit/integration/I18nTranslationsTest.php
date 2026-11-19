@@ -137,6 +137,49 @@ final class I18nTranslationsTest extends AccessTestCaseTest {
 		$this->assertStringContainsString( 'momo-brand', (string) end( $rows )['changes'] );
 	}
 
+	/** QA-069 / DEF-016: persist() verifies the nonce itself instead of trusting its callers. */
+	public function test_persist_refuses_a_request_without_a_valid_nonce(): void {
+		$page = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'メニュー' ] );
+		$tr   = $this->user_with_role( 'momo_translator' );
+		wp_set_current_user( $tr );
+		$_POST = [ 'momos_tr' => [ 'en' => [ 'title' => 'Menu' ] ], 'momos_tr_status' => [ 'en' => 'draft' ] ];
+		TranslationEditor::persist( 'post', $page );
+		$this->assertSame( 'missing', Translations::status( 'post', $page, 'en' ), 'no nonce: nothing saved' );
+
+		$_POST['_momos_tr_nonce'] = 'not-a-nonce';
+		TranslationEditor::persist( 'post', $page );
+		$this->assertSame( 'missing', Translations::status( 'post', $page, 'en' ), 'invalid nonce: nothing saved' );
+
+		$other                    = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'アクセス' ] );
+		$_POST['_momos_tr_nonce'] = wp_create_nonce( TranslationEditor::nonce_action( 'post', $other ) );
+		TranslationEditor::persist( 'post', $page );
+		$this->assertSame( 'missing', Translations::status( 'post', $page, 'en' ), 'nonce of another item: nothing saved' );
+
+		$_POST['_momos_tr_nonce'] = wp_create_nonce( TranslationEditor::nonce_action( 'post', $page ) );
+		TranslationEditor::persist( 'post', $page );
+		$this->assertSame( 'draft', Translations::status( 'post', $page, 'en' ), 'valid nonce: saved' );
+		$_POST = [];
+	}
+
+	/** The editor page and the meta box issue the nonce persist() verifies (DEF-016). */
+	public function test_editor_forms_issue_the_nonce_persist_verifies(): void {
+		$page = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'メニュー' ] );
+		wp_set_current_user( $this->user_with_role( 'momo_head_office' ) );
+		$_GET = [ 'type' => 'post', 'id' => (string) $page, 'lang' => 'en' ];
+		ob_start();
+		TranslationEditor::page();
+		$html = (string) ob_get_clean();
+		$_GET = [];
+		$this->assertMatchesRegularExpression( '/name="_momos_tr_nonce" value="([^"]+)"/', $html );
+		preg_match( '/name="_momos_tr_nonce" value="([^"]+)"/', $html, $m );
+		$this->assertNotFalse( wp_verify_nonce( $m[1], TranslationEditor::nonce_action( 'post', $page ) ) );
+
+		$_POST = [ 'momos_tr' => [ 'en' => [ 'title' => 'Menu' ] ], 'momos_tr_status' => [ 'en' => 'draft' ], '_momos_tr_nonce' => $m[1] ];
+		TranslationEditor::save_from_post_screen( $page, get_post( $page ) );
+		$this->assertSame( 'draft', Translations::status( 'post', $page, 'en' ) );
+		$_POST = [];
+	}
+
 	public function test_translator_cannot_approve_own_legal_translation(): void {
 		$page = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'プライバシーポリシー', 'post_status' => 'publish', 'post_content' => '<p>本文</p>' ] );
 		update_post_meta( $page, 'momo_page_type', 'legal' );
@@ -146,6 +189,7 @@ final class I18nTranslationsTest extends AccessTestCaseTest {
 
 		wp_set_current_user( $tr1 );
 		$_POST  = [ 'momos_tr' => [ 'en' => [ 'title' => 'Privacy Policy', 'content' => '<p>Body</p>' ] ], 'momos_tr_status' => [ 'en' => 'approved' ] ];
+		$_POST['_momos_tr_nonce'] = wp_create_nonce( TranslationEditor::nonce_action( 'post', $page ) );
 		$errors = TranslationEditor::persist( 'post', $page );
 		$this->assertNotEmpty( $errors, 'self-approval refused' );
 		$this->assertSame( 'needs_review', Translations::status( 'post', $page, 'en' ) );
@@ -153,6 +197,7 @@ final class I18nTranslationsTest extends AccessTestCaseTest {
 
 		wp_set_current_user( $tr2 );
 		$_POST = [ 'momos_tr' => [ 'en' => [ 'title' => 'Privacy Policy', 'content' => '<p>Body</p>' ] ], 'momos_tr_status' => [ 'en' => 'approved' ] ];
+		$_POST['_momos_tr_nonce'] = wp_create_nonce( TranslationEditor::nonce_action( 'post', $page ) );
 		$this->assertSame( [], TranslationEditor::persist( 'post', $page ) );
 		$this->assertSame( 'approved', Translations::status( 'post', $page, 'en' ) );
 		$this->assertSame( $tr2, (int) get_post_meta( $page, '_momos_i18n_approved_by_en', true ) );
@@ -161,6 +206,7 @@ final class I18nTranslationsTest extends AccessTestCaseTest {
 		$news = self::factory()->post->create( [ 'post_title' => 'お知らせ' ] );
 		wp_set_current_user( $this->user_with_role( 'momo_content_editor' ) );
 		$_POST = [ 'momos_tr' => [ 'en' => [ 'title' => 'News' ] ], 'momos_tr_status' => [ 'en' => 'approved' ] ];
+		$_POST['_momos_tr_nonce'] = wp_create_nonce( TranslationEditor::nonce_action( 'post', $news ) );
 		TranslationEditor::persist( 'post', $news );
 		$this->assertSame( 'needs_review', Translations::status( 'post', $news, 'en' ) );
 	}
@@ -172,6 +218,7 @@ final class I18nTranslationsTest extends AccessTestCaseTest {
 		$page = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'メニュー' ] );
 		wp_set_current_user( $tr );
 		$_POST = [ 'momos_tr' => [ 'ar' => [ 'title' => 'قائمة' ], 'ur' => [ 'title' => 'مینو' ] ], 'momos_tr_status' => [ 'ar' => 'draft', 'ur' => 'draft' ] ];
+		$_POST['_momos_tr_nonce'] = wp_create_nonce( TranslationEditor::nonce_action( 'post', $page ) );
 		TranslationEditor::persist( 'post', $page );
 		$this->assertSame( 'missing', Translations::status( 'post', $page, 'ar' ), 'other languages ignored' );
 		$this->assertSame( 'draft', Translations::status( 'post', $page, 'ur' ) );

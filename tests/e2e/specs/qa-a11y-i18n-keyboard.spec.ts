@@ -304,6 +304,13 @@ test.describe('reservation form keyboard-only (TC-A11Y-002, TC-A11Y-006, FR-RES-
 		// Relax public rate limits for repeated runs from 127.0.0.1 (fixture is idempotent, dev/CI only).
 		try { wp('eval-file', 'tests/e2e/fixtures/reservation-fixture.php'); } catch { /* fixture optional */ }
 	});
+	test.afterAll(() => {
+		// The fixture publishes the fictional branches XEA/XEB; unpublish them again so later specs see only the demo
+		// branches (e.g. qa-customer-branch expects exactly 3 directory cards).
+		try {
+			wp('eval', "foreach ( [ 'XEA', 'XEB' ] as $c ) { foreach ( get_posts( [ 'post_type' => 'momo_branch', 'post_status' => 'publish', 'meta_key' => 'momo_branch_code', 'meta_value' => $c, 'fields' => 'ids', 'posts_per_page' => 1 ] ) as $i ) { wp_update_post( [ 'ID' => $i, 'post_status' => 'draft' ] ); } }");
+		} catch { /* fixture absent */ }
+	});
 
 	for (const lang of LANGS) {
 		test(`form semantics — ${lang}`, async ({ page }) => {

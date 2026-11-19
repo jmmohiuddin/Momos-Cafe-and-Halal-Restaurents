@@ -89,10 +89,24 @@ final class Branches {
 		return ! ( $for_selector && 'temporarily_closed' === $i['operating_status'] );
 	}
 
+	/**
+	 * Load branch posts and meta of many branches with two queries (info()/is_public() then read memory).
+	 *
+	 * @param list<int> $branch_ids
+	 */
+	public static function prime( array $branch_ids ): void {
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $branch_ids ) ) ) );
+		if ( $ids ) {
+			_prime_post_caches( $ids, false, true );
+		}
+	}
+
 	/** @return list<int> published branch IDs (TEST included only on request) ordered by menu_order/title. */
 	public static function published_ids( bool $include_test = false ): array {
 		if ( class_exists( \Momos\Branch\Repository\BranchRepository::class ) ) {
-			return array_map( 'intval', \Momos\Branch\Repository\BranchRepository::published_ids( $include_test ) );
+			$ids = array_map( 'intval', \Momos\Branch\Repository\BranchRepository::published_ids( $include_test ) );
+			self::prime( $ids );
+			return $ids;
 		}
 		$ids = get_posts(
 			[

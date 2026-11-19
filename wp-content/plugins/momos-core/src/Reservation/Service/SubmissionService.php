@@ -170,8 +170,8 @@ final class SubmissionService {
 	}
 
 	/**
-	 * T1: INSERT reservation (public_ref with ≤ 5 collision retries), token hash, `created` event; the
-	 * `momos/reservation/created` hook fires after commit (Notification queues E01/E07).
+	 * T1: INSERT reservation (public_ref with ≤ 5 collision retries), token hash, `created` event and the
+	 * E01/E07 queue rows in one transaction; the `momos/reservation/created` hook fires after commit.
 	 *
 	 * @param array<string,mixed> $row
 	 */
@@ -210,6 +210,7 @@ final class SubmissionService {
 					null,
 					[ 'captcha' => $row['captcha_status'], 'source_lang' => $row['source_lang'] ]
 				);
+				NotificationTrigger::created( $id, (int) $row['branch_id'] ); // E01 + E07 in this transaction (TC-RES-001).
 				AfterCommit::dispatch( 'momos/reservation/created', $id );
 				return $id;
 			}

@@ -8,7 +8,7 @@ use Momos\Kernel\I18n\Locale;
 /**
  * Front-end assets of the `momos` theme (ui-design-system.md §2, §4.3; NFR-PERF-03, DEC-061):
  * tokens.css → momos-ui.css → screens.css (screen layouts, TASK 2) → fonts-{lang}.css (current language
- * only), one preloaded text face, deferred frame.js + screens.js. No Google Fonts/CDN, no emoji script, no global-styles CSS of block themes.
+ * only; a `fonts-{lang}-700.css` secondary weight loads without blocking rendering), one preloaded text face, deferred frame.js + screens.js. No Google Fonts/CDN, no emoji script, no global-styles CSS of block themes.
  */
 final class Assets {
 	/** Preloaded text face (400) per language — the file the first paint needs most. */
@@ -21,10 +21,14 @@ final class Assets {
 		'bn' => 'noto-sans-bengali/noto-sans-bengali-400.woff2',
 	];
 
+	/** Handle of the non-render-blocking secondary font stylesheet (`fonts-{lang}-700.css`, when the theme has one). */
+	public const LATE_FONTS = 'momos-fonts-late';
+
 	public static function register(): void {
 		add_action( 'wp_enqueue_scripts', [ self::class, 'enqueue' ], 5 );
 		add_action( 'wp_enqueue_scripts', [ self::class, 'dequeue' ], 100 );
 		add_action( 'wp_head', [ self::class, 'preload' ], 2 );
+		add_filter( 'style_loader_tag', [ self::class, 'late_style' ], 10, 2 );
 		add_filter( 'should_load_separate_core_block_assets', '__return_true' );
 		add_action( 'init', [ self::class, 'disable_emoji' ] );
 		add_action( 'after_setup_theme', [ self::class, 'disable_global_styles' ], 20 );
@@ -48,6 +52,11 @@ final class Assets {
 		wp_enqueue_style( 'momos-fonts', get_theme_file_uri( 'assets/css/fonts-' . $lang . '.css' ), [], self::version( 'assets/css/fonts-' . $lang . '.css' ) );
 		wp_enqueue_style( 'momos-ui', get_theme_file_uri( 'assets/css/momos-ui.css' ), [ 'momos-tokens' ], self::version( 'assets/css/momos-ui.css' ) );
 		wp_enqueue_style( 'momos-screens', get_theme_file_uri( 'assets/css/screens.css' ), [ 'momos-ui' ], self::version( 'assets/css/screens.css' ) );
+		// Secondary weights of a large script font (ja: Noto Sans JP 700, ~45 KB of @font-face rules) do not block
+		// the first render (NFR-PERF-01 TBT/FCP); font-display:swap applies either way.
+		if ( is_file( get_theme_file_path( 'assets/css/fonts-' . $lang . '-700.css' ) ) ) {
+			wp_enqueue_style( self::LATE_FONTS, get_theme_file_uri( 'assets/css/fonts-' . $lang . '-700.css' ), [], self::version( 'assets/css/fonts-' . $lang . '-700.css' ) );
+		}
 		wp_enqueue_script( 'momos-screens', get_theme_file_uri( 'assets/js/screens.js' ), [], self::version( 'assets/js/screens.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
 		wp_enqueue_script( 'momos-frame', get_theme_file_uri( 'assets/js/frame.js' ), [], self::version( 'assets/js/frame.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
 		// Turnstile on C12 only, live mode only (screens.md §3.9 "Turnstile loads on C09 (and C12) only"; PRV-024).
@@ -56,6 +65,14 @@ final class Assets {
 		if ( is_array( $cap ) && 'live' === $cap['mode'] && '' !== $cap['site_key'] ) {
 			wp_enqueue_script( 'momos-contact-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', [], null, [ 'in_footer' => true, 'strategy' => 'async' ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- third-party URL must not carry ?ver.
 		}
+	}
+
+	/** `<link media="print" onload>` swap for the late font stylesheet; `<noscript>` keeps it for no-JS visitors. */
+	public static function late_style( string $tag, string $handle ): string {
+		if ( self::LATE_FONTS !== $handle || ! str_contains( $tag, "media='all'" ) ) {
+			return $tag;
+		}
+		return str_replace( "media='all'", "media='print' onload=\"this.media='all'\"", $tag ) . '<noscript>' . trim( $tag ) . "</noscript>\n";
 	}
 
 	public static function dequeue(): void {

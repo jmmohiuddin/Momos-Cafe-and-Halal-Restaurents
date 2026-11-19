@@ -129,7 +129,7 @@ final class Cards {
 				'date'    => (string) $d['date'],
 				'periods' => array_map( static fn( $p ) => [ 'o' => (string) $p['open'], 'c' => (string) $p['close'], 'l' => $p['lo'] ], (array) $d['periods'] ),
 			];
-			$dates[ (string) $d['date'] ] = DateFormatter::short( (string) $d['date'], $lang );
+			$dates[ (string) $d['date'] ] = esc_html( DateFormatter::short( (string) $d['date'], $lang ) );
 		}
 		return [
 			// Non-production frozen clock (QA, `momos_frozen_now`): the browser evaluates at the server's "now".
@@ -137,13 +137,15 @@ final class Cards {
 			'days'  => $days,
 			'dates' => $dates,
 			'soon'  => \Momos\Branch\Service\ScheduleService::CLOSING_SOON_MINUTES,
+			// Safe HTML templates (same markup as open_status(): times isolated LTR); frame.js only substitutes
+			// HH:MM times and the escaped day labels.
 			't'     => [
-				'open'     => momos_t( 'branch.open_now', [], $lang ),
-				'nolo'     => momos_t( 'branch.open_now_nolo', [], $lang ),
-				'closing'  => momos_t( 'branch.closing_soon', [], $lang ),
-				'closed'   => momos_t( 'branch.closed_now', [], $lang ),
-				'today'    => momos_t( 'branch.day.today', [], $lang ),
-				'tomorrow' => momos_t( 'branch.day.tomorrow', [], $lang ),
+				'open'     => Bdi::t( 'branch.open_now', [ 'time' => '{time}', 'lo' => '{lo}' ], [ 'time', 'lo' ], $lang ),
+				'nolo'     => Bdi::t( 'branch.open_now_nolo', [ 'time' => '{time}' ], [ 'time' ], $lang ),
+				'closing'  => Bdi::t( 'branch.closing_soon', [ 'time' => '{time}' ], [ 'time' ], $lang ),
+				'closed'   => Bdi::t( 'branch.closed_now', [ 'day' => '{day}', 'time' => '{time}' ], [ 'time' ], $lang ),
+				'today'    => esc_html( momos_t( 'branch.day.today', [], $lang ) ),
+				'tomorrow' => esc_html( momos_t( 'branch.day.tomorrow', [], $lang ) ),
 			],
 		];
 	}

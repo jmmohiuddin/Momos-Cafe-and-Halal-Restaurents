@@ -3,7 +3,8 @@
 # Level 5 now; gaps.md targets level 6 with 0 errors. The baseline freezes the findings that existed when the
 # gate was introduced (wave 2) so that CI fails only on NEW errors; fix entries and regenerate with
 #   composer phpstan:baseline
-# Never add new entries by hand to hide a new finding.
+# Never add new entries by hand to hide a new finding. reportUnmatchedIgnoredErrors makes a baseline entry whose
+# finding was fixed fail the run, so the baseline can only shrink (DEF-015): delete the entry or regenerate.
 includes:
 	- vendor/szepeviktor/phpstan-wordpress/extension.neon
 	- phpstan-baseline.neon
@@ -55,13 +56,18 @@ parameters:
 			paths:
 				- wp-content/plugins/momos-core/templates/*
 				- wp-content/themes/momos/template-parts/*
+			reportUnmatched: false
 		# phpstan-wordpress: job/action callbacks return a summary array that tests and WP-CLI read; WordPress
 		# ignores the return value of an action callback, so this is not a defect.
-		- identifier: return.void
+		-
+			identifier: return.void
+			reportUnmatched: false
 		# Optional deployment constants are read only after defined()/Env::is_configured() checks.
 		-
 			identifier: constant.notFound
 			message: '#^Constant MOMOS_[A-Z0-9_]+ not found\.$#'
-	reportUnmatchedIgnoredErrors: false
+			reportUnmatched: false
+	# Stale baseline entries (finding fixed, entry left behind) are errors; the general rules above opt out.
+	reportUnmatchedIgnoredErrors: true
 	treatPhpDocTypesAsCertain: false
 	tmpDir: .phpstan-cache

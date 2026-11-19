@@ -65,3 +65,8 @@
 .momo-res-result .momo-status--block .momo-icon{flex:none}
 .momo-res [data-res-heading]:focus{outline:none}
 .momo-res-result .momo-stack > .momo-btn,.momo-res-result section > .momo-btn{align-self:flex-start;justify-self:start}
+
+/* Accommodation channel before the form fields (CMP-032, TC-A11Y-012) */
+.momo-res-alt{display:flex;gap:var(--momo-space-2);align-items:flex-start;margin-block:0 var(--momo-space-6);font-size:var(--momo-fs-body-sm)}
+.momo-res-alt > svg{flex:none;margin-block-start:.2em}
+.momo-res-alt a{overflow-wrap:anywhere}

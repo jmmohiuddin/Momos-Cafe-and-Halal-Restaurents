@@ -9,12 +9,48 @@ use Momos\Kernel\Env;
  * Keyed hashes for abuse correlation and audit integrity (DEC-059). Keys come from constants.
  */
 final class Hash {
-	/** Keyed hash. Default key: MOMOS_HASH_PEPPER (spec C-15), alias MOMOS_HMAC_KEY. */
+	/** Purposes that separate the HMAC domains of one pepper (access-security-privacy.md §9.1/§17.16, DEC-059). */
+	public const PURPOSES = [ 'ip', 'ua', 'email', 'rl', 'audit' ];
+
+	/**
+	 * Keyed hash. Default key: MOMOS_HASH_PEPPER (spec C-15), alias MOMOS_HMAC_KEY.
+	 *
+	 * Fails closed: a missing key throws instead of hashing with an empty key (an unkeyed HMAC of an IP or
+	 * email is reversible by enumeration, and an unkeyed audit chain is forgeable). Outside production
+	 * Env::secret() derives a deterministic development key, so this only throws on a misconfigured production.
+	 *
+	 * @throws \RuntimeException when the key is not configured.
+	 */
 	public static function hmac( string $value, string $key_name = 'MOMOS_HASH_PEPPER' ): string {
+		return hash_hmac( 'sha256', $value, self::key( $key_name ) );
+	}
+
+	/**
+	 * Purpose-separated pepper HMAC: HMAC-SHA256(pepper, "{purpose}|{value}") — `ip` (reservation ip_hash),
+	 * `ua` (user_agent_hash), `email` (recipient hashes), `rl` (rate-limit subjects), `audit` (row chain).
+	 */
+	public static function purpose( string $purpose, string $value ): string {
+		if ( ! in_array( $purpose, self::PURPOSES, true ) ) {
+			throw new \InvalidArgumentException( 'Unknown HMAC purpose: ' . $purpose ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+		return self::hmac( $purpose . '|' . $value );
+	}
+
+	/**
+	 * The configured key for $key_name (pepper alias resolved).
+	 *
+	 * @throws \RuntimeException when the key is not configured.
+	 */
+	public static function key( string $key_name = 'MOMOS_HASH_PEPPER' ): string {
 		if ( 'MOMOS_HASH_PEPPER' === $key_name && ! Env::has( 'MOMOS_HASH_PEPPER' ) && Env::has( 'MOMOS_HMAC_KEY' ) ) {
 			$key_name = 'MOMOS_HMAC_KEY';
 		}
-		return hash_hmac( 'sha256', $value, Env::secret( $key_name ) );
+		$key = Env::secret( $key_name );
+		if ( '' === $key ) {
+			\Momos\Kernel\Log\Logger::critical( 'secret.missing', [ 'name' => $key_name ] );
+			throw new \RuntimeException( 'Secret ' . $key_name . ' is not configured' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+		return $key;
 	}
 
 	public static function sha256( string $value ): string {

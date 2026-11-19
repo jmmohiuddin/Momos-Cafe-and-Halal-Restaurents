@@ -25,6 +25,7 @@ get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_
 		</div>
 	<?php else : ?>
 		<p class="momo-alert momo-alert--info momo-res-promise" data-res-promise hidden></p>
+		<?php get_template_part( 'template-parts/reservation/alt-contact', null, [ 'contact' => $momos_v['alt_contact'] ?? [] ] ); ?>
 		<noscript>
 			<div class="momo-reading momo-stack">
 				<?php momos_component( 'alert', [ 'type' => 'info', 'body' => momos_s( 'res.noscript' ) ] ); ?>

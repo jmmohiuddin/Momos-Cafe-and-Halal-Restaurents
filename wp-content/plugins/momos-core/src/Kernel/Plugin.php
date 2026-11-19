@@ -65,6 +65,9 @@ final class Plugin {
 			$module->register();
 		}
 
+		// Media-library upload allow-list and size limit for every role (SEC-028, FR-ADM-005).
+		Media\UploadPolicy::register();
+
 		// Run pending migrations once per version (cheap option check on every request).
 		add_action( 'init', [ Runner::class, 'maybe_run' ], 1 );
 

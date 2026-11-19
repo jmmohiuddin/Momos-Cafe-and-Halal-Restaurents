@@ -36,12 +36,16 @@ final class Head {
 		return ! is_admin() && ! wp_doing_ajax() && ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) && ! is_feed() && ! is_robots();
 	}
 
+	/**
+	 * `<title>` text. Core prints a `pre_get_document_title` value verbatim (no escaping on that path), so
+	 * the resolved title is HTML-escaped here exactly like core's own path does (`esc_html`, SEC-021).
+	 */
 	public static function document_title( string $title ): string {
 		if ( ! self::is_front() ) {
 			return $title;
 		}
 		$t = Meta::title( Locale::current() );
-		return '' !== $t ? $t : $title;
+		return '' !== $t ? esc_html( $t ) : $title;
 	}
 
 	public static function print(): void {
@@ -164,13 +168,30 @@ final class Head {
 			return;
 		}
 		$reason = Context::noindex_reason();
+		$value  = self::robots_header( $reason );
+		if ( '' !== $value ) {
+			header( 'X-Robots-Tag: ' . $value );
+		}
 		if ( 'hidden_language' === $reason || 'test_branch' === $reason ) {
-			header( 'X-Robots-Tag: noindex, nofollow' );
 			nocache_headers();
 			header( 'Cache-Control: no-store, private' );
-		} elseif ( in_array( $reason, [ '404', 'private', 'preview', 'staff_only' ], true ) ) {
-			header( 'X-Robots-Tag: noindex' );
 		}
+	}
+
+	/**
+	 * `X-Robots-Tag` value for a noindex reason ('' = none). This header replaces the one sent earlier by
+	 * Security headers / TemplateRouter / the non-production header (IMPL-008), so it must never be weaker:
+	 * C10/C11 (`private`) send `noindex, nofollow` (access-security-privacy §8, TC-PRV-016), and outside
+	 * production every value is `noindex, nofollow` (FR-SEO-009, §9.3 staging row).
+	 */
+	public static function robots_header( string $reason ): string {
+		if ( in_array( $reason, [ 'hidden_language', 'test_branch', 'private' ], true ) ) {
+			return 'noindex, nofollow';
+		}
+		if ( in_array( $reason, [ '404', 'preview', 'staff_only' ], true ) ) {
+			return Env::is_production() ? 'noindex' : 'noindex, nofollow';
+		}
+		return '';
 	}
 
 	/** Non-production: every response `X-Robots-Tag: noindex, nofollow` (FR-SEO-009, §9.3 staging row). */

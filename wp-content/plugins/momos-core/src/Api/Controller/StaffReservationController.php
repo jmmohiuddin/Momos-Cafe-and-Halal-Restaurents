@@ -161,7 +161,7 @@ final class StaffReservationController {
 		if ( ! empty( $q['branch'] ) ) {
 			$ids = [];
 			foreach ( $csv( $q['branch'] ) as $code ) {
-				$b = BranchRepository::find_by_code( strtoupper( $code ), true );
+				$b = ctype_digit( $code ) ? BranchRepository::get( (int) $code ) : BranchRepository::find_by_code( strtoupper( $code ), true ); // code or post ID
 				if ( ! $b ) {
 					$fields['branch'] = 'invalid_format';
 					continue;
@@ -264,7 +264,7 @@ final class StaffReservationController {
 
 	public static function show( \WP_REST_Request $request ): \WP_REST_Response {
 		$id = (int) $request['id'];
-		ExpiryService::expire_if_due( $id );
+		ExpiryService::expire_quietly( $id );
 		$row = ReservationRepository::find( $id );
 		if ( null === $row ) {
 			return self::fail( new ReservationError( 'not_found' ) );

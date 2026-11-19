@@ -126,6 +126,25 @@ final class I18nCatalogTest extends AccessTestCaseTest {
 		Strings::set_status( 'xx', [ $key ], 'approved' );
 	}
 
+	/**
+	 * QA-049 / DEC-062 / FR-I18N-006: digits are always Western on output — in every catalog key,
+	 * including the admin.* and staff.* keys (bn access.php once had "৬-অঙ্কের", "১২ থেকে ১২৮").
+	 */
+	public function test_every_catalog_value_uses_western_digits(): void {
+		$hits = [];
+		foreach ( Lang::codes() as $lang ) {
+			foreach ( (array) glob( MOMOS_CORE_DIR . '/languages/strings/' . $lang . '/*.php' ) as $file ) {
+				$part = include $file;
+				foreach ( is_array( $part ) ? $part : [] as $key => $value ) {
+					if ( is_string( $value ) && preg_match( '/[\x{0660}-\x{0669}\x{06F0}-\x{06F9}\x{0966}-\x{096F}\x{09E6}-\x{09EF}\x{FF10}-\x{FF19}]/u', $value, $m ) ) {
+						$hits[] = $lang . '/' . basename( (string) $file ) . " {$key}: \"{$m[0]}\"";
+					}
+				}
+			}
+		}
+		$this->assertSame( [], $hits );
+	}
+
 	public function test_lccs_and_review_class_prefixes(): void {
 		$this->assertTrue( Strings::is_lccs_key( 'nav.menu' ) );
 		$this->assertTrue( Strings::is_lccs_key( 'res.title' ) );

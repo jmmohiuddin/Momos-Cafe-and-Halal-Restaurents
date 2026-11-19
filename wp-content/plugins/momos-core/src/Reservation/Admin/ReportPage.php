@@ -22,7 +22,17 @@ final class ReportPage {
 	}
 
 	public static function menu(): void {
-		add_submenu_page( InboxPage::SLUG, __( 'Reservation report', 'momos-core' ), __( 'Report', 'momos-core' ), 'momo_view_reservation_reports', self::SLUG, [ self::class, 'render' ] );
+		$hook = add_submenu_page( InboxPage::SLUG, __( 'Reservation report', 'momos-core' ), __( 'Report', 'momos-core' ), 'momo_view_reservation_reports', self::SLUG, [ self::class, 'render' ] );
+		if ( $hook ) {
+			add_action( 'load-' . $hook, [ self::class, 'preload' ] );
+		}
+	}
+
+	/** Before any output: a foreign branch filter → 403 (TC-ACL-003). */
+	public static function preload(): void {
+		if ( current_user_can( 'momo_view_reservation_reports' ) ) {
+			InboxPage::forbid_foreign_branch_filter( 'SCR-A17' );
+		}
 	}
 
 	public static function render(): void {
@@ -42,13 +52,14 @@ final class ReportPage {
 		$ids      = null;
 		$error    = null;
 		if ( '' !== $branch ) {
-			$b = BranchRepository::find_by_code( $branch, false );
-			if ( ! $b || ! $scope->allows( (int) $b['id'] ) ) {
+			$b = InboxPage::branch_by_token( $branch );
+			if ( ! $b || $b['is_test'] || ! $scope->allows( (int) $b['id'] ) ) {
 				\Momos\Reservation\Service\ReservationAccess::deny( null, $b ? (int) $b['id'] : null, 'forbidden_branch', 'SCR-A17' );
 				$error = momos_t( 'staff.err.forbidden_branch' );
 				$ids   = [];
 			} else {
-				$ids = [ (int) $b['id'] ];
+				$ids    = [ (int) $b['id'] ];
+				$branch = (string) $b['code'];
 			}
 		}
 		$report = ReportService::build( $scope, [ 'date_from' => min( $from, $to ), 'date_to' => max( $from, $to ), 'basis' => $basis, 'branch_ids' => $ids, 'lang' => '' !== $lang ? $lang : null ] );

@@ -38,6 +38,9 @@ define( 'MOMOS_MAIL_TRANSPORT', 'log' ); // Development: emails are written to t
 define( 'MOMOS_MAIL_CATCHER_DIR', __DIR__ . '/wp-content/mail-catcher' );
 define( 'MOMOS_TURNSTILE_MODE', 'test' ); // test = always pass; production requires real keys.
 define( 'MOMOS_2FA_ENFORCE', getenv( 'MOMOS_2FA_ENFORCE' ) === '1' );
+if ( getenv( 'MOMOS_CACHE_ADAPTER' ) ) {
+	define( 'MOMOS_CACHE_ADAPTER', getenv( 'MOMOS_CACHE_ADAPTER' ) ); // e.g. litespeed: check X-LiteSpeed-Tag headers locally (gaps.md §4.2).
+}
 if ( getenv( 'MOMOS_FROZEN_NOW' ) ) {
 	define( 'MOMOS_FROZEN_NOW', getenv( 'MOMOS_FROZEN_NOW' ) );
 }

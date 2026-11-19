@@ -16,12 +16,15 @@ final class Env {
 		return 'production' === self::name();
 	}
 
-	/** Secret from a constant (wp-config / environment), never from the database. */
 	/** Whether a secret is configured (constant or environment variable). */
 	public static function has( string $name ): bool {
 		return ( defined( $name ) && '' !== (string) constant( $name ) ) || ( false !== getenv( $name ) && '' !== getenv( $name ) );
 	}
 
+	/**
+	 * Secret from a constant (wp-config / environment), never from the database. In production a missing
+	 * secret returns $fallback ('' by default); key consumers must fail closed on '' (Support\Hash, TokenService).
+	 */
 	public static function secret( string $name, string $fallback = '' ): string {
 		if ( defined( $name ) && '' !== (string) constant( $name ) ) {
 			return (string) constant( $name );

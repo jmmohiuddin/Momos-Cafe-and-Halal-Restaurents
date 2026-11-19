@@ -112,8 +112,9 @@ jobs:
             || { cs2pr "$RUNNER_TEMP/phpcs.xml"; exit 1; }
 
       - name: PHPCS — security sniffs, whole tree (report)
-        # Escaping, nonces, sanitising, prepared SQL over all code. Report-only until the findings listed in the
-        # wave-2 tooling report are fixed or justified with a targeted phpcs:ignore; then remove continue-on-error.
+        # Escaping, nonces, sanitising, prepared SQL over all code. Reviewed false positives are excluded file by
+        # file in phpcs.xml.dist (guarded by ToolingCodingStandardTest). Report-only until the remaining DEF-017
+        # findings are fixed or justified with a targeted phpcs:ignore; then remove continue-on-error.
         continue-on-error: true
         run: |
           vendor/bin/phpcs -n -q --sniffs=WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput,WordPress.Security.SafeRedirect,WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders \

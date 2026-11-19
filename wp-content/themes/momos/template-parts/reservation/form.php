@@ -2,8 +2,11 @@
 /**
  * CMP-ReservationForm — SCR-C09 fields 4–19 (reservation.md §6.1, screens.md §3.9). Server-rendered
  * shell; dates, times and party sizes come from API-01 and are rendered by reservation-form.js.
- * `novalidate` + localised inline errors and a focused error summary. The form is `hidden` until the
- * script runs (JavaScript is required: pickers + Turnstile); the `<noscript>` block lists the phones.
+ * `novalidate` + localised inline errors and a focused error summary. The form is rendered visible so
+ * the page does not shift when the script initialises (NFR-PERF-01, CLS ≤ 0.1); its submit button stays
+ * disabled until the script has run, so it can never be submitted natively. JavaScript is required
+ * (pickers + Turnstile): without it a `<head>` `<noscript>` style hides the form and the page's
+ * `<noscript>` block lists the phones (CustomerPages::noscript_style).
  *
  * @package momos
  * @var array<string,mixed> $args CustomerPages::form_view()
@@ -43,7 +46,7 @@ if ( $momos_extra ) {
 	$momos_consent .= ' (' . implode( ' · ', $momos_extra ) . ')';
 }
 ?>
-<form class="momo-res-form" id="momo-res-form" novalidate hidden data-momo-res-form aria-describedby="res-summary">
+<form class="momo-res-form" id="momo-res-form" novalidate data-momo-res-form aria-describedby="res-summary">
 	<div class="momo-errsum" id="res-errsum" role="alert" tabindex="-1" hidden>
 		<?php momos_the_icon( 'alert-circle' ); ?>
 		<div>
@@ -54,10 +57,16 @@ if ( $momos_extra ) {
 
 	<div class="momo-res-layout">
 		<div class="momo-res-main momo-stack">
+			<?php
+			// TEST banner only for viewers who are offered the TEST branch at all (assigned staff, FR-RES-026 /
+			// reservation spec §3.14); anonymous pages carry no trace of it.
+			if ( array_filter( (array) $momos_v['branches'], static fn( $b ) => ! empty( $b['is_test'] ) ) ) :
+				?>
 			<div class="momo-alert momo-alert--warning" data-res-test-banner hidden>
 				<?php momos_the_icon( 'alert-triangle' ); ?>
 				<div><p class="momo-strong"><?php echo esc_html( momos_s( 'res.test_banner' ) ); ?></p></div>
 			</div>
+			<?php endif; ?>
 
 			<!-- 4. Branch -->
 			<div class="momo-field" data-res-field="branch">
@@ -91,7 +100,9 @@ if ( $momos_extra ) {
 					<span class="momo-skel momo-skel--text" aria-hidden="true"></span><span class="momo-skel momo-skel--text" aria-hidden="true"></span>
 				</div>
 				<div class="momo-res-times" data-res-times></div>
-				<p class="momo-field__help" data-res-no-times hidden><?php echo esc_html( momos_s( 'res.info.no_times' ) ); ?></p>
+				<div role="status" data-res-no-times-region><?php // Always in the DOM so revealing the message is announced (WCAG 4.1.3, TC-A11Y-003). ?>
+					<p class="momo-field__help" data-res-no-times hidden><?php echo esc_html( momos_s( 'res.info.no_times' ) ); ?></p>
+				</div>
 				<?php $momos_err( 'res-time' ); ?>
 			</fieldset>
 
@@ -208,7 +219,7 @@ if ( $momos_extra ) {
 			</div>
 
 			<!-- 18–19. Submit + call alternative -->
-			<button type="submit" class="momo-btn momo-btn--primary momo-btn--lg" data-res-submit><?php momos_the_icon( 'send' ); ?><span data-res-submit-label><?php echo esc_html( momos_s( 'res.submit' ) ); ?></span></button>
+			<button type="submit" class="momo-btn momo-btn--primary momo-btn--lg" data-res-submit disabled><?php momos_the_icon( 'send' ); ?><span data-res-submit-label><?php echo esc_html( momos_s( 'res.submit' ) ); ?></span></button>
 			<p class="momo-small" data-res-call-alt hidden></p>
 		</div>
 	</div>

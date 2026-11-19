@@ -21,6 +21,9 @@ use Momos\Kernel\I18n\Translations;
 final class TranslationEditor {
 	public const NOTICE = 'momos_tr_notice_';
 
+	/** Request field carrying the nonce of every translation form (meta box and stand-alone page). */
+	public const NONCE_FIELD = '_momos_tr_nonce';
+
 	public static function register(): void {
 		add_action( 'add_meta_boxes', [ self::class, 'meta_box' ], 30, 2 );
 		add_action( 'save_post', [ self::class, 'save_from_post_screen' ], 20, 2 );
@@ -81,7 +84,7 @@ final class TranslationEditor {
 			'momos-translations',
 			__( 'Translations', 'momos-core' ),
 			static function ( \WP_Post $p ): void {
-				wp_nonce_field( 'momos_translations_' . $p->ID, '_momos_tr_nonce' );
+				wp_nonce_field( self::nonce_action( 'post', $p->ID ), self::NONCE_FIELD );
 				self::render_tabs( 'post', $p->ID );
 			},
 			$post_type,
@@ -197,11 +200,20 @@ final class TranslationEditor {
 		};
 	}
 
+	/** Nonce action bound to one translatable item (DEF-016). */
+	public static function nonce_action( string $type, int|string $id ): string {
+		return 'momos_translate_' . $type . ':' . $id;
+	}
+
+	/** True when the request carries a valid translation nonce for this item. */
+	private static function nonce_ok( string $type, int|string $id ): bool {
+		$nonce = isset( $_POST[ self::NONCE_FIELD ] ) && is_string( $_POST[ self::NONCE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_FIELD ] ) ) : '';
+		return '' !== $nonce && false !== wp_verify_nonce( $nonce, self::nonce_action( $type, $id ) );
+	}
+
 	public static function save_from_post_screen( int $post_id, \WP_Post $post ): void {
-		if ( wp_is_post_revision( $post_id ) || ! isset( $_POST['_momos_tr_nonce'] ) ) {
-			return;
-		}
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_momos_tr_nonce'] ) ), 'momos_translations_' . $post_id ) ) {
+		// save_post fires for every save; only act when the Translations meta box was submitted.
+		if ( wp_is_post_revision( $post_id ) || ! isset( $_POST[ self::NONCE_FIELD ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- verified in persist().
 			return;
 		}
 		self::persist( 'post', $post_id );
@@ -209,7 +221,7 @@ final class TranslationEditor {
 
 	/** Attachments do not fire save_post (core returns early for them). */
 	public static function save_from_attachment_screen( int $post_id ): void {
-		if ( ! isset( $_POST['_momos_tr_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_momos_tr_nonce'] ) ), 'momos_translations_' . $post_id ) ) {
+		if ( ! isset( $_POST[ self::NONCE_FIELD ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- verified in persist().
 			return;
 		}
 		self::persist( 'post', $post_id );
@@ -217,11 +229,13 @@ final class TranslationEditor {
 
 	/**
 	 * Save the submitted languages. Returns the refusals (translator approving own review-class text).
+	 * Verifies the nonce and the permission itself (DEF-016), so no caller can skip either check;
+	 * a request without a valid nonce for this item saves nothing.
 	 *
 	 * @return list<string>
 	 */
 	public static function persist( string $type, int|string $id ): array {
-		if ( ! self::can_translate( $type, $id ) ) {
+		if ( ! self::nonce_ok( $type, $id ) || ! self::can_translate( $type, $id ) ) {
 			return [];
 		}
 		$values   = isset( $_POST['momos_tr'] ) && is_array( $_POST['momos_tr'] ) ? wp_unslash( $_POST['momos_tr'] ) : []; // phpcs:ignore -- sanitised in Translations::save().
@@ -322,7 +336,7 @@ final class TranslationEditor {
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="momos_save_translation">';
 		echo '<input type="hidden" name="type" value="' . esc_attr( $type ) . '"><input type="hidden" name="id" value="' . esc_attr( (string) $id ) . '"><input type="hidden" name="lang" value="' . esc_attr( $lang ) . '">';
-		wp_nonce_field( 'momos_translate_' . $type . $id, '_momos_tr_nonce' );
+		wp_nonce_field( self::nonce_action( $type, $id ), self::NONCE_FIELD );
 		self::render_tabs( $type, $id, $lang );
 		submit_button( __( 'Save translation', 'momos-core' ) );
 		echo '</form><p><a href="' . esc_url( add_query_arg( [ 'page' => GapsPage::SLUG, 'lang' => $lang ], admin_url( 'admin.php' ) ) ) . '">' . esc_html__( 'Back to translation gaps', 'momos-core' ) . '</a></p></div>';
@@ -331,7 +345,7 @@ final class TranslationEditor {
 	public static function save_from_page(): void {
 		[ $type, $id ] = self::target( $_POST ); // phpcs:ignore -- nonce verified below.
 		$lang          = isset( $_POST['lang'] ) ? sanitize_key( wp_unslash( $_POST['lang'] ) ) : '';
-		check_admin_referer( 'momos_translate_' . $type . $id, '_momos_tr_nonce' );
+		check_admin_referer( self::nonce_action( $type, $id ), self::NONCE_FIELD );
 		if ( ! $id || ! self::exists( $type, $id ) || ! self::can_translate( $type, $id ) ) {
 			momos_audit( 'access.denied', 'translation', null, null, [ 'cap' => 'momo_translate', 'channel' => 'admin-post', 'route' => 'momos_save_translation' ] );
 			wp_die( esc_html__( 'You do not have permission to translate this item.', 'momos-core' ), 403 );

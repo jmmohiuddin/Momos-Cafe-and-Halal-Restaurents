@@ -107,8 +107,8 @@ final class ModificationService {
 		}
 
 		$status = (string) $row['status'];
-		Transaction::run(
-			static function () use ( $id, $version, $status, $date, $time, $party, $new_start, $before, $after, $override, $o_reason, $note, $actor, $row ): void {
+		$queued = Transaction::run(
+			static function () use ( $id, $version, $status, $date, $time, $party, $new_start, $before, $after, $override, $o_reason, $note, $actor, $row ): array {
 				$affected = ReservationRepository::update_conditional(
 					$id,
 					(int) $version,
@@ -138,9 +138,12 @@ final class ModificationService {
 					EventRepository::add( $id, EventType::Note, $actor, null, null, null, $note );
 				}
 				momos_audit( 'reservation.modified', 'reservation', $id, (int) $row['branch_id'], [ 'before' => $before, 'after' => $after, 'override' => $override, 'override_reason' => $o_reason ] );
+				$queued = in_array( $status, [ 'pending', 'confirmed' ], true ) ? [ 'E06' ] : [];
+				NotificationTrigger::modified( $id, (int) $row['branch_id'], $status, (int) $version + 1 ); // E06, same transaction.
 				AfterCommit::dispatch( 'momos/reservation/modified', $id, $before, $after, $actor->to_array() );
+				return $queued;
 			}
 		);
-		return [ 'row' => (array) ReservationRepository::find( $id ), 'notifications_queued' => [ 'E06' ] ];
+		return [ 'row' => (array) ReservationRepository::find( $id ), 'notifications_queued' => $queued ];
 	}
 }

@@ -97,12 +97,13 @@ final class InboxPage {
 	 * unknown request is answered with a real 403/404 status and no data.
 	 */
 	public static function preload(): void {
+		self::forbid_foreign_branch_filter( 'SCR-A08' );
 		$id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0; // phpcs:ignore
 		if ( ! $id ) {
 			return;
 		}
 		Locale::set( Locale::admin() );
-		ExpiryService::expire_if_due( $id );
+		ExpiryService::expire_quietly( $id );
 		$row = ReservationRepository::find( $id );
 		if ( null === $row ) {
 			wp_die( esc_html( momos_t( 'staff.err.not_found' ) ), '', [ 'response' => 404, 'back_link' => true ] );
@@ -111,6 +112,34 @@ final class InboxPage {
 			ReservationAccess::deny( $id, (int) $row['branch_id'], 'forbidden_branch', 'SCR-A09' );
 			wp_die( esc_html( momos_t( 'staff.err.forbidden_branch' ) ), '', [ 'response' => 403, 'back_link' => true ] );
 		}
+	}
+
+	/**
+	 * A `branch` filter (code or post ID, comma-separated) naming a branch outside the user's scope is
+	 * refused before any output with a real 403 and `access.denied` (TC-ACL-003, access spec §4.3 E2,
+	 * FR-ADM-003, BR-RES-02). Unknown values are left to the normal "check the filters" notice.
+	 */
+	public static function forbid_foreign_branch_filter( string $route ): void {
+		$raw = $_GET['branch'] ?? ''; // phpcs:ignore WordPress.Security.NonceVerification -- read-only filter.
+		$raw = is_array( $raw ) ? implode( ',', array_map( 'strval', $raw ) ) : (string) $raw;
+		$raw = sanitize_text_field( wp_unslash( $raw ) );
+		if ( '' === $raw ) {
+			return;
+		}
+		$scope = Scope::for_user( get_current_user_id() );
+		foreach ( array_filter( array_map( 'trim', explode( ',', $raw ) ), 'strlen' ) as $token ) {
+			$b = self::branch_by_token( $token );
+			if ( null !== $b && ! $scope->allows( (int) $b['id'] ) ) {
+				ReservationAccess::deny( null, (int) $b['id'], 'forbidden_branch', $route );
+				Locale::set( Locale::admin() );
+				wp_die( esc_html( momos_t( 'staff.err.forbidden_branch' ) ), '', [ 'response' => 403, 'back_link' => true ] );
+			}
+		}
+	}
+
+	/** Branch by code (`DKH`) or post ID (`27`), TEST branch included. @return array<string,mixed>|null */
+	public static function branch_by_token( string $token ): ?array {
+		return ctype_digit( $token ) ? BranchRepository::get( (int) $token ) : BranchRepository::find_by_code( strtoupper( $token ), true );
 	}
 
 	public static function render(): void {
@@ -199,7 +228,7 @@ final class InboxPage {
 
 	private static function render_detail( int $id ): void {
 		$user_id = get_current_user_id();
-		ExpiryService::expire_if_due( $id );
+		ExpiryService::expire_quietly( $id );
 		$row = ReservationRepository::find( $id );
 		if ( null === $row ) {
 			wp_die( esc_html( momos_t( 'staff.err.not_found' ) ), 404 );

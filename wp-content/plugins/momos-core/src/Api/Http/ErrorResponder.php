@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Momos\Api\Http;
 
 use Momos\Kernel\Http\RequestContext;
+use Momos\Kernel\I18n\Strings;
+use Momos\Kernel\Settings;
 use Momos\Kernel\I18n\Locale;
 use Momos\Reservation\Domain\ReservationError;
 
@@ -76,9 +78,18 @@ final class ErrorResponder {
 		$code   = $e->error_code;
 		$status = $e->status();
 		$key    = self::message_key( $e, $staff );
+		$text   = $key;
 		$args   = array_merge( $context, (array) ( $e->data['args'] ?? [] ) );
-		if ( isset( $e->data['branch_phone']['display'] ) && ! isset( $args['phone'] ) ) {
+		if ( isset( $e->data['branch_phone']['display'] ) && '' === (string) ( $args['phone'] ?? '' ) ) {
 			$args['phone'] = (string) $e->data['branch_phone']['display'];
+		}
+		if ( ! $staff && '' === trim( (string) ( $args['phone'] ?? '' ) ) ) {
+			// No branch context (guard errors, unknown branch, unverified status token): Head Office phone,
+			// else the variant worded without a phone, never a dangling "call ." (DEC-063, Doc 04 §16.0.4).
+			$args['phone'] = self::head_office_phone();
+			if ( '' === $args['phone'] && Strings::has( $key . '.no_phone', $lang ) ) {
+				$text = $key . '.no_phone';
+			}
 		}
 		if ( 'invalid_param' === $code ) {
 			$args['n'] = max( 1, count( $e->fields ) );
@@ -87,7 +98,7 @@ final class ErrorResponder {
 			$args['status'] = self::status_label( (string) ( $e->data['current']['status'] ?? '' ) );
 		}
 		$args['request_id'] = RequestContext::id();
-		$message            = $staff ? Locale::with( Locale::admin(), static fn() => momos_t( $key, $args ) ) : momos_t( $key, $args, $lang );
+		$message            = $staff ? Locale::with( Locale::admin(), static fn() => momos_t( $key, $args ) ) : momos_t( $text, $args, $lang );
 		$message            = (string) preg_replace( '/\{[a-z_]+\}/', '', $message );
 
 		$data = [
@@ -148,6 +159,11 @@ final class ErrorResponder {
 			return 'res.err.summary';
 		}
 		return self::PUBLIC_KEYS[ $code ] ?? 'res.err.system';
+	}
+
+	/** Head Office contact phone (Brand settings G1), '' when not configured. */
+	public static function head_office_phone(): string {
+		return trim( (string) Settings::get( 'momo_contact_phone_display', '' ) );
 	}
 
 	private static function status_label( string $status ): string {

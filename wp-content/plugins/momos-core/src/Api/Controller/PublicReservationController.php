@@ -181,15 +181,17 @@ final class PublicReservationController {
 
 	public static function status( \WP_REST_Request $request ): \WP_REST_Response {
 		$lang = self::query_lang( $request );
+		$ctx  = []; // No reservation-specific data before the token is verified (spec §3.6 step 4, TC-RES-030).
 		try {
 			$token = Guards::header_token( $request );
 			self::limit( 'status_ip' );
 			$row = TokenService::verify( (string) $request['ref'], $token );
-			ExpiryService::expire_if_due( (int) $row['id'] );
+			$ctx = self::row_context( $row, $lang );
+			ExpiryService::expire_quietly( (int) $row['id'] );
 			$row = (array) \Momos\Reservation\Repository\ReservationRepository::find( (int) $row['id'] );
 			return new \WP_REST_Response( Presenter::customer_status( $row, $lang ), 200 );
 		} catch ( ReservationError $e ) {
-			return ErrorResponder::response( $e, $lang, false, self::row_context( (string) $request['ref'], $lang ) );
+			return ErrorResponder::response( $e, $lang, false, $ctx );
 		}
 	}
 
@@ -197,6 +199,7 @@ final class PublicReservationController {
 		$body = (array) $request->get_json_params();
 		$lang = Lang::is_valid( $body['lang'] ?? null ) ? (string) $body['lang'] : self::query_lang( $request );
 		Locale::set( $lang );
+		$ctx = []; // No reservation-specific data before the token is verified (spec §3.6 step 4, TC-RES-030).
 		try {
 			$token = Guards::header_token( $request );
 			self::limit( 'cancel_ip' );
@@ -205,10 +208,11 @@ final class PublicReservationController {
 				throw ReservationError::invalid( $errors );
 			}
 			$row = TokenService::verify( (string) $request['ref'], $token );
+			$ctx = self::row_context( $row, $lang );
 			$row = TransitionService::customer_cancel( $row );
 			return new \WP_REST_Response( Presenter::customer_status( $row, $lang ), 200 );
 		} catch ( ReservationError $e ) {
-			return ErrorResponder::response( $e, $lang, false, self::row_context( (string) $request['ref'], $lang ) );
+			return ErrorResponder::response( $e, $lang, false, $ctx );
 		}
 	}
 
@@ -236,12 +240,16 @@ final class PublicReservationController {
 		return [ 'branch' => Presenter::branch_name( (int) $b['id'], $lang ), 'phone' => (string) $b['phone_display'] ];
 	}
 
-	/** Phone of the reservation's branch for cancel/status messages (only the public branch phone). @return array<string,string> */
-	private static function row_context( string $ref, string $lang ): array {
-		$row = \Momos\Reservation\Repository\ReservationRepository::find_by_ref( $ref );
-		if ( ! $row ) {
-			return [ 'branch' => '', 'phone' => '' ];
-		}
+	/**
+	 * Phone of the reservation's branch for cancel/status messages (only the public branch phone).
+	 * Called only with a row whose token was verified, so an unauthenticated caller can never tell an
+	 * existing reference from an unknown one (DEC-058/064, SEC-024); before that ErrorResponder falls
+	 * back to the Head Office phone.
+	 *
+	 * @param array<string,mixed> $row
+	 * @return array<string,string>
+	 */
+	private static function row_context( array $row, string $lang ): array {
 		$b = BranchRepository::get( (int) $row['branch_id'] );
 		return [ 'branch' => Presenter::branch_name( (int) $row['branch_id'], $lang ), 'phone' => $b ? (string) $b['phone_display'] : '' ];
 	}

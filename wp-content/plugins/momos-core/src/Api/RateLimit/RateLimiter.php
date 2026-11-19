@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Momos\Api\RateLimit;
 
 use Momos\Kernel\Clock\Clock;
+use Momos\Kernel\Db\NamedLock;
 use Momos\Kernel\Support\Hash;
 use Momos\Reservation\Support\Options;
 
@@ -12,7 +13,8 @@ use Momos\Reservation\Support\Options;
  * estimate = cur + prev × (1 − elapsed/window); a request is rejected when estimate ≥ limit.
  * Keys `momos_rl:{bucket}:{hmac(subject)}:{window_start}` (subject = IP, normalised email or user id,
  * never stored in clear) with TTL 2 × window, in the persistent object cache when available, else in
- * transients. Only allowed requests are counted.
+ * transients. Only allowed requests are counted. Read-compare-increment runs under a per-key MySQL named
+ * lock so parallel requests cannot all pass on the same count.
  */
 final class RateLimiter {
 	/** bucket => [option name of the limit, window seconds] */
@@ -41,16 +43,28 @@ final class RateLimiter {
 		$subject             = Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' );
 		$cur_key             = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . $start;
 		$prv_key             = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . ( $start - $window );
-		$cur                 = self::get( $cur_key );
-		$prev                = self::get( $prv_key );
-		$elapsed             = ( $now - $start ) / $window;
-		$est                 = $cur + $prev * ( 1 - $elapsed );
-		if ( $est >= $limit ) {
-			$retry      = max( 1, $start + $window - $now );
+		// Read-compare-increment must be atomic per key, or parallel requests all read the same count
+		// and all pass (QA-045, FR-RES-007/TC-RES-022). Held for a few milliseconds; if it cannot be had
+		// within 2 s the request is refused (fail closed) rather than counted twice or not at all.
+		$lock = 'rl:' . $cur_key;
+		if ( ! NamedLock::acquire( $lock, 2 ) ) {
 			self::$last = [ 'limit' => $limit, 'remaining' => 0 ];
-			return [ 'allowed' => false, 'limit' => $limit, 'remaining' => 0, 'retry_after' => $retry ];
+			return [ 'allowed' => false, 'limit' => $limit, 'remaining' => 0, 'retry_after' => 1 ];
 		}
-		self::incr( $cur_key, 2 * $window );
+		try {
+			$cur     = self::get( $cur_key );
+			$prev    = self::get( $prv_key );
+			$elapsed = ( $now - $start ) / $window;
+			$est     = $cur + $prev * ( 1 - $elapsed );
+			if ( $est >= $limit ) {
+				$retry      = max( 1, $start + $window - $now );
+				self::$last = [ 'limit' => $limit, 'remaining' => 0 ];
+				return [ 'allowed' => false, 'limit' => $limit, 'remaining' => 0, 'retry_after' => $retry ];
+			}
+			self::incr( $cur_key, 2 * $window );
+		} finally {
+			NamedLock::release( $lock );
+		}
 		$remaining  = max( 0, (int) floor( $limit - $est - 1 ) );
 		self::$last = [ 'limit' => $limit, 'remaining' => $remaining ];
 		return [ 'allowed' => true, 'limit' => $limit, 'remaining' => $remaining, 'retry_after' => 0 ];

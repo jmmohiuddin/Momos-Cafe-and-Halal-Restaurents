@@ -90,6 +90,11 @@ final class BranchMenuGrid {
 			momos_audit( 'access.denied', 'branch', $branch_id, $branch_id, [ 'reason' => 'forbidden', 'screen' => self::SLUG ] );
 			wp_die( esc_html__( 'You do not have permission to do this.', 'momos-core' ), 403 );
 		}
+		// Branch scope (access spec §4.3 E5, TC-ACL-006/009): a foreign branch is a 403, not a redirect notice.
+		if ( $branch_id && ! momos_user_can_branch( $branch_id ) ) {
+			momos_audit( 'access.denied', 'branch_menu_item', null, $branch_id, [ 'reason' => 'forbidden_branch', 'dish_id' => $dish_id, 'screen' => self::SLUG ] );
+			wp_die( esc_html__( 'You do not have access to this branch.', 'momos-core' ), '', [ 'response' => 403 ] );
+		}
 		$input = [ 'version' => isset( $_POST['version'] ) ? (int) $_POST['version'] : 0 ];
 		$quick = isset( $_POST['quick'] ) ? sanitize_key( wp_unslash( $_POST['quick'] ) ) : '';
 		if ( 'sold_out_today' === $quick ) {

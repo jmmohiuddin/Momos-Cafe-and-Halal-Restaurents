@@ -145,6 +145,11 @@ final class PresentationTest extends TestCase {
 		$this->assertSame( 'reservation', get_post_field( 'post_name', (int) wp_get_post_parent_id( $map['submitted'] ) ) );
 		$this->assertNull( SystemPages::url( 'gallery', 'ja' ) ); // optional, unpublished → no nav item
 		$this->assertNull( SystemPages::legal_url( 'terms', 'ja' ) ); // draft legal page → no dead footer link
+		// About is an editorial page: 404 in a language without an approved translation (DEC-027), so not linked
+		// there (TC-NAV-005, QA-028); linked once the translation is approved.
+		$this->assertNull( SystemPages::url( 'about', 'en' ) );
+		update_post_meta( $map['about'], '_momos_i18n_en', wp_slash( wp_json_encode( [ 'title' => 'About us' ] ) ) );
+		update_post_meta( $map['about'], '_momos_i18n_status_en', 'approved' );
 		$this->assertStringEndsWith( '/en/about/', (string) SystemPages::url( 'about', 'en' ) );
 	}
 

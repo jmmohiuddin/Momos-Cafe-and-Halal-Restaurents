@@ -16,6 +16,11 @@ if [ -f "$ROOT/wp-content/themes/momos/static/maintenance.php" ]; then
 	cp "$ROOT/wp-content/themes/momos/static/maintenance.php" "$OUT/wp-content/maintenance.php"
 fi
 cp "$ROOT/config/wp-config.production.sample.php" "$OUT/"
+# Web-server deny rules (SEC-042, spec §9.3): root rules go above "# BEGIN WordPress" in /.htaccess (or the
+# nginx include); the uploads rules are installed as wp-content/uploads/.htaccess (no PHP execution there).
+cp -R "$ROOT/config/server" "$OUT/server"
+mkdir -p "$OUT/wp-content/uploads"
+cp "$ROOT/config/server/htaccess-uploads.conf" "$OUT/wp-content/uploads/.htaccess"
 find "$OUT" -name "*.php" -print0 | xargs -0 -n 50 -P 4 php -l >/dev/null
 ( cd "$ROOT/build" && rm -f "momos-$VERSION.zip" && zip -qr "momos-$VERSION.zip" "momos-$VERSION" && sha256sum "momos-$VERSION.zip" > "momos-$VERSION.zip.sha256" )
 echo "$ROOT/build/momos-$VERSION.zip"

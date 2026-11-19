@@ -1,5 +1,5 @@
-/*! momos frame.js — header, disclosures, mobile menu, action bar, language suggestion, toast, small widgets.
- * Vanilla, deferred, no dependencies (ui-design-system.md §2 budget ≤ 10 KB). Server HTML works without it. */
+/*! momos frame.js — header, disclosures, menu, action bar, language bar, toast, widgets. Vanilla, deferred,
+ * no dependencies (budget ≤ 10 KB gzip with screens.js + datalayer.js, TRD §5). Server HTML works without it. */
 (function () {
 	'use strict';
 	var d = document, w = window, root = d.documentElement;
@@ -17,7 +17,7 @@
 	}
 	function store(key, val) { try { if (val === undefined) { return w.localStorage.getItem(key); } w.localStorage.setItem(key, val); } catch (e) { return null; } return null; }
 
-	/* ---- Toast (CMP-StatusMessage): role=status region in footer, 4 s, pauses on hover/focus ---- */
+	/* ---- Toast (CMP-StatusMessage): 4 s, pauses on hover ---- */
 	var toastEl = $('[data-momo-toast]'), toastTimer = null;
 	function toast(msg) {
 		if (!toastEl) { return; }
@@ -42,7 +42,7 @@
 		new IntersectionObserver(function (e) { header.classList.toggle('is-scrolled', !e[0].isIntersecting); }).observe(sentinel);
 	}
 
-	/* ---- Disclosures (<details data-momo-disclosure>): one open, Esc / outside click / focus leaving close ---- */
+	/* ---- Disclosures: one open; Esc, outside click, focus leaving close ---- */
 	var discs = $$('details[data-momo-disclosure]');
 	function closeAll(except) { discs.forEach(function (x) { if (x !== except) { x.open = false; } }); }
 	discs.forEach(function (det) {
@@ -109,78 +109,50 @@
 		if (w.visualViewport) { w.visualViewport.addEventListener('resize', update); }
 	}
 
-	/* ---- Focus not obscured (WCAG 2.4.11): the browser does not scroll an element that is inside the
-	   viewport but under the sticky header or the fixed mobile bar, so move it into the free area ---- */
-	var head = $('[data-momo-header]');
+	/* ---- Focus not obscured by the sticky header / mobile bar (WCAG 2.4.11) ---- */
 	d.addEventListener('focusin', function (e) {
-		var el = e.target;
-		if (!el || !el.getBoundingClientRect || el === d.body || (bar && bar.contains(el)) || (head && head.contains(el)) || el.closest('dialog')) { return; }
-		var r = el.getBoundingClientRect(), top = 0, bottom = w.innerHeight, dy = 0;
-		if (head) { var hr = head.getBoundingClientRect(); if (hr.bottom > 0 && hr.top <= 0) { top = hr.bottom; } }
-		if (bar && !bar.classList.contains('is-hidden') && w.getComputedStyle(bar).display !== 'none') { bottom = bar.getBoundingClientRect().top; }
-		if (r.bottom > bottom - 8) { dy = r.bottom - bottom + 16; } else if (r.top < top + 8) { dy = r.top - top - 16; }
+		var el = e.target, r, top = 0, bot = w.innerHeight, dy = 0;
+		if (el === d.body || !el.closest || el.closest('dialog,[data-momo-bar],[data-momo-header]')) { return; }
+		r = el.getBoundingClientRect();
+		if (header) { top = Math.max(0, header.getBoundingClientRect().bottom); }
+		if (bar && bar.offsetHeight && !bar.classList.contains('is-hidden')) { bot = bar.getBoundingClientRect().top; }
+		if (r.bottom > bot - 8) { dy = r.bottom - bot + 16; } else if (r.top < top + 8) { dy = r.top - top - 16; }
 		if (dy) { w.scrollBy({ top: dy, left: 0, behavior: 'instant' }); }
 	});
 
-	/* ---- Language switcher: remember the explicit choice (FR-I18N-002/003) ---- */
+	/* ---- Language choice (switcher, suggestion bar): remember it (FR-I18N-002/003) ---- */
 	d.addEventListener('click', function (e) {
-		var a = e.target.closest('a[data-momo-event="select_language"]');
+		var a = e.target.closest('[data-momo-to]');
 		if (a) { setCookie('momo_lang_choice', a.getAttribute('data-momo-to')); }
+		if (a && a.hasAttribute('data-momo-langbar-dismiss')) { a.closest('[data-momo-langbar]').hidden = true; }
 	});
 
-	/* ---- Language suggestion bar: revealed before first paint by the inline script (lang-suggestion.php); clicks here ---- */
-	var bar2 = $('[data-momo-langbar]');
-	if (bar2 && !bar2.hidden) {
-		var best = bar2.getAttribute('data-momo-best'), cfg = null, data = $('#momo-lang-data');
-		try { cfg = JSON.parse(data.textContent); } catch (e) { cfg = null; }
-		$('[data-momo-langbar-switch]', bar2).addEventListener('click', function () { setCookie('momo_lang_choice', best); });
-		$('[data-momo-langbar-dismiss]', bar2).addEventListener('click', function () { if (cfg) { setCookie('momo_lang_choice', cfg.page); } bar2.hidden = true; });
-	}
-
-	/* ---- Open-now badge from the embedded JST schedule (cache-safe, Doc 07 §5 C04, BR-BR-05) ---- */
+	/* ---- Open-now badge from the embedded JST schedule (cache-safe, BR-BR-05) ---- */
 	$$('[data-momo-open]').forEach(function (el) {
-		var c;
+		var c, cur, next, now, k, a, day;
 		try { c = JSON.parse(el.getAttribute('data-momo-open')); } catch (e) { return; }
-		var now = c.now || Date.now(), cur = null, next = null, hm = function (iso) { return String(iso).slice(11, 16); };
+		now = c.now || Date.now();
 		c.days.forEach(function (dd) {
 			dd.periods.forEach(function (p) {
-				var o = Date.parse(p.o), cl = Date.parse(p.c);
-				if (o <= now && now < cl && !cur) { cur = p; }
-				if (o > now && (!next || o < Date.parse(next.o))) { next = p; }
+				var o = Date.parse(p.o);
+				if (o <= now && now < Date.parse(p.c)) { cur = cur || p; } else if (o > now && (!next || o < Date.parse(next.o))) { next = p; }
 			});
 		});
-		var tpl, args, state;
+		var hm = function (s) { return s.slice(11, 16); }, ymd = function (ms) { return new Date(ms + 324e5).toISOString().slice(0, 10); };
 		if (cur) {
-			var soon = Date.parse(cur.c) - now <= c.soon * 60000 || (cur.l && now >= Date.parse(cur.l));
-			state = soon ? 'closing' : 'open';
-			tpl = soon ? c.t.closing : (cur.l ? c.t.open : c.t.nolo);
-			args = { time: hm(cur.c), lo: cur.l ? hm(cur.l) : '' };
+			k = Date.parse(cur.c) - now <= c.soon * 6e4 || (cur.l && now >= Date.parse(cur.l)) ? 'closing' : (cur.l ? 'open' : 'nolo');
+			a = { time: hm(cur.c), lo: cur.l ? hm(cur.l) : '' };
 		} else if (next) {
-			var jst = function (ms) { return new Date(ms + 9 * 3600000).toISOString().slice(0, 10); };
-			var day = next.o.slice(0, 10);
-			state = 'closed';
-			tpl = c.t.closed;
-			args = { time: hm(next.o), day: day === jst(now) ? c.t.today : (day === jst(now + 86400000) ? c.t.tomorrow : (c.dates[day] || day)) };
+			day = next.o.slice(0, 10);
+			k = 'closed';
+			a = { time: hm(next.o), day: day === ymd(now) ? c.t.today : (day === ymd(now + 864e5) ? c.t.tomorrow : (c.dates[day] || '')) };
 		} else {
-			el.hidden = true; // Schedule older than the embedded week: no reliable state, omit it (never stale).
+			el.hidden = true; // beyond the embedded week: omit, never stale
 			return;
 		}
-		var box = d.createElement('span');
-		String(tpl).split(/(\{[a-z]+\})/).forEach(function (part) {
-			var m = /^\{([a-z]+)\}$/.exec(part);
-			if (m && Object.prototype.hasOwnProperty.call(args, m[1])) {
-				if (m[1] === 'day') { box.appendChild(d.createTextNode(args.day)); return; }
-				var b = d.createElement('bdi');
-				b.setAttribute('dir', 'ltr');
-				b.textContent = args[m[1]];
-				box.appendChild(b);
-			} else if (part) {
-				box.appendChild(d.createTextNode(part));
-			}
-		});
-		el.className = el.className.replace(/\bmomo-open--[a-z_]+/, 'momo-open--' + state);
-		while (el.firstChild) { el.removeChild(el.firstChild); }
-		el.appendChild(box);
+		el.className = el.className.replace(/\bmomo-open--\w+/, 'momo-open--' + (k === 'nolo' ? 'open' : k));
+		// Server-built escaped templates; only HH:MM and escaped day labels are substituted.
+		el.firstChild.innerHTML = c.t[k].replace(/\{(\w+)\}/g, function (m, x) { return a[x] || ''; });
 	});
 
 	/* ---- Notices: scheduled reveal (cache-safe), dismiss, "More" on mobile ---- */
@@ -257,7 +229,7 @@
 		f.addEventListener('input', up); up();
 	});
 
-	/* ---- Allergen "only contains / may contain" toggle; "Show all conditions" clamp ---- */
+	/* ---- Allergen relevant-only toggle; conditions clamp ---- */
 	d.addEventListener('change', function (e) {
 		var t = e.target.getAttribute && e.target.getAttribute('data-momo-allergen-toggle');
 		if (t) { var tb = d.getElementById(t); if (tb) { tb.classList.toggle('is-relevant-only', e.target.checked); } }
@@ -277,8 +249,7 @@
 	var es = $('[data-momo-errsum]');
 	if (es) {
 		es.focus();
-		// A `#fragment` on the redirect (e.g. #contact-errors) is processed after this script and moves focus back to
-		// the document: focus the summary again once loading has finished (TC-A11Y-006).
+		// a #fragment on the redirect moves focus back to <body> after load (TC-A11Y-006)
 		w.addEventListener('load', function () { w.setTimeout(function () { if (!d.activeElement || d.activeElement === d.body) { es.focus(); } }, 0); });
 	}
 

@@ -28,6 +28,7 @@ final class ApiModule implements ModuleInterface {
 		add_action( 'rest_api_init', [ self::class, 'routes' ] );
 		add_filter( 'rest_pre_dispatch', [ self::class, 'pre_dispatch' ], 10, 3 );
 		add_filter( 'rest_post_dispatch', [ self::class, 'post_dispatch' ], 20, 3 );
+		add_filter( 'rest_pre_serve_request', [ self::class, 'strip_cors' ], 100, 4 );
 		CoreRestGuard::register();
 	}
 
@@ -82,6 +83,24 @@ final class ApiModule implements ModuleInterface {
 			return $public ? ErrorResponder::response( $e, $lang, false ) : ErrorResponder::response( $e, Locale::admin(), true );
 		}
 		return $result;
+	}
+
+	/**
+	 * momos/v1 is same-origin only (TC-SEC-027, SEC-022, FR-SEC-006): core `rest_send_cors_headers`
+	 * (priority 10) reflects any Origin with credentials; remove those headers again for our routes,
+	 * including OPTIONS preflights. Other namespaces keep core behaviour.
+	 *
+	 * @param mixed $served
+	 * @param mixed $result
+	 * @return mixed
+	 */
+	public static function strip_cors( $served, $result, \WP_REST_Request $request, \WP_REST_Server $server ) {
+		if ( self::is_ours( $request ) && ! headers_sent() ) {
+			foreach ( [ 'Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers', 'Access-Control-Expose-Headers' ] as $h ) {
+				header_remove( $h );
+			}
+		}
+		return $served;
 	}
 
 	/**

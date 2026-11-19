@@ -135,14 +135,7 @@ final class TransitionService {
 			$set['needs_action_flag']    = 0;
 		}
 
-		self::commit( $row, (int) $version, $set, $actor, $reason, $message, $note, true );
-
-		$queued = match ( $action ) {
-			'accept'  => [ 'E02' ],
-			'decline' => [ 'E03' ],
-			'cancel'  => 'suspected_spam' === $reason ? [] : [ 'E04' ],
-			default   => [],
-		};
+		$queued = self::commit( $row, (int) $version, $set, $actor, $reason, $message, $note, true );
 		return [ 'row' => (array) ReservationRepository::find( $id ), 'notifications_queued' => $queued ];
 	}
 
@@ -211,17 +204,19 @@ final class TransitionService {
 	}
 
 	/**
-	 * Conditional UPDATE + events + audit + after-commit hook in one transaction.
+	 * Conditional UPDATE + events + audit + notification queue rows in one transaction, then the
+	 * after-commit hook. Returns the templates actually queued (never claims an e-mail that was not).
 	 *
 	 * @param array<string,mixed> $row
 	 * @param array<string,mixed> $set
+	 * @return list<string>
 	 */
-	private static function commit( array $row, int $version, array $set, Actor $actor, ?string $reason, ?string $message, ?string $note, bool $audit ): void {
+	private static function commit( array $row, int $version, array $set, Actor $actor, ?string $reason, ?string $message, ?string $note, bool $audit ): array {
 		$id   = (int) $row['id'];
 		$from = (string) $row['status'];
 		$to   = (string) $set['status'];
-		Transaction::run(
-			static function () use ( $id, $from, $to, $version, $set, $actor, $reason, $message, $note, $audit, $row ): void {
+		return Transaction::run(
+			static function () use ( $id, $from, $to, $version, $set, $actor, $reason, $message, $note, $audit, $row ): array {
 				$affected = ReservationRepository::update_conditional( $id, $version, $from, $set );
 				if ( 1 !== $affected ) {
 					$current = (array) ReservationRepository::find( $id );
@@ -237,7 +232,9 @@ final class TransitionService {
 				if ( $audit ) {
 					momos_audit( 'reservation.status_changed', 'reservation', $id, (int) $row['branch_id'], [ 'from' => $from, 'to' => $to, 'reason' => $reason ] );
 				}
+				$queued = NotificationTrigger::status_changed( $id, (int) $row['branch_id'], $from, $to, $version + 1, $actor->type->value, $reason );
 				AfterCommit::dispatch( 'momos/reservation/status_changed', $id, $from, $to, $actor->to_array() );
+				return $queued;
 			}
 		);
 	}

@@ -33,6 +33,9 @@ return [
 	'res.submit'                 => 'Send request',
 	'res.submit.busy'            => 'Sending…',
 	'res.call_alt'               => 'Can\'t find a suitable time? Call {branch}: {phone}',
+	'res.alt_contact'            => 'Unable to use this form? Contact us by phone at {phone} or by email at {email}.',
+	'res.alt_contact.phone'      => 'Unable to use this form? Contact us by phone at {phone}.',
+	'res.alt_contact.email'      => 'Unable to use this form? Contact us by email at {email}.',
 	'res.test_banner'            => 'TEST BRANCH — not a real restaurant',
 	'res.time.jst'               => '{time} JST',
 	'res.branch.not_accepting'   => '{branch} (not accepting online requests)',
@@ -69,6 +72,8 @@ return [
 	'res.err.rate'               => 'Too many requests from this connection. Please try again in a few minutes or call {phone}.',
 	'res.err.captcha'            => 'We couldn\'t verify your request. Please try again.',
 	'res.err.system'             => 'Your request was not sent. Please try again. If it keeps failing, call {phone}.',
+	'res.err.rate.no_phone'      => 'Too many requests from this connection. Please try again in a few minutes.',
+	'res.err.system.no_phone'    => 'Your request was not sent. Please try again.',
 	'res.err.reference'          => 'Error reference: {request_id}',
 
 	// C10 submitted.

@@ -43,6 +43,7 @@ final class SoldOutResetJob {
 				if ( 1 !== $done ) {
 					continue; // Changed concurrently by staff — nothing to do.
 				}
+				\Momos\Menu\Repository\BranchMenuItemRepository::flush_cache();
 				++$reset;
 				momos_audit(
 					'menu_item.auto_reset',

@@ -12,13 +12,118 @@ use Momos\Kernel\Db\Tables;
  * `version` column and conditional UPDATEs.
  */
 final class BranchMenuItemRepository {
+	/**
+	 * Request-scoped read cache (NFR-PERF-02, TRD §5 "no queries inside template loops"): list pages prime
+	 * the rows of all listed dishes with one query (prime_offered / prime_rows) and the per-card lookups
+	 * (find, offered_for_dish) are then served from memory. Non-persistent group: never shared between
+	 * requests. Every write through this repository bumps the generation, so a read after a write in the
+	 * same request never sees stale rows. Writers outside this class must call flush_cache().
+	 */
+	public const CACHE_GROUP = 'momos_menu_items';
+
+	private static int $generation = 0;
+
+	public static function flush_cache(): void {
+		++self::$generation;
+	}
+
+	private static function cache_key( string $kind, int ...$ids ): string {
+		return $kind . ':' . self::$generation . ':' . implode( ':', $ids );
+	}
+
+	private static function cache_ready(): void {
+		static $done = false;
+		if ( ! $done ) {
+			wp_cache_add_non_persistent_groups( [ self::CACHE_GROUP ] );
+			$done = true;
+		}
+	}
+
 	/** @return array<string,mixed>|null */
 	public static function find( int $branch_id, int $dish_id, bool $for_update = false ): ?array {
 		global $wpdb;
+		self::cache_ready();
+		$key = self::cache_key( 'row', $branch_id, $dish_id );
+		if ( ! $for_update ) {
+			$found  = false;
+			$cached = wp_cache_get( $key, self::CACHE_GROUP, false, $found );
+			if ( $found ) {
+				return is_array( $cached ) ? $cached : null;
+			}
+		}
 		$t   = Tables::menu_items();
 		$sql = $wpdb->prepare( "SELECT * FROM {$t} WHERE branch_id = %d AND dish_id = %d", $branch_id, $dish_id ); // phpcs:ignore
 		$row = $wpdb->get_row( $sql . ( $for_update ? ' FOR UPDATE' : '' ), ARRAY_A ); // phpcs:ignore
-		return $row ? self::cast( $row ) : null;
+		$row = $row ? self::cast( $row ) : null;
+		if ( ! $for_update ) {
+			wp_cache_set( $key, $row ?? 0, self::CACHE_GROUP );
+		}
+		return $row;
+	}
+
+	/**
+	 * Load the rows of one branch for many dishes with one query (missing rows are remembered as "none").
+	 *
+	 * @param list<int> $dish_ids
+	 */
+	public static function prime_rows( int $branch_id, array $dish_ids ): void {
+		self::cache_ready();
+		$missing = [];
+		foreach ( array_unique( array_map( 'intval', $dish_ids ) ) as $id ) {
+			$found = false;
+			wp_cache_get( self::cache_key( 'row', $branch_id, $id ), self::CACHE_GROUP, false, $found );
+			if ( ! $found && $id > 0 ) {
+				$missing[] = $id;
+			}
+		}
+		if ( ! $missing ) {
+			return;
+		}
+		$rows = self::for_branch( $branch_id, $missing );
+		foreach ( $missing as $id ) {
+			wp_cache_set( self::cache_key( 'row', $branch_id, $id ), $rows[ $id ] ?? 0, self::CACHE_GROUP );
+		}
+	}
+
+	/**
+	 * Load the offered rows (all branches) of many dishes with one query; offered_for_dish() and find()
+	 * for those rows are then answered from memory.
+	 *
+	 * @param list<int> $dish_ids
+	 */
+	public static function prime_offered( array $dish_ids ): void {
+		global $wpdb;
+		self::cache_ready();
+		$missing = [];
+		foreach ( array_unique( array_map( 'intval', $dish_ids ) ) as $id ) {
+			$found = false;
+			wp_cache_get( self::cache_key( 'offered', $id ), self::CACHE_GROUP, false, $found );
+			if ( ! $found && $id > 0 ) {
+				$missing[] = $id;
+			}
+		}
+		if ( ! $missing ) {
+			return;
+		}
+		$t       = Tables::menu_items();
+		$in      = implode( ',', array_fill( 0, count( $missing ), '%d' ) );
+		$rows    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE is_offered = 1 AND dish_id IN ({$in}) ORDER BY branch_id", ...$missing ), ARRAY_A ); // phpcs:ignore
+		$by_dish = array_fill_keys( $missing, [] );
+		foreach ( (array) $rows as $r ) {
+			$r                                = self::cast( $r );
+			$by_dish[ (int) $r['dish_id'] ][] = $r;
+		}
+		foreach ( $by_dish as $id => $list ) {
+			self::remember_offered( (int) $id, $list );
+		}
+	}
+
+	/** @param list<array<string,mixed>> $rows offered rows of one dish */
+	private static function remember_offered( int $dish_id, array $rows ): void {
+		wp_cache_set( self::cache_key( 'offered', $dish_id ), $rows, self::CACHE_GROUP );
+		foreach ( $rows as $r ) {
+			wp_cache_set( self::cache_key( 'row', (int) $r['branch_id'], $dish_id ), $r, self::CACHE_GROUP );
+		}
 	}
 
 	/** @return array<string,mixed>|null */
@@ -59,9 +164,17 @@ final class BranchMenuItemRepository {
 	/** @return list<array<string,mixed>> offered rows of a dish (all branches) */
 	public static function offered_for_dish( int $dish_id ): array {
 		global $wpdb;
+		self::cache_ready();
+		$found  = false;
+		$cached = wp_cache_get( self::cache_key( 'offered', $dish_id ), self::CACHE_GROUP, false, $found );
+		if ( $found && is_array( $cached ) ) {
+			return $cached;
+		}
 		$t    = Tables::menu_items();
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE dish_id = %d AND is_offered = 1 ORDER BY branch_id", $dish_id ), ARRAY_A ); // phpcs:ignore
-		return array_map( [ self::class, 'cast' ], (array) $rows );
+		$rows = array_map( [ self::class, 'cast' ], (array) $rows );
+		self::remember_offered( $dish_id, $rows );
+		return $rows;
 	}
 
 	/** @return list<int> dish IDs offered at the branch */
@@ -96,6 +209,7 @@ final class BranchMenuItemRepository {
 	 */
 	public static function insert( int $branch_id, int $dish_id, array $values, ?int $user_id ): int {
 		global $wpdb;
+		self::flush_cache();
 		$now = Clock::mysql_utc();
 		$wpdb->suppress_errors( true );
 		$ok = $wpdb->insert(
@@ -152,6 +266,7 @@ final class BranchMenuItemRepository {
 		$params[] = $id;
 		$params[] = $version;
 		$sql      = "UPDATE {$t} SET " . implode( ', ', $sets ) . ' WHERE id = %d AND version = %d';
+		self::flush_cache();
 		return 1 === (int) $wpdb->query( $wpdb->prepare( $sql, ...$params ) ); // phpcs:ignore
 	}
 
@@ -161,6 +276,7 @@ final class BranchMenuItemRepository {
 		$t    = Tables::menu_items();
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE dish_id = %d AND is_offered = 1 FOR UPDATE", $dish_id ), ARRAY_A ); // phpcs:ignore
 		if ( $rows ) {
+			self::flush_cache();
 			$wpdb->query( $wpdb->prepare( "UPDATE {$t} SET is_offered = 0, version = version + 1, updated_at = %s, updated_by = %d WHERE dish_id = %d AND is_offered = 1", Clock::mysql_utc(), (int) $user_id, $dish_id ) ); // phpcs:ignore
 		}
 		return array_map( [ self::class, 'cast' ], (array) $rows );
