@@ -37,6 +37,16 @@
       "@lint:php",
       "@phpcs:errors",
       "@phpstan"
+    ],
+    "i18n:pot": [
+      "wp i18n make-pot wp-content/plugins/momos-core wp-content/plugins/momos-core/languages/momos-core.pot --slug=momos-core --domain=momos-core --exclude=vendor,languages,node_modules --skip-audit",
+      "wp i18n make-pot wp-content/themes/momos wp-content/themes/momos/languages/momos.pot --slug=momos --domain=momos --exclude=assets,static,node_modules --skip-audit",
+      "wp i18n update-po wp-content/plugins/momos-core/languages/momos-core.pot wp-content/plugins/momos-core/languages/momos-core-ja.po",
+      "wp i18n update-po wp-content/themes/momos/languages/momos.pot wp-content/themes/momos/languages/ja.po"
+    ],
+    "i18n:mo": [
+      "wp i18n make-mo wp-content/plugins/momos-core/languages/momos-core-ja.po wp-content/plugins/momos-core/languages",
+      "wp i18n make-mo wp-content/themes/momos/languages/ja.po wp-content/themes/momos/languages"
     ]
   },
   "scripts-descriptions": {
@@ -46,6 +56,8 @@
     "phpcs:errors": "PHPCS errors only.",
     "lint:fix": "Auto-fix PHPCS formatting violations (phpcbf). Coordinate first: touches many files.",
     "phpstan": "PHPStan level 5 + phpstan-wordpress with phpstan-baseline.neon.",
-    "phpstan:baseline": "Regenerate phpstan-baseline.neon (only after fixing findings, never to hide new ones)."
+    "phpstan:baseline": "Regenerate phpstan-baseline.neon (only after fixing findings, never to hide new ones).",
+    "i18n:pot": "Regenerate the momos-core and theme POT files and merge new strings into the Japanese .po files (translate them, then run i18n:mo).",
+    "i18n:mo": "Compile the Japanese .po files to .mo (checked by tests/phpunit/integration/ToolingI18nPoTest)."
   }
 }
