@@ -123,7 +123,8 @@ final class ContentTypes {
 			'post:' . self::DISH,
 			[
 				'title'   => [ 'label' => 'Dish name', 'type' => 'text', 'source' => 'post_title', 'max' => 100, 'lccs' => true ],
-				'content' => [ 'label' => 'Description', 'type' => 'html', 'source' => 'post_content', 'lccs' => true ],
+				// FR-MENU-004(a): ≤ 1,500 visible characters, validated by Service\DescriptionLimit (no raw `max`: it counts markup and truncates).
+				'content' => [ 'label' => 'Description (max. 1,500 characters)', 'type' => 'html', 'source' => 'post_content', 'lccs' => true ],
 			]
 		);
 		Translations::register(

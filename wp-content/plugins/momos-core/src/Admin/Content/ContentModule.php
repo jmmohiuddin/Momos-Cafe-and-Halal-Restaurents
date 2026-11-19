@@ -12,11 +12,13 @@ use Momos\Kernel\ModuleInterface;
  *  - LegalPageBox: `momo_page_type`, `momo_legal_version`, `momo_legal_last_updated` (cap
  *    `momo_publish_legal_pages`; publishing legal pages is enforced by Access MetaCapMapper M5).
  *  - MediaFields: gallery attachment fields + attachment alt/caption in the translation workflow.
+ *  - IllustrativeGuard: no illustrative (demo) image on the About / Halal pages (FR-ADM-005(f)).
  */
 final class ContentModule implements ModuleInterface {
 	public function register(): void {
 		FaqEditor::register();
 		LegalPageBox::register();
 		MediaFields::register();
+		IllustrativeGuard::register();
 	}
 }

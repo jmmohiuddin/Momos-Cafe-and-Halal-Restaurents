@@ -81,6 +81,17 @@ if ( $momos_extra ) {
 				<span class="momo-field__help" id="res-branch-info" role="status" data-res-branch-info></span>
 				<?php $momos_err( 'res-branch' ); ?>
 			</div>
+			<?php
+			// FR-BR-009(b): notices of the selected branch (page language only). Server-rendered for the
+			// preselected branch; reservation-form.js re-renders them from the config on every change.
+			$momos_sel = array_values( array_filter( (array) $momos_v['branches'], static fn( $b ) => '' !== (string) $momos_pre['branch'] && (string) $b['code'] === (string) $momos_pre['branch'] ) );
+			$momos_nts = (array) ( $momos_sel[0]['notices'] ?? [] );
+			?>
+			<div class="momo-stack" data-res-notices role="group" aria-live="polite" aria-label="<?php echo esc_attr( momos_s( 'branch.notices.label' ) ); ?>"<?php echo $momos_nts ? '' : ' hidden'; ?>>
+				<?php foreach ( $momos_nts as $momos_n ) : ?>
+					<?php momos_component( 'notice', [ 'id' => (int) $momos_n['id'], 'severity' => (string) $momos_n['severity'], 'title' => (string) $momos_n['title'], 'body' => (string) $momos_n['body'], 'link_url' => (string) $momos_n['link_url'], 'link_label' => (string) $momos_n['link_label'], 'upcoming' => ! empty( $momos_n['upcoming'] ), 'start_ms' => $momos_n['start_ms'] ?? null, 'end_ms' => $momos_n['end_ms'] ?? null, 'card' => true ] ); ?>
+				<?php endforeach; ?>
+			</div>
 
 			<!-- 5. Date -->
 			<fieldset class="momo-fieldset momo-field" data-res-field="date" id="res-date-group">

@@ -1,5 +1,5 @@
 /*! momos screens.js — screen widgets for SCR-C01…C22 (TASK 2): branch selector auto-submit, menu filters,
- * FAQ accordion, offer/gallery filter chips, analytics opt-out toggle, busy submit. Vanilla, deferred,
+ * FAQ accordion, offer filter chips, analytics opt-out toggle, busy submit (gallery chips + lightbox: gallery.js). Vanilla, deferred,
  * no dependencies. Every widget is progressive: server HTML works without JS. */
 (function () {
 	'use strict';
@@ -133,19 +133,6 @@
 		});
 	}
 
-	// Gallery filter chips
-	var gf = d.querySelector('[data-momo-gallery-filter]'), gl = d.querySelector('[data-momo-gallery]');
-	if (gf && gl) {
-		gf.hidden = false;
-		gf.addEventListener('click', function (e) {
-			var b = e.target.closest('button[data-filter]');
-			if (!b) { return; }
-			var k = b.getAttribute('data-filter');
-			$$('button[data-filter]', gf).forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-			$$(':scope > li', gl).forEach(function (li) { li.hidden = !!k && (li.getAttribute('data-keys') || '').split(' ').indexOf(k) === -1; });
-		});
-	}
-
 	// Analytics opt-out
 	var oo = d.querySelector('[data-momo-optout]');
 	if (oo) {
@@ -185,6 +172,21 @@
 			status.textContent = btn.getAttribute(turningOff ? 'data-done-off' : 'data-done-on');
 		});
 	}
+
+	// "Show map" (FR-BR-002 A3): iframe only after the click
+	d.addEventListener('click', function (e) {
+		var b = e.target.closest('[data-momo-map-embed]'), box, f;
+		if (!b) { return; }
+		box = b.closest('.momo-map').querySelector('.momo-map__img');
+		f = d.createElement('iframe');
+		f.src = b.getAttribute('data-momo-map-embed');
+		f.title = b.getAttribute('data-momo-map-title');
+		f.loading = 'lazy';
+		f.referrerPolicy = 'no-referrer-when-downgrade';
+		f.className = 'momo-map__frame';
+		box.removeAttribute('role'); box.removeAttribute('aria-label'); box.textContent = '';
+		box.appendChild(f); b.remove(); f.focus();
+	});
 
 	// Busy state on form submit
 	$$('form[data-momo-busy-form]').forEach(function (f) {

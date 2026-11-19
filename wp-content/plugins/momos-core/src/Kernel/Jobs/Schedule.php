@@ -75,17 +75,43 @@ final class Schedule {
 		update_option( 'momos_jobs_signature', $signature, true );
 	}
 
+	/**
+	 * Heartbeat options written by workers that are not recurring Schedule jobs => external heartbeat name.
+	 * The notification queue worker (Dispatcher/QueueSweeper) stamps `momos_job_heartbeat_queue`; every stamp
+	 * also pings `MOMOS_HEARTBEAT_URL_QUEUE` (else `MOMOS_HEARTBEAT_URL`) — FR-SEC-012(b), AC-SEC-03-01.
+	 */
+	public const EXTERNAL_HEARTBEAT_OPTIONS = [ 'momos_job_heartbeat_queue' => 'queue' ];
+
+	/** Ping the external monitor whenever a worker stamps one of EXTERNAL_HEARTBEAT_OPTIONS. */
+	public static function register_heartbeat_options(): void {
+		foreach ( self::EXTERNAL_HEARTBEAT_OPTIONS as $option => $job ) {
+			add_action( 'add_option_' . $option, static fn() => self::ping( $job ), 10, 0 );
+			add_action( 'update_option_' . $option, static fn() => self::ping( $job ), 10, 0 );
+		}
+	}
+
 	/** Record a heartbeat and ping the external monitor (dead-man's switch, NFR-OBS-01). */
 	public static function beat( string $hook ): void {
 		$beats          = (array) get_option( 'momos_heartbeat', [] );
 		$beats[ $hook ] = gmdate( 'c' );
 		update_option( 'momos_heartbeat', $beats, false );
-		$key = 'MOMOS_HEARTBEAT_URL_' . strtoupper( (string) preg_replace( '/^momos_job_/', '', $hook ) );
+		self::ping( (string) preg_replace( '/^momos_job_/', '', $hook ) );
+	}
+
+	/**
+	 * Non-blocking GET (2 s) to `MOMOS_HEARTBEAT_URL_<JOB>` (else the shared `MOMOS_HEARTBEAT_URL`), unless the
+	 * G3 setting "Send job heartbeats to the external monitor" (`momo_heartbeat_enabled`, default on) is off.
+	 * Filter `momos/monitoring/heartbeat_url` (url, job) for tests and host-specific routing. True when pinged.
+	 */
+	public static function ping( string $job ): bool {
+		$key = 'MOMOS_HEARTBEAT_URL_' . strtoupper( $job );
 		$url = defined( $key ) ? (string) constant( $key ) : ( defined( 'MOMOS_HEARTBEAT_URL' ) ? (string) MOMOS_HEARTBEAT_URL : '' );
-		// G3 setting "Send job heartbeats to the external monitor" (default on) can pause the external pings.
-		if ( '' !== $url && '0' !== (string) \Momos\Kernel\Settings::get( 'momo_heartbeat_enabled', '1' ) ) {
-			wp_remote_get( $url, [ 'timeout' => 2, 'blocking' => false ] );
+		$url = (string) apply_filters( 'momos/monitoring/heartbeat_url', $url, $job );
+		if ( '' === $url || '0' === (string) \Momos\Kernel\Settings::get( 'momo_heartbeat_enabled', '1' ) ) {
+			return false;
 		}
+		wp_remote_get( $url, [ 'timeout' => 2, 'blocking' => false ] );
+		return true;
 	}
 
 	/**

@@ -57,10 +57,15 @@ final class Assets {
 		if ( is_file( get_theme_file_path( 'assets/css/fonts-' . $lang . '-700.css' ) ) ) {
 			wp_enqueue_style( self::LATE_FONTS, get_theme_file_uri( 'assets/css/fonts-' . $lang . '-700.css' ), [], self::version( 'assets/css/fonts-' . $lang . '-700.css' ) );
 		}
-		wp_enqueue_script( 'momos-screens', get_theme_file_uri( 'assets/js/screens.js' ), [], self::version( 'assets/js/screens.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
+		// SCR-C22 gallery: gallery.js (filter chips + lightbox, FR-CORP-012(c)) takes the place of screens.js, whose
+		// widgets (menu filters, FAQ, offer chips, opt-out, forms) do not occur there — the page stays within the
+		// TRD §5 public budget (≤ 10 KB gzip with frame.js + datalayer.js) and no other page loads it.
+		$role = is_page() ? SystemPages::role_of( (int) get_queried_object_id() ) : '';
+		$js   = 'gallery' === $role ? 'gallery' : 'screens';
+		wp_enqueue_script( 'momos-' . $js, get_theme_file_uri( 'assets/js/' . $js . '.js' ), [], self::version( 'assets/js/' . $js . '.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
 		wp_enqueue_script( 'momos-frame', get_theme_file_uri( 'assets/js/frame.js' ), [], self::version( 'assets/js/frame.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
 		// Turnstile on C12 only, live mode only (screens.md §3.9 "Turnstile loads on C09 (and C12) only"; PRV-024).
-		$contact = is_page() && 'contact' === SystemPages::role_of( (int) get_queried_object_id() );
+		$contact = 'contact' === $role;
 		$cap     = $contact ? Contact\ContactForm::captcha() : null;
 		if ( is_array( $cap ) && 'live' === $cap['mode'] && '' !== $cap['site_key'] ) {
 			wp_enqueue_script( 'momos-contact-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', [], null, [ 'in_footer' => true, 'strategy' => 'async' ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- third-party URL must not carry ?ver.

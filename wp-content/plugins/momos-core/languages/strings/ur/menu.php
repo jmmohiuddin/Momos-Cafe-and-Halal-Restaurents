@@ -50,4 +50,6 @@ return [
 	'availability_reason.ingredient_unavailable' => 'جزو دستیاب نہیں',
 	'availability_reason.advance_order_only'     => 'صرف پیشگی آرڈر پر',
 	'media.illustration'                  => 'تصویر صرف وضاحت کے لیے ہے',
+	// FR-MENU-005(a) audit label (SCR-A16).
+	'admin.audit.action.menu_category.reordered' => 'زمروں کی ترتیب تبدیل',
 ];

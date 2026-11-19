@@ -56,6 +56,10 @@ final class LanguageSwitcher {
 		} elseif ( $object instanceof \WP_Term ) {
 			$visible = Translations::term_visible( $object, $lang );
 		}
+		// AC-CORP-03-03: the halal page 404s in a language without reviewed statement templates.
+		if ( $visible && $object instanceof \WP_Post && 'halal' === \Momos\Presentation\SystemPages::role_of( (int) $object->ID ) && ! HalalPage::published( $lang ) ) {
+			$visible = false;
+		}
 		/** Lets modules veto a target (e.g. a hidden branch or a not-yet-translated custom route). */
 		$visible = (bool) apply_filters( 'momos/presentation/switcher_visible', $visible, $lang, $object );
 		if ( ! $visible ) {

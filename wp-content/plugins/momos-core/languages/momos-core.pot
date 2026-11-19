@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-19T10:28:51+00:00\n"
+"POT-Creation-Date: 2026-11-19T16:06:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: momos-core\n"
@@ -63,7 +63,7 @@ msgid "Enter a valid date and time."
 msgstr ""
 
 #: src/Access/Admin/UsersList.php:35
-#: src/Branch/Admin/ListScreens.php:144
+#: src/Branch/Admin/ListScreens.php:156
 #: src/Branch/Fields/NoticeFields.php:44
 #: src/Branch/Fields/OfferFields.php:51
 #: src/Branch/PostType/PostTypes.php:23
@@ -71,7 +71,7 @@ msgstr ""
 #: src/Menu/Admin/DishAdmin.php:109
 #: templates/admin/access-user-fields.php:55
 #: templates/admin/access-user-fields.php:59
-#: templates/admin/reservation-inbox.php:215
+#: templates/admin/reservation-inbox.php:218
 msgid "Branches"
 msgstr ""
 
@@ -87,7 +87,7 @@ msgstr ""
 #: src/Kernel/I18n/Admin/StringsPage.php:301
 #: src/Kernel/I18n/Admin/StringsPage.php:319
 #: src/Kernel/I18n/Admin/StringsPage.php:337
-#: src/Kernel/I18n/Admin/TranslationEditor.php:129
+#: src/Kernel/I18n/Admin/TranslationEditor.php:136
 #: src/Menu/Admin/DishAdmin.php:41
 #: src/Notification/Admin/NotificationLogScreen.php:127
 #: src/Notification/Admin/NotificationLogScreen.php:155
@@ -99,9 +99,9 @@ msgstr ""
 #: templates/admin/dietary-statements.php:78
 #: templates/admin/dietary-statements.php:92
 #: templates/admin/privacy-dsr.php:77
-#: templates/admin/reservation-inbox.php:75
-#: templates/admin/reservation-inbox.php:135
-#: templates/admin/reservation-inbox.php:155
+#: templates/admin/reservation-inbox.php:78
+#: templates/admin/reservation-inbox.php:138
+#: templates/admin/reservation-inbox.php:158
 msgid "Status"
 msgstr ""
 
@@ -126,8 +126,8 @@ msgstr ""
 
 #. translators: %s: JST date/time
 #: src/Access/Admin/UsersList.php:57
-#: src/Branch/Admin/ListScreens.php:115
-#: src/Branch/Admin/ListScreens.php:159
+#: src/Branch/Admin/ListScreens.php:127
+#: src/Branch/Admin/ListScreens.php:171
 #: src/Dietary/Domain/ClaimStatus.php:22
 #: src/Notification/Template/TemplateRegistry.php:50
 #: src/Reservation/Domain/ReservationStatus.php:43
@@ -143,8 +143,8 @@ msgstr ""
 
 #: src/Access/Admin/UsersList.php:59
 #: src/Access/Admin/UsersList.php:115
-#: src/Branch/Admin/ListScreens.php:115
-#: src/Branch/Admin/ListScreens.php:158
+#: src/Branch/Admin/ListScreens.php:127
+#: src/Branch/Admin/ListScreens.php:170
 #: src/Branch/Fields/BranchFields.php:145
 #: src/Dietary/Domain/ClaimStatus.php:21
 #: src/Notification/Admin/SettingsFields.php:32
@@ -182,19 +182,19 @@ msgstr ""
 #: templates/admin/branch-hours.php:97
 #: templates/admin/menu-branch-grid.php:26
 #: templates/admin/privacy-dsr.php:75
-#: templates/admin/reservation-detail.php:87
-#: templates/admin/reservation-inbox.php:66
-#: templates/admin/reservation-inbox.php:134
-#: templates/admin/reservation-inbox.php:150
+#: templates/admin/reservation-detail.php:88
+#: templates/admin/reservation-inbox.php:69
+#: templates/admin/reservation-inbox.php:137
+#: templates/admin/reservation-inbox.php:153
 #: templates/admin/reservation-report.php:80
 #: templates/admin/reservation-report.php:117
 msgid "Branch"
 msgstr ""
 
 #: src/Access/Admin/UsersList.php:110
-#: src/Branch/Admin/ListScreens.php:170
+#: src/Branch/Admin/ListScreens.php:182
 #: src/Branch/Fields/OfferFields.php:33
-#: templates/admin/reservation-inbox.php:27
+#: templates/admin/reservation-inbox.php:30
 msgid "All branches"
 msgstr ""
 
@@ -362,10 +362,10 @@ msgstr ""
 
 #: src/Admin/Content/FaqEditor.php:97
 #: src/Admin/Content/FaqEditor.php:119
-#: src/Branch/Admin/ListScreens.php:147
+#: src/Branch/Admin/ListScreens.php:159
 #: src/Branch/Fields/OfferFields.php:61
 #: src/Branch/Service/BranchGuard.php:317
-#: templates/admin/reservation-inbox.php:113
+#: templates/admin/reservation-inbox.php:116
 msgid "Order"
 msgstr ""
 
@@ -376,11 +376,11 @@ msgstr ""
 
 #: src/Admin/Content/FaqEditor.php:100
 #: src/Kernel/Fields/Renderer.php:196
-#: src/Seo/Admin/SeoAdmin.php:250
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:275
+#: src/Seo/Admin/SeoAdmin.php:304
 #: templates/admin/branch-hours.php:216
 #: templates/admin/dietary-register.php:59
-#: templates/admin/reservation-detail.php:201
+#: templates/admin/reservation-detail.php:210
 msgid "Actions"
 msgstr ""
 
@@ -454,6 +454,11 @@ msgstr ""
 msgid "FAQ items were not saved:"
 msgstr ""
 
+#: src/Admin/Content/IllustrativeGuard.php:29
+#: src/Branch/Service/BranchPublishValidator.php:145
+msgid "Demo images cannot be used here. Upload a real photo."
+msgstr ""
+
 #: src/Admin/Content/LegalPageBox.php:31
 #: src/Admin/Content/LegalPageBox.php:41
 msgid "Legal page"
@@ -469,6 +474,7 @@ msgstr ""
 
 #: src/Admin/Content/LegalPageBox.php:47
 #: src/Kernel/Monitoring/StatusPanel.php:68
+#: templates/admin/reservation-detail.php:113
 msgid "Version"
 msgstr ""
 
@@ -477,7 +483,7 @@ msgid "Same label as the consent registry, e.g. 1.0. Translations always show th
 msgstr ""
 
 #: src/Admin/Content/LegalPageBox.php:58
-#: src/Branch/Admin/ListScreens.php:57
+#: src/Branch/Admin/ListScreens.php:69
 msgid "Last updated"
 msgstr ""
 
@@ -552,42 +558,42 @@ msgstr ""
 msgid "My pending requests"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:41
+#: src/Admin/Dashboard/Widgets.php:45
 #: src/Kernel/I18n/Admin/GapsPage.php:31
 #: src/Kernel/I18n/Admin/GapsPage.php:77
 #: src/Kernel/I18n/Admin/GapsPage.php:163
 msgid "Translation gaps"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:47
+#: src/Admin/Dashboard/Widgets.php:57
 msgid "Expiring certificates"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:50
+#: src/Admin/Dashboard/Widgets.php:60
 msgid "Failed notifications"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:54
+#: src/Admin/Dashboard/Widgets.php:64
 msgid "Dishes awaiting review"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:60
+#: src/Admin/Dashboard/Widgets.php:70
 msgid "Recent changes"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:111
+#: src/Admin/Dashboard/Widgets.php:121
 msgid "No pending requests."
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:111
+#: src/Admin/Dashboard/Widgets.php:121
 msgid "pending requests"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:201
+#: src/Admin/Dashboard/Widgets.php:274
 msgid "All published items are translated in every public language."
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:204
+#: src/Admin/Dashboard/Widgets.php:278
 #: src/Branch/Fields/BranchFields.php:144
 #: src/Kernel/I18n/Admin/GapsPage.php:100
 #: src/Kernel/I18n/Admin/GapsPage.php:167
@@ -597,7 +603,7 @@ msgstr ""
 #: src/Notification/Admin/NotificationPanel.php:74
 #: src/Notification/Admin/SettingsFields.php:31
 #: src/Notification/Service/Retention.php:74
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:304
 #: templates/admin/dietary-claim-scan.php:24
 #: templates/admin/dietary-statements.php:78
 #: templates/admin/reservation-report.php:118
@@ -605,45 +611,45 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:204
+#: src/Admin/Dashboard/Widgets.php:278
 msgid "Items not yet approved"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:227
+#: src/Admin/Dashboard/Widgets.php:301
 msgid "No certificate expires in the next 30 days."
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:233
+#: src/Admin/Dashboard/Widgets.php:307
 msgid "expired"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:233
+#: src/Admin/Dashboard/Widgets.php:307
 msgid "valid until"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:241
+#: src/Admin/Dashboard/Widgets.php:315
 msgid "No failed notifications in the last 24 hours."
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:241
+#: src/Admin/Dashboard/Widgets.php:315
 msgid "failed in the last 24 hours"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:247
-#: src/Admin/Dashboard/Widgets.php:251
+#: src/Admin/Dashboard/Widgets.php:321
+#: src/Admin/Dashboard/Widgets.php:325
 msgid "No dishes are waiting for review."
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:247
-#: src/Admin/Dashboard/Widgets.php:251
+#: src/Admin/Dashboard/Widgets.php:321
+#: src/Admin/Dashboard/Widgets.php:325
 msgid "dishes awaiting review"
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:361
+#: src/Admin/Dashboard/Widgets.php:435
 msgid "No changes in the last 7 days."
 msgstr ""
 
-#: src/Admin/Dashboard/Widgets.php:368
+#: src/Admin/Dashboard/Widgets.php:442
 msgid "Open the audit log"
 msgstr ""
 
@@ -654,22 +660,27 @@ msgid "Brand"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:25
+#: src/Presentation/Admin/BrandSettings.php:31
 msgid "Privacy Policy page"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:26
+#: src/Presentation/Admin/BrandSettings.php:32
 msgid "Reservation Policy page"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:27
+#: src/Presentation/Admin/BrandSettings.php:33
 msgid "Terms of Use page"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:28
+#: src/Presentation/Admin/BrandSettings.php:34
 msgid "External Transmission & Cookies page"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:29
+#: src/Presentation/Admin/BrandSettings.php:35
 msgid "Accessibility page"
 msgstr ""
 
@@ -686,6 +697,7 @@ msgid "Optional. No superlatives or unverifiable claims."
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:34
+#: src/Presentation/Admin/BrandSettings.php:27
 msgid "Legal operator name"
 msgstr ""
 
@@ -694,6 +706,7 @@ msgid "Hidden on the site while empty (Q-024)."
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:35
+#: src/Presentation/Admin/BrandSettings.php:28
 msgid "Logo (primary)"
 msgstr ""
 
@@ -706,10 +719,12 @@ msgid "Logo (inverse, for dark backgrounds)"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:37
+#: src/Presentation/Admin/BrandSettings.php:30
 msgid "Contact email"
 msgstr ""
 
 #: src/Admin/Settings/BrandFields.php:38
+#: src/Presentation/Admin/BrandSettings.php:29
 msgid "Contact phone (E.164)"
 msgstr ""
 
@@ -740,7 +755,7 @@ msgstr ""
 #: src/Kernel/I18n/Admin/TranslationGaps.php:82
 #: src/Menu/Domain/AvailabilityReason.php:25
 #: src/Menu/Domain/IngredientClass.php:27
-#: templates/admin/reservation-detail.php:32
+#: templates/admin/reservation-detail.php:33
 msgid "Other"
 msgstr ""
 
@@ -944,8 +959,9 @@ msgstr ""
 
 #: src/Admin/Settings/SettingsFields.php:27
 #: src/Admin/Settings/SettingsScreen.php:94
+#: src/Dietary/Fields/ProhibitedTermsFields.php:75
 #: src/Notification/Admin/SettingsFields.php:28
-#: src/Seo/Admin/SeoAdmin.php:155
+#: src/Seo/Admin/SeoAdmin.php:179
 msgid "Settings"
 msgstr ""
 
@@ -1115,9 +1131,9 @@ msgid "Notifications"
 msgstr ""
 
 #: src/Admin/Settings/SettingsScreen.php:30
-#: src/Branch/Admin/ListScreens.php:54
-#: src/Branch/Admin/ListScreens.php:108
-#: src/Branch/Admin/ListScreens.php:148
+#: src/Branch/Admin/ListScreens.php:66
+#: src/Branch/Admin/ListScreens.php:120
+#: src/Branch/Admin/ListScreens.php:160
 msgid "Languages"
 msgstr ""
 
@@ -1132,7 +1148,7 @@ msgstr ""
 #: src/Dietary/Admin/StatementsPage.php:36
 #: src/Kernel/Fields/OptionsPage.php:31
 #: src/Menu/Admin/BranchMenuGrid.php:52
-#: src/Menu/Admin/CategoryOrderPage.php:53
+#: src/Menu/Admin/CategoryOrderPage.php:104
 #: src/Notification/Admin/NotificationLogScreen.php:69
 #: src/Reservation/Admin/InboxPage.php:147
 #: src/Reservation/Admin/ReportPage.php:40
@@ -1160,7 +1176,8 @@ msgstr ""
 #: src/Api/CoreRestGuard.php:42
 #: src/Dietary/Admin/StatementsPage.php:55
 #: src/Menu/Admin/BranchMenuGrid.php:91
-#: src/Menu/Admin/CategoryOrderPage.php:64
+#: src/Menu/Admin/CategoryOrderPage.php:115
+#: src/Menu/Admin/CategoryOrderPage.php:129
 #: src/Menu/Rest/BranchMenuController.php:63
 #: src/Notification/Admin/NotificationLogScreen.php:225
 #: src/Notification/Admin/NotificationLogScreen.php:236
@@ -1180,7 +1197,7 @@ msgstr ""
 #: src/Audit/Admin/AuditLogScreen.php:103
 #: templates/admin/audit-log.php:48
 #: templates/admin/audit-log.php:119
-#: templates/admin/reservation-detail.php:158
+#: templates/admin/reservation-detail.php:167
 msgid "System"
 msgstr ""
 
@@ -1298,41 +1315,41 @@ msgstr ""
 msgid "The link has expired. Reload the page and try again."
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:51
+#: src/Branch/Admin/ListScreens.php:63
 #: src/Dietary/Fields/DietaryFields.php:137
 #: src/Menu/Admin/DishAdmin.php:39
 msgid "Code"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:52
+#: src/Branch/Admin/ListScreens.php:64
 #: src/Branch/Fields/BranchFields.php:50
 msgid "Operating status"
 msgstr ""
 
 #. translators: %d days
-#: src/Branch/Admin/ListScreens.php:53
-#: templates/admin/reservation-detail.php:321
+#: src/Branch/Admin/ListScreens.php:65
+#: templates/admin/reservation-detail.php:330
 msgid "Online requests"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:67
+#: src/Branch/Admin/ListScreens.php:79
 msgid "TEST"
 msgstr ""
 
 #. translators: %d days
-#: src/Branch/Admin/ListScreens.php:75
-#: templates/admin/reservation-detail.php:321
+#: src/Branch/Admin/ListScreens.php:87
+#: templates/admin/reservation-detail.php:330
 msgid "On"
 msgstr ""
 
 #. translators: %d days
-#: src/Branch/Admin/ListScreens.php:75
-#: templates/admin/reservation-detail.php:321
+#: src/Branch/Admin/ListScreens.php:87
+#: templates/admin/reservation-detail.php:330
 msgid "Off"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:105
-#: src/Branch/Admin/ListScreens.php:143
+#: src/Branch/Admin/ListScreens.php:117
+#: src/Branch/Admin/ListScreens.php:155
 #: src/Dietary/Fields/DietaryFields.php:62
 #: src/Kernel/I18n/Admin/GapsPage.php:108
 #: src/Kernel/I18n/Admin/GapsPage.php:167
@@ -1342,88 +1359,76 @@ msgstr ""
 msgid "State"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:106
+#: src/Branch/Admin/ListScreens.php:118
 #: src/Branch/Fields/NoticeFields.php:43
 msgid "Shown on"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:107
-#: src/Branch/Admin/ListScreens.php:145
+#: src/Branch/Admin/ListScreens.php:119
+#: src/Branch/Admin/ListScreens.php:157
 msgid "Start – end (JST)"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:115
-#: src/Branch/Admin/ListScreens.php:155
+#: src/Branch/Admin/ListScreens.php:127
+#: src/Branch/Admin/ListScreens.php:167
 #: src/Kernel/I18n/Admin/StringsPage.php:244
-#: src/Kernel/I18n/Admin/TranslationEditor.php:196
+#: src/Kernel/I18n/Admin/TranslationEditor.php:242
 #: src/Kernel/I18n/Admin/TranslationGaps.php:89
 #: src/Menu/Admin/DishAdmin.php:94
 #: templates/admin/dietary-statements.php:18
 msgid "Draft"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:115
-#: src/Branch/Admin/ListScreens.php:157
+#: src/Branch/Admin/ListScreens.php:127
+#: src/Branch/Admin/ListScreens.php:169
 msgid "Scheduled"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:119
+#: src/Branch/Admin/ListScreens.php:131
 #: src/Branch/Fields/NoticeFields.php:42
 msgid "Warning"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:123
+#: src/Branch/Admin/ListScreens.php:135
 #: src/Branch/Fields/NoticeFields.php:29
 msgid "Site-wide"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:146
+#: src/Branch/Admin/ListScreens.php:158
 msgid "Featured"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:156
+#: src/Branch/Admin/ListScreens.php:168
 #: src/Menu/Admin/DishAdmin.php:93
 msgid "Pending review"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:198
+#: src/Branch/Admin/ListScreens.php:210
 msgid "Duplicate as draft"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:204
+#: src/Branch/Admin/ListScreens.php:216
 msgid "Published offers can only be changed by Head Office. Use \"Duplicate as draft\" to propose a change."
 msgstr ""
 
 #. translators: 1: name 2: date
-#: src/Branch/Admin/ListScreens.php:298
+#: src/Branch/Admin/ListScreens.php:448
 #, php-format
 msgid "Facts confirmed in writing by %1$s, %2$s"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:304
+#: src/Branch/Admin/ListScreens.php:454
 #: src/Branch/Service/BranchPublishValidator.php:98
 msgid "Record the owner's written confirmation before publishing (GATE-01)."
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:315
+#: src/Branch/Admin/ListScreens.php:465
 msgid "Assigned staff"
 msgstr ""
 
-#: src/Branch/Admin/ListScreens.php:321
+#: src/Branch/Admin/ListScreens.php:469
 msgid "No staff assigned."
 msgstr ""
-
-#: src/Branch/Admin/ListScreens.php:346
-msgid "Offers waiting for approval"
-msgstr ""
-
-#. translators: %d: number of offers
-#: src/Branch/Admin/ListScreens.php:350
-#, php-format
-msgid "%d offer is waiting for approval."
-msgid_plural "%d offers are waiting for approval."
-msgstr[0] ""
-msgstr[1] ""
 
 #: src/Branch/Fields/BranchFields.php:40
 msgid "Unknown (not shown)"
@@ -1574,7 +1579,7 @@ msgstr ""
 #: src/Kernel/Fields/Renderer.php:95
 #: src/Kernel/Fields/Renderer.php:235
 #: src/Kernel/I18n/Admin/GapsPage.php:196
-#: src/Seo/Admin/SeoAdmin.php:259
+#: src/Seo/Admin/SeoAdmin.php:284
 #: templates/admin/access-user-fields.php:117
 #: templates/admin/access-user-fields.php:150
 msgid "Yes"
@@ -1585,7 +1590,7 @@ msgstr ""
 #: src/Dietary/Domain/AlcoholValue.php:17
 #: src/Kernel/Fields/Renderer.php:235
 #: src/Kernel/I18n/Admin/GapsPage.php:196
-#: src/Seo/Admin/SeoAdmin.php:259
+#: src/Seo/Admin/SeoAdmin.php:284
 #: templates/admin/access-user-fields.php:117
 msgid "No"
 msgstr ""
@@ -1796,7 +1801,7 @@ msgstr ""
 #: src/Privacy/Admin/DsrScreen.php:245
 #: src/Privacy/Dsr/PersonalData.php:124
 #: templates/admin/privacy-dsr.php:101
-#: templates/admin/reservation-detail.php:91
+#: templates/admin/reservation-detail.php:92
 msgid "Email"
 msgstr ""
 
@@ -2163,10 +2168,6 @@ msgstr ""
 msgid "Use lowercase letters, numbers and hyphens; this slug is already used."
 msgstr ""
 
-#: src/Branch/Service/BranchPublishValidator.php:145
-msgid "Demo images cannot be used here. Upload a real photo."
-msgstr ""
-
 #: src/Branch/Service/BranchVisibility.php:168
 msgid "Branches are read-only through this API."
 msgstr ""
@@ -2337,13 +2338,13 @@ msgstr ""
 
 #. translators: %d minutes
 #: src/Branch/Service/SettingsValidator.php:194
-#: templates/admin/reservation-detail.php:320
+#: templates/admin/reservation-detail.php:329
 msgid "Booking window"
 msgstr ""
 
 #. translators: %d minutes
 #: src/Branch/Service/SettingsValidator.php:195
-#: templates/admin/reservation-detail.php:319
+#: templates/admin/reservation-detail.php:328
 msgid "Decision cutoff"
 msgstr ""
 
@@ -2684,6 +2685,7 @@ msgid "Allergen settings"
 msgstr ""
 
 #: src/Dietary/Fields/DietaryFields.php:138
+#: src/Dietary/Fields/ProhibitedTermsFields.php:97
 msgid "Class"
 msgstr ""
 
@@ -2753,7 +2755,7 @@ msgstr ""
 
 #: src/Dietary/Fields/DietaryFields.php:169
 #: src/Menu/ContentTypes.php:24
-#: templates/admin/menu-category-order.php:15
+#: templates/admin/menu-category-order.php:17
 msgid "Dishes"
 msgstr ""
 
@@ -2842,6 +2844,71 @@ msgstr ""
 msgid "The mark image must be PNG or WebP."
 msgstr ""
 
+#: src/Dietary/Fields/ProhibitedTermsFields.php:48
+msgid "Certification wording (only through an active certified template)"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:49
+msgid "Absolute halal claim"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:50
+msgid "Group-wide claim"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:51
+msgid "Kitchen practice claim"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:52
+msgid "Recognition / religious ruling"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:53
+msgid "Allergen safety claim"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:54
+msgid "Ordering wording"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:80
+msgid "About this list"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:82
+msgid "Terms that must not appear in customer-facing text (Doc 07 §6.6). Used by the save-time wording check, statement template validation and the claim-term scan. Each list starts from the master list; native reviewers add the ar/ur/hi/bn equivalents. Matching ignores case."
+msgstr ""
+
+#. translators: %s: language name
+#: src/Dietary/Fields/ProhibitedTermsFields.php:89
+msgid "All languages"
+msgstr ""
+
+#. translators: %s: language name
+#: src/Dietary/Fields/ProhibitedTermsFields.php:89
+#, php-format
+msgid "Prohibited terms: %s"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:94
+msgid "Add term"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:98
+msgid "Term"
+msgstr ""
+
+#: src/Dietary/Fields/ProhibitedTermsFields.php:106
+msgid "Prohibited wording (claims)"
+msgstr ""
+
+#. translators: 1: row number, 2: term
+#: src/Dietary/Fields/ProhibitedTermsFields.php:123
+#, php-format
+msgid "Row %1$d: “%2$s” is already in this list."
+msgstr ""
+
 #: src/Dietary/Guard/AllergenGuard.php:25
 msgid "Reference allergens cannot be deleted."
 msgstr ""
@@ -2855,7 +2922,7 @@ msgid "Claim records are never deleted. Revoke the record instead."
 msgstr ""
 
 #. translators: %s: comma-separated list of terms
-#: src/Dietary/Guard/WordingGuard.php:110
+#: src/Dietary/Guard/WordingGuard.php:143
 #, php-format
 msgid "Possible claim wording found: %s. Halal, allergen and certification statements may only come from the approved register templates. Please review."
 msgstr ""
@@ -2980,7 +3047,7 @@ msgid "\"%s\" is required to publish."
 msgstr ""
 
 #: src/Kernel/Fields/FieldRegistry.php:255
-#: src/Menu/Service/DishPublishValidator.php:28
+#: src/Menu/Service/DishPublishValidator.php:29
 msgid "A title is required to publish."
 msgstr ""
 
@@ -3115,7 +3182,7 @@ msgid "Launch-critical only"
 msgstr ""
 
 #: src/Kernel/I18n/Admin/GapsPage.php:116
-#: templates/admin/reservation-inbox.php:230
+#: templates/admin/reservation-inbox.php:233
 msgid "Download CSV"
 msgstr ""
 
@@ -3150,8 +3217,8 @@ msgid "Select"
 msgstr ""
 
 #: src/Kernel/I18n/Admin/GapsPage.php:167
-#: src/Seo/Admin/SeoAdmin.php:226
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:251
+#: src/Seo/Admin/SeoAdmin.php:275
 #: templates/admin/branch-hours.php:29
 #: templates/admin/branch-hours.php:256
 #: templates/admin/branch-hours.php:257
@@ -3254,7 +3321,7 @@ msgid "You do not have permission to edit strings."
 msgstr ""
 
 #: src/Kernel/I18n/Admin/StringsPage.php:245
-#: src/Kernel/I18n/Admin/TranslationEditor.php:197
+#: src/Kernel/I18n/Admin/TranslationEditor.php:243
 #: src/Kernel/I18n/Admin/TranslationGaps.php:90
 #: templates/admin/dietary-statements.php:18
 msgid "Needs review"
@@ -3356,85 +3423,90 @@ msgstr ""
 msgid "Approve all strings on this page"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:85
+#: src/Kernel/I18n/Admin/TranslationEditor.php:91
 #: src/Menu/Admin/DishAdmin.php:43
 msgid "Translations"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:108
+#: src/Kernel/I18n/Admin/TranslationEditor.php:114
 msgid "source changed since approval"
 msgstr ""
 
 #. translators: %d: number of fields
-#: src/Kernel/I18n/Admin/TranslationEditor.php:112
+#: src/Kernel/I18n/Admin/TranslationEditor.php:118
 #, php-format
 msgid "%d field empty"
 msgid_plural "%d fields empty"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:125
-#: src/Kernel/I18n/Admin/TranslationEditor.php:185
+#: src/Kernel/I18n/Admin/TranslationEditor.php:131
+#: src/Kernel/I18n/Admin/TranslationEditor.php:231
 msgid "Source (ja):"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:138
+#: src/Kernel/I18n/Admin/TranslationEditor.php:145
 msgid "A native-speaker reviewer approves translations before they are published."
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:140
+#: src/Kernel/I18n/Admin/TranslationEditor.php:147
 msgid "Review-class content: the reviewer must be a different person from the translator."
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:170
+#. translators: 1: current length, 2: recommended maximum
+#: src/Kernel/I18n/Admin/TranslationEditor.php:179
+#: src/Kernel/I18n/Admin/TranslationEditor.php:189
+#: src/Seo/SeoFields.php:114
+#, php-format
+msgid "Longer than recommended (%1$d/%2$d)"
+msgstr ""
+
+#: src/Kernel/I18n/Admin/TranslationEditor.php:216
 msgid "No source items yet."
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:198
+#: src/Kernel/I18n/Admin/TranslationEditor.php:244
 msgid "Approved (published)"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:199
+#: src/Kernel/I18n/Admin/TranslationEditor.php:245
 msgid "Not translated"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:269
-msgid "You cannot approve your own translation of this content."
-msgstr ""
-
-#: src/Kernel/I18n/Admin/TranslationEditor.php:296
+#: src/Kernel/I18n/Admin/TranslationEditor.php:352
 msgid "Edit translation"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:323
-#: src/Kernel/I18n/Admin/TranslationEditor.php:351
+#: src/Kernel/I18n/Admin/TranslationEditor.php:379
+#: src/Kernel/I18n/Admin/TranslationEditor.php:407
 msgid "You do not have permission to translate this item."
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:327
+#: src/Kernel/I18n/Admin/TranslationEditor.php:383
 #: src/Kernel/I18n/Admin/TranslationGaps.php:235
+#: src/Presentation/Admin/BrandSettings.php:82
 msgid "Brand settings"
 msgstr ""
 
 #. translators: 1: item 2: language
-#: src/Kernel/I18n/Admin/TranslationEditor.php:330
+#: src/Kernel/I18n/Admin/TranslationEditor.php:386
 #, php-format
 msgid "Translate “%1$s” — %2$s"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:332
+#: src/Kernel/I18n/Admin/TranslationEditor.php:388
 msgid "Source changed since approval."
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:335
+#: src/Kernel/I18n/Admin/TranslationEditor.php:391
 msgid "Translation saved."
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:341
+#: src/Kernel/I18n/Admin/TranslationEditor.php:397
 msgid "Save translation"
 msgstr ""
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:342
+#: src/Kernel/I18n/Admin/TranslationEditor.php:398
 msgid "Back to translation gaps"
 msgstr ""
 
@@ -3499,6 +3571,10 @@ msgstr[1] ""
 msgid "%1$s “%2$s”: %3$s"
 msgstr ""
 
+#: src/Kernel/I18n/ReviewPolicy.php:28
+msgid "You cannot approve your own translation of this content."
+msgstr ""
+
 #: src/Kernel/I18n/SlugPolicy.php:43
 msgid "Enter a URL slug with lowercase Latin letters a–z, digits and hyphens only, e.g. chicken-momo. The slug is shared by all languages, so Japanese or other non-Latin text cannot be used for it."
 msgstr ""
@@ -3521,11 +3597,15 @@ msgstr ""
 msgid "No Latin URL slug can be formed from the title, so \"%s\" was used. Enter a descriptive slug with lowercase Latin letters a–z, digits and hyphens (shared by all languages)."
 msgstr ""
 
-#: src/Kernel/Media/UploadPolicy.php:69
+#: src/Kernel/Media/MetadataStripper.php:47
+msgid "The image could not be processed. Save it again as JPEG, PNG or WebP and retry."
+msgstr ""
+
+#: src/Kernel/Media/UploadPolicy.php:72
 msgid "Images may be at most 5 MB."
 msgstr ""
 
-#: src/Kernel/Media/UploadPolicy.php:73
+#: src/Kernel/Media/UploadPolicy.php:76
 msgid "Only JPEG, PNG and WebP images can be uploaded."
 msgstr ""
 
@@ -3607,9 +3687,26 @@ msgstr ""
 msgid "Updated by %1$s at %2$s."
 msgstr ""
 
-#: src/Menu/Admin/CategoryOrderPage.php:21
-#: templates/admin/menu-category-order.php:9
+#: src/Menu/Admin/CategoryOrderPage.php:29
+#: templates/admin/menu-category-order.php:10
 msgid "Category order"
+msgstr ""
+
+#: src/Menu/Admin/CategoryOrderPage.php:125
+msgid "The page has expired. Reload it and try again."
+msgstr ""
+
+#: src/Menu/Admin/CategoryOrderPage.php:133
+msgid "The category list has changed. Reload the page and try again."
+msgstr ""
+
+#: src/Menu/Admin/CategoryOrderPage.php:135
+#: templates/admin/menu-category-order.php:13
+msgid "Order saved."
+msgstr ""
+
+#: src/Menu/Admin/CategoryOrderPage.php:148
+msgid "The order could not be saved."
 msgstr ""
 
 #: src/Menu/Admin/DishAdmin.php:35
@@ -3852,7 +3949,7 @@ msgstr ""
 
 #: src/Menu/Fields/MenuFields.php:54
 #: src/Menu/Fields/MenuFields.php:224
-#: src/Menu/Service/DishPublishValidator.php:67
+#: src/Menu/Service/DishPublishValidator.php:71
 msgid "Dish code must be D followed by 4 digits and unique."
 msgstr ""
 
@@ -3977,12 +4074,12 @@ msgid "A dish can have at most 6 images (featured image plus gallery)."
 msgstr ""
 
 #: src/Menu/Fields/MenuFields.php:273
-#: src/Menu/Service/DishPublishValidator.php:87
+#: src/Menu/Service/DishPublishValidator.php:91
 msgid "Enter the advance-order time in hours (1–168)."
 msgstr ""
 
 #: src/Menu/Fields/MenuFields.php:282
-#: src/Menu/Service/DishPublishValidator.php:73
+#: src/Menu/Service/DishPublishValidator.php:77
 msgid "Price must be between 0 and 100,000 yen."
 msgstr ""
 
@@ -4074,6 +4171,28 @@ msgstr ""
 msgid "The category name can have at most 40 characters."
 msgstr ""
 
+#. translators: %s: current number of characters
+#: src/Menu/Service/DescriptionLimit.php:50
+#, php-format
+msgid "The long description can have at most 1,500 characters (currently %s). Shorten it before publishing."
+msgstr ""
+
+#. translators: 1: language code, 2: current number of characters
+#: src/Menu/Service/DescriptionLimit.php:53
+#, php-format
+msgid "The %1$s description can have at most 1,500 characters (currently %2$s). The translation was kept as a draft and cannot be approved until it is shortened."
+msgstr ""
+
+#: src/Menu/Service/DescriptionLimit.php:92
+msgid "The previous long description was kept."
+msgstr ""
+
+#. translators: 1: current number of characters, 2: maximum
+#: src/Menu/Service/DescriptionLimit.php:103
+#, php-format
+msgid "Long description: %1$s / %2$s characters (saved text)."
+msgstr ""
+
 #: src/Menu/Service/DishLifecycle.php:49
 msgid "You do not have permission to retire dishes."
 msgstr ""
@@ -4097,69 +4216,69 @@ msgstr ""
 msgid "Dish code cannot be changed after publication."
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:42
+#: src/Menu/Service/DishPublishValidator.php:43
 msgid "name"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:44
+#: src/Menu/Service/DishPublishValidator.php:45
 msgid "The dish name can have at most 100 characters."
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:47
+#: src/Menu/Service/DishPublishValidator.php:51
 msgid "short description"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:51
+#: src/Menu/Service/DishPublishValidator.php:55
 msgid "category"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:54
+#: src/Menu/Service/DishPublishValidator.php:58
 msgid "primary category"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:56
+#: src/Menu/Service/DishPublishValidator.php:60
 msgid "The primary category must be one of the assigned categories."
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:59
+#: src/Menu/Service/DishPublishValidator.php:63
 msgid "featured image"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:61
+#: src/Menu/Service/DishPublishValidator.php:65
 msgid "Japanese alternative text of the featured image"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:65
+#: src/Menu/Service/DishPublishValidator.php:69
 msgid "dish code"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:71
+#: src/Menu/Service/DishPublishValidator.php:75
 msgid "reference price"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:77
+#: src/Menu/Service/DishPublishValidator.php:81
 msgid "spice level"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:79
+#: src/Menu/Service/DishPublishValidator.php:83
 msgid "Spice level must be 0–3."
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:82
+#: src/Menu/Service/DishPublishValidator.php:86
 msgid "halal basis"
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:91
+#: src/Menu/Service/DishPublishValidator.php:95
 msgid "Sample dishes cannot be published on the live site"
 msgstr ""
 
 #. translators: %s: comma-separated list of missing fields
-#: src/Menu/Service/DishPublishValidator.php:95
+#: src/Menu/Service/DishPublishValidator.php:99
 #, php-format
 msgid "Complete required fields before publishing: %s."
 msgstr ""
 
-#: src/Menu/Service/DishPublishValidator.php:104
+#: src/Menu/Service/DishPublishValidator.php:108
 msgid "Not a dish."
 msgstr ""
 
@@ -4199,17 +4318,17 @@ msgid "Template"
 msgstr ""
 
 #: src/Notification/Admin/NotificationLogScreen.php:147
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:275
 #: templates/admin/audit-log.php:40
-#: templates/admin/reservation-inbox.php:83
+#: templates/admin/reservation-inbox.php:86
 #: templates/admin/reservation-report.php:72
 msgid "From"
 msgstr ""
 
 #: src/Notification/Admin/NotificationLogScreen.php:148
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:275
 #: templates/admin/audit-log.php:42
-#: templates/admin/reservation-inbox.php:84
+#: templates/admin/reservation-inbox.php:87
 #: templates/admin/reservation-report.php:73
 msgid "To"
 msgstr ""
@@ -4219,7 +4338,7 @@ msgid "Dates in JST; at most 180 days are kept (DEC-034)."
 msgstr ""
 
 #: src/Notification/Admin/NotificationLogScreen.php:155
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:275
 #: templates/admin/privacy-dsr.php:79
 msgid "Created (JST)"
 msgstr ""
@@ -4434,7 +4553,7 @@ msgid "Please log in."
 msgstr ""
 
 #: src/Notification/Rest/ResendController.php:42
-#: src/Seo/Admin/SeoAdmin.php:42
+#: src/Seo/Admin/SeoAdmin.php:43
 msgid "You are not allowed to do this."
 msgstr ""
 
@@ -4472,7 +4591,7 @@ msgid "Failed (UTC)"
 msgstr ""
 
 #: src/Notification/Template/TemplateRegistry.php:46
-#: templates/admin/reservation-detail.php:41
+#: templates/admin/reservation-detail.php:42
 msgid "Request received"
 msgstr ""
 
@@ -4507,6 +4626,31 @@ msgstr ""
 
 #: src/Notification/Template/TemplateRegistry.php:56
 msgid "Certificate expiry"
+msgstr ""
+
+#: src/Presentation/Admin/BrandSettings.php:49
+#: src/Presentation/Admin/BrandSettings.php:53
+msgid "Registered address"
+msgstr ""
+
+#: src/Presentation/Admin/BrandSettings.php:53
+msgid "Registered business address of the operator (owner data). Hidden on the site while empty."
+msgstr ""
+
+#: src/Presentation/Admin/BrandSettings.php:81
+msgid "Required brand settings are incomplete"
+msgstr ""
+
+#: src/Presentation/Maintenance/MaintenanceMode.php:35
+msgid "Maintenance mode"
+msgstr ""
+
+#: src/Presentation/Maintenance/MaintenanceMode.php:40
+msgid "Show the maintenance page to visitors"
+msgstr ""
+
+#: src/Presentation/Maintenance/MaintenanceMode.php:40
+msgid "Visitors get HTTP 503 with the multilingual maintenance page. Logged-in super administrators still see the site (FR-CORP-007)."
 msgstr ""
 
 #: src/Privacy/Admin/DsrScreen.php:38
@@ -4569,7 +4713,7 @@ msgstr ""
 #: src/Privacy/Admin/DsrScreen.php:246
 #: src/Privacy/Dsr/PersonalData.php:125
 #: templates/admin/privacy-dsr.php:102
-#: templates/admin/reservation-detail.php:90
+#: templates/admin/reservation-detail.php:91
 msgid "Phone"
 msgstr ""
 
@@ -4584,7 +4728,7 @@ msgstr ""
 #: templates/admin/menu-branch-grid.php:127
 #: templates/admin/privacy-dsr.php:110
 #: templates/admin/privacy-dsr.php:150
-#: templates/admin/reservation-detail.php:109
+#: templates/admin/reservation-detail.php:118
 msgid "Reason"
 msgstr ""
 
@@ -4654,8 +4798,8 @@ msgstr ""
 #: src/Privacy/Dsr/PersonalData.php:96
 #: src/Reservation/Admin/InboxPage.php:51
 #: src/Reservation/Admin/InboxPage.php:53
-#: templates/admin/reservation-inbox.php:26
-#: templates/admin/reservation-inbox.php:129
+#: templates/admin/reservation-inbox.php:29
+#: templates/admin/reservation-inbox.php:132
 msgid "Reservation requests"
 msgstr ""
 
@@ -4669,7 +4813,7 @@ msgid "Requested date"
 msgstr ""
 
 #: src/Privacy/Dsr/PersonalData.php:118
-#: templates/admin/reservation-inbox.php:109
+#: templates/admin/reservation-inbox.php:112
 msgid "Requested time"
 msgstr ""
 
@@ -4682,9 +4826,9 @@ msgid "Form language"
 msgstr ""
 
 #: src/Privacy/Dsr/PersonalData.php:126
-#: templates/admin/reservation-detail.php:94
-#: templates/admin/reservation-inbox.php:101
-#: templates/admin/reservation-inbox.php:183
+#: templates/admin/reservation-detail.php:95
+#: templates/admin/reservation-inbox.php:104
+#: templates/admin/reservation-inbox.php:186
 msgid "Special request"
 msgstr ""
 
@@ -4693,6 +4837,7 @@ msgid "Message from the branch"
 msgstr ""
 
 #: src/Privacy/Dsr/PersonalData.php:135
+#: templates/admin/reservation-detail.php:107
 msgid "Consent version"
 msgstr ""
 
@@ -4776,19 +4921,19 @@ msgid "Today"
 msgstr ""
 
 #: src/Reservation/Admin/InboxPage.php:164
-#: templates/admin/reservation-inbox.php:125
+#: templates/admin/reservation-inbox.php:128
 msgid "Upcoming confirmed"
 msgstr ""
 
 #: src/Reservation/Admin/InboxPage.php:165
-#: templates/admin/reservation-inbox.php:125
+#: templates/admin/reservation-inbox.php:128
 msgid "Attendance due"
 msgstr ""
 
 #: src/Reservation/Admin/InboxPage.php:166
-#: templates/admin/reservation-detail.php:131
-#: templates/admin/reservation-inbox.php:88
-#: templates/admin/reservation-inbox.php:171
+#: templates/admin/reservation-detail.php:140
+#: templates/admin/reservation-inbox.php:91
+#: templates/admin/reservation-inbox.php:174
 msgid "Needs action"
 msgstr ""
 
@@ -4845,7 +4990,7 @@ msgid "Details changed — email queued to guest."
 msgstr ""
 
 #: src/Reservation/Admin/InboxPage.php:270
-#: src/Seo/Admin/SeoAdmin.php:183
+#: src/Seo/Admin/SeoAdmin.php:208
 #: templates/admin/branch-hours.php:50
 #: templates/admin/dietary-statements.php:34
 msgid "Saved."
@@ -4869,234 +5014,256 @@ msgid "Accepted"
 msgstr ""
 
 #: src/Reservation/Domain/ReservationStatus.php:44
-#: templates/admin/reservation-detail.php:257
+#: templates/admin/reservation-detail.php:266
 msgid "Attended"
 msgstr ""
 
 #: src/Reservation/Domain/ReservationStatus.php:45
-#: templates/admin/reservation-detail.php:258
+#: templates/admin/reservation-detail.php:267
 msgid "No-show"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:30
-#: src/Seo/Admin/SeoAdmin.php:163
+#: src/Seo/Admin/SeoAdmin.php:31
+#: src/Seo/Admin/SeoAdmin.php:187
 msgid "Redirects & 404 log"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:30
+#: src/Seo/Admin/SeoAdmin.php:31
 msgid "Redirections"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:147
+#: src/Seo/Admin/SeoAdmin.php:170
 msgid "You are not allowed to view this page."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:150
-#: src/Seo/Admin/SeoAdmin.php:237
+#: src/Seo/Admin/SeoAdmin.php:173
+#: src/Seo/Admin/SeoAdmin.php:262
 msgid "Redirects"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:151
+#: src/Seo/Admin/SeoAdmin.php:174
 msgid "404 log"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:152
+#: src/Seo/Admin/SeoAdmin.php:175
 msgid "Weekly review"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:165
+#: src/Seo/Admin/SeoAdmin.php:176
+msgid "Structured data"
+msgstr ""
+
+#: src/Seo/Admin/SeoAdmin.php:189
 msgid "SEO sections"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:184
+#: src/Seo/Admin/SeoAdmin.php:209
 msgid "Redirect deleted."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:185
+#: src/Seo/Admin/SeoAdmin.php:210
 #: src/Seo/Redirects/RedirectStore.php:216
 msgid "This redirect no longer exists."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:186
+#: src/Seo/Admin/SeoAdmin.php:211
 msgid "404 log cleared."
 msgstr ""
 
 #. translators: 1: number of working targets, 2: number of failing targets
-#: src/Seo/Admin/SeoAdmin.php:192
+#: src/Seo/Admin/SeoAdmin.php:217
 #, php-format
 msgid "Verification finished: %1$d OK, %2$d failing."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:195
+#: src/Seo/Admin/SeoAdmin.php:220
 msgid "Please correct the following:"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:218
+#: src/Seo/Admin/SeoAdmin.php:243
 msgid "Edit redirect"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:218
-#: src/Seo/Admin/SeoAdmin.php:233
+#: src/Seo/Admin/SeoAdmin.php:243
+#: src/Seo/Admin/SeoAdmin.php:258
 msgid "Add redirect"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:219
+#: src/Seo/Admin/SeoAdmin.php:244
 msgid "Exact paths only (no patterns). The target must be the final URL of this site — chains and loops are refused."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:224
+#: src/Seo/Admin/SeoAdmin.php:249
 msgid "Old path"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:225
+#: src/Seo/Admin/SeoAdmin.php:250
 msgid "New URL"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:225
+#: src/Seo/Admin/SeoAdmin.php:250
 msgid "Leave empty for 410 Gone."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:227
+#: src/Seo/Admin/SeoAdmin.php:252
 msgid "301 Moved permanently"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:227
+#: src/Seo/Admin/SeoAdmin.php:252
 msgid "302 Temporary"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:227
+#: src/Seo/Admin/SeoAdmin.php:252
 msgid "410 Gone"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:231
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:256
+#: src/Seo/Admin/SeoAdmin.php:275
 msgid "Owner"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:233
+#: src/Seo/Admin/SeoAdmin.php:258
 msgid "Update redirect"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:242
+#: src/Seo/Admin/SeoAdmin.php:267
 msgid "Verify all"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:246
+#: src/Seo/Admin/SeoAdmin.php:271
 msgid "No redirects yet."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:275
 msgid "Source"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:250
+#: src/Seo/Admin/SeoAdmin.php:275
 msgid "Verified"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:261
+#: src/Seo/Admin/SeoAdmin.php:286
 #: templates/admin/dietary-claim-scan.php:27
 #: templates/admin/dietary-claim-scan.php:41
 #: templates/admin/dietary-register.php:81
 msgid "Edit"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:265
+#: src/Seo/Admin/SeoAdmin.php:290
 msgid "Delete this redirect?"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:265
+#: src/Seo/Admin/SeoAdmin.php:290
 msgid "Delete"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:273
+#: src/Seo/Admin/SeoAdmin.php:298
 msgid "Aggregated per path and language. No IP address, user agent or full referrer is stored."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:275
+#: src/Seo/Admin/SeoAdmin.php:300
 msgid "No 404 errors recorded."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:304
 msgid "Path"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:304
 msgid "Referrer host"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:304
 msgid "Hits"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:304
 msgid "First seen (JST)"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:279
+#: src/Seo/Admin/SeoAdmin.php:304
 msgid "Last seen (JST)"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:293
+#: src/Seo/Admin/SeoAdmin.php:318
 msgid "Create redirect"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:300
+#: src/Seo/Admin/SeoAdmin.php:325
 msgid "Clear 404 log"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:300
+#: src/Seo/Admin/SeoAdmin.php:325
 msgid "Clear the 404 log?"
 msgstr ""
 
 #. translators: %d: number of recorded weekly reviews
-#: src/Seo/Admin/SeoAdmin.php:308
+#: src/Seo/Admin/SeoAdmin.php:333
 #, php-format
 msgid "%d of 8 weekly reviews after launch recorded."
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:312
-#: src/Seo/Admin/SeoAdmin.php:318
+#: src/Seo/Admin/SeoAdmin.php:337
+#: src/Seo/Admin/SeoAdmin.php:343
 msgid "Week of"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:313
-#: src/Seo/Admin/SeoAdmin.php:318
+#: src/Seo/Admin/SeoAdmin.php:338
+#: src/Seo/Admin/SeoAdmin.php:343
 msgid "Actions taken"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:315
+#: src/Seo/Admin/SeoAdmin.php:340
 msgid "Record weekly review"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:318
+#: src/Seo/Admin/SeoAdmin.php:343
 msgid "Reviewed by"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:318
+#: src/Seo/Admin/SeoAdmin.php:343
 msgid "Recorded (JST)"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:333
+#: src/Seo/Admin/SeoAdmin.php:359
+msgid "Restaurant structured data (JSON-LD) on every branch page. Each value is output only when filled in; leave a field empty to omit it. Values must match what the site shows and be under 100 characters."
+msgstr ""
+
+#. translators: %s: language name, e.g. Japanese
+#: src/Seo/Admin/SeoAdmin.php:368
+#, php-format
+msgid "Cuisine (servesCuisine) — %s"
+msgstr ""
+
+#: src/Seo/Admin/SeoAdmin.php:377
+msgid "Price range (priceRange)"
+msgstr ""
+
+#: src/Seo/Admin/SeoAdmin.php:380
+msgid "Same value for every language and branch."
+msgstr ""
+
+#: src/Seo/Admin/SeoAdmin.php:393
 msgid "FAQ structured data"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:333
+#: src/Seo/Admin/SeoAdmin.php:393
 msgid "Output FAQPage JSON-LD for the visible questions on the FAQ and Halal pages"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:334
+#: src/Seo/Admin/SeoAdmin.php:394
 msgid "404 log retention"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:334
+#: src/Seo/Admin/SeoAdmin.php:394
 msgid "days"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:335
+#: src/Seo/Admin/SeoAdmin.php:395
 msgid "Google Tag Manager"
 msgstr ""
 
-#: src/Seo/Admin/SeoAdmin.php:335
+#: src/Seo/Admin/SeoAdmin.php:395
 msgid "Not configured — no tags are loaded."
 msgstr ""
 
@@ -5222,10 +5389,16 @@ msgstr ""
 msgid "Illustrative images cannot be used on branch or About pages."
 msgstr ""
 
-#. translators: 1: current length, 2: recommended maximum
-#: src/Seo/SeoFields.php:114
+#. translators: 1: language name, 2: maximum number of characters
+#: src/Seo/SeoSettings.php:108
 #, php-format
-msgid "Longer than recommended (%1$d/%2$d)"
+msgid "Cuisine (%1$s) must be at most %2$d characters."
+msgstr ""
+
+#. translators: %d: maximum number of characters
+#: src/Seo/SeoSettings.php:114
+#, php-format
+msgid "Price range must be at most %d characters."
 msgstr ""
 
 #: templates/admin/access-user-fields.php:40
@@ -5485,18 +5658,18 @@ msgstr ""
 
 #: templates/admin/branch-hours.php:73
 #: templates/admin/branch-hours.php:214
-#: templates/admin/reservation-detail.php:265
+#: templates/admin/reservation-detail.php:274
 #: templates/admin/settings-languages.php:74
 msgid "Date"
 msgstr ""
 
 #. translators: 1: date, 2: times
 #: templates/admin/branch-hours.php:74
-#: templates/admin/reservation-detail.php:86
-#: templates/admin/reservation-detail.php:273
-#: templates/admin/reservation-detail.php:317
-#: templates/admin/reservation-inbox.php:132
-#: templates/admin/reservation-inbox.php:148
+#: templates/admin/reservation-detail.php:87
+#: templates/admin/reservation-detail.php:282
+#: templates/admin/reservation-detail.php:326
+#: templates/admin/reservation-inbox.php:135
+#: templates/admin/reservation-inbox.php:151
 msgid "Party"
 msgstr ""
 
@@ -5655,8 +5828,8 @@ msgid "Shown to customers in their language."
 msgstr ""
 
 #: templates/admin/branch-hours.php:278
-#: templates/admin/reservation-detail.php:45
-#: templates/admin/reservation-detail.php:306
+#: templates/admin/reservation-detail.php:46
+#: templates/admin/reservation-detail.php:315
 msgid "Internal note"
 msgstr ""
 
@@ -5719,8 +5892,8 @@ msgid "Revoke “%s”"
 msgstr ""
 
 #: templates/admin/dietary-register.php:39
-#: templates/admin/reservation-detail.php:217
-#: templates/admin/reservation-detail.php:238
+#: templates/admin/reservation-detail.php:226
+#: templates/admin/reservation-detail.php:247
 msgid "Reason (required)"
 msgstr ""
 
@@ -5852,7 +6025,7 @@ msgid "Add template"
 msgstr ""
 
 #: templates/admin/menu-branch-grid.php:32
-#: templates/admin/menu-category-order.php:15
+#: templates/admin/menu-category-order.php:17
 msgid "Category"
 msgstr ""
 
@@ -5930,27 +6103,31 @@ msgstr ""
 msgid "Available again"
 msgstr ""
 
-#: templates/admin/menu-category-order.php:10
-msgid "Order of the categories on the menu hub. Categories without a displayable dish are not shown to customers."
+#: templates/admin/menu-category-order.php:11
+msgid "Order of the categories on the menu hub. Drag a row by its handle, or use the up/down buttons. Categories without a displayable dish are not shown to customers."
 msgstr ""
 
-#: templates/admin/menu-category-order.php:12
-msgid "Order saved."
+#: templates/admin/menu-category-order.php:17
+msgid "Drag handle"
 msgstr ""
 
-#: templates/admin/menu-category-order.php:15
+#: templates/admin/menu-category-order.php:17
 msgid "Position"
 msgstr ""
 
-#: templates/admin/menu-category-order.php:15
+#: templates/admin/menu-category-order.php:17
 msgid "Move"
 msgstr ""
 
-#: templates/admin/menu-category-order.php:23
+#: templates/admin/menu-category-order.php:21
+msgid "Drag to reorder"
+msgstr ""
+
+#: templates/admin/menu-category-order.php:26
 msgid "Move up"
 msgstr ""
 
-#: templates/admin/menu-category-order.php:23
+#: templates/admin/menu-category-order.php:26
 msgid "Move down"
 msgstr ""
 
@@ -6085,504 +6262,504 @@ msgstr ""
 msgid "Not in the registry"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:28
+#: templates/admin/reservation-detail.php:29
 msgid "Fully booked"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:29
+#: templates/admin/reservation-detail.php:30
 msgid "Closed or private event"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:30
+#: templates/admin/reservation-detail.php:31
 msgid "Party size not supported"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:31
+#: templates/admin/reservation-detail.php:32
 msgid "Incomplete information"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:33
+#: templates/admin/reservation-detail.php:34
 msgid "Cancelled at guest's request by phone"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:34
+#: templates/admin/reservation-detail.php:35
 msgid "Branch unable to serve"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:35
+#: templates/admin/reservation-detail.php:36
 msgid "Duplicate request"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:36
+#: templates/admin/reservation-detail.php:37
 msgid "Suspected spam"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:37
+#: templates/admin/reservation-detail.php:38
 msgid "Agreed with guest"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:38
+#: templates/admin/reservation-detail.php:39
 msgid "Flag resolved"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:42
+#: templates/admin/reservation-detail.php:43
 msgid "Status changed"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:43
+#: templates/admin/reservation-detail.php:44
 msgid "Claimed"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:44
+#: templates/admin/reservation-detail.php:45
 msgid "Released"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:46
+#: templates/admin/reservation-detail.php:47
 msgid "Details changed"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:47
+#: templates/admin/reservation-detail.php:48
 msgid "Email to guest failed"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:48
-#: templates/admin/reservation-detail.php:284
+#: templates/admin/reservation-detail.php:49
+#: templates/admin/reservation-detail.php:293
 msgid "Guest contacted"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:49
+#: templates/admin/reservation-detail.php:50
 msgid "Reminder sent"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:50
+#: templates/admin/reservation-detail.php:51
 msgid "Escalated to Head Office"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:51
+#: templates/admin/reservation-detail.php:52
 msgid "Conflicts with closure or changed hours"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:52
+#: templates/admin/reservation-detail.php:53
 msgid "Personal data removed"
 msgstr ""
 
 #. translators: 1: guest given name, 2: language
-#: templates/admin/reservation-detail.php:63
+#: templates/admin/reservation-detail.php:64
 #, php-format
 msgid "%1$s will receive an email in %2$s."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:67
+#: templates/admin/reservation-detail.php:68
 msgid "Back to inbox"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:83
+#: templates/admin/reservation-detail.php:84
 msgid "Request"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:85
-#: templates/admin/reservation-inbox.php:131
-#: templates/admin/reservation-inbox.php:144
+#: templates/admin/reservation-detail.php:86
+#: templates/admin/reservation-inbox.php:134
+#: templates/admin/reservation-inbox.php:147
 msgid "Date / time"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:88
-#: templates/admin/reservation-detail.php:158
-#: templates/admin/reservation-inbox.php:133
-#: templates/admin/reservation-inbox.php:149
+#: templates/admin/reservation-detail.php:89
+#: templates/admin/reservation-detail.php:167
+#: templates/admin/reservation-inbox.php:136
+#: templates/admin/reservation-inbox.php:152
 msgid "Guest"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:90
+#: templates/admin/reservation-detail.php:91
 msgid "Not given"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:93
+#: templates/admin/reservation-detail.php:94
 #: templates/admin/reservation-report.php:89
 msgid "Reply language"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:97
+#: templates/admin/reservation-detail.php:98
 msgid "Yes (hidden — no permission to view guest details)"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:97
-#: templates/admin/reservation-detail.php:99
+#: templates/admin/reservation-detail.php:98
+#: templates/admin/reservation-detail.php:100
 msgid "No special request"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:104
-#: templates/admin/reservation-inbox.php:110
-#: templates/admin/reservation-inbox.php:136
-#: templates/admin/reservation-inbox.php:165
+#: templates/admin/reservation-detail.php:105
+#: templates/admin/reservation-inbox.php:113
+#: templates/admin/reservation-inbox.php:139
+#: templates/admin/reservation-inbox.php:168
 msgid "Received"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:106
+#: templates/admin/reservation-detail.php:115
 msgid "Expires if undecided at"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:112
+#: templates/admin/reservation-detail.php:121
 msgid "Message to guest"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:115
+#: templates/admin/reservation-detail.php:124
 msgid "Suggested times"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:122
+#: templates/admin/reservation-detail.php:131
 msgid "Needs attention"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:127
-#: templates/admin/reservation-inbox.php:89
+#: templates/admin/reservation-detail.php:136
+#: templates/admin/reservation-inbox.php:92
 msgid "Guest not notified"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:135
-#: templates/admin/reservation-inbox.php:187
+#: templates/admin/reservation-detail.php:144
+#: templates/admin/reservation-inbox.php:190
 msgid "Spam check unavailable"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:141
+#: templates/admin/reservation-detail.php:150
 msgid "Timeline"
 msgstr ""
 
 #. translators: 1: template, 2: status
-#: templates/admin/reservation-detail.php:144
+#: templates/admin/reservation-detail.php:153
 #, php-format
 msgid "Email %1$s: %2$s"
 msgstr ""
 
 #. translators: %d: attempts
-#: templates/admin/reservation-detail.php:145
+#: templates/admin/reservation-detail.php:154
 #, php-format
 msgid "attempts %d/5"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:170
+#: templates/admin/reservation-detail.php:179
 msgid "Rules overridden:"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:188
-#: templates/admin/reservation-inbox.php:94
-#: templates/admin/reservation-inbox.php:137
-#: templates/admin/reservation-inbox.php:166
+#: templates/admin/reservation-detail.php:197
+#: templates/admin/reservation-inbox.php:97
+#: templates/admin/reservation-inbox.php:140
+#: templates/admin/reservation-inbox.php:169
 msgid "Handled by"
 msgstr ""
 
 #. translators: %s: staff name
-#: templates/admin/reservation-detail.php:189
-#: templates/admin/reservation-inbox.php:91
-#: templates/admin/reservation-inbox.php:98
-#: templates/admin/reservation-inbox.php:166
+#: templates/admin/reservation-detail.php:198
+#: templates/admin/reservation-inbox.php:94
+#: templates/admin/reservation-inbox.php:101
+#: templates/admin/reservation-inbox.php:169
 msgid "Unclaimed"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:192
+#: templates/admin/reservation-detail.php:201
 msgid "Claim"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:196
+#: templates/admin/reservation-detail.php:205
 msgid "Release"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:203
+#: templates/admin/reservation-detail.php:212
 msgid "Accept"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:206
-#: templates/admin/reservation-detail.php:222
-#: templates/admin/reservation-detail.php:248
+#: templates/admin/reservation-detail.php:215
+#: templates/admin/reservation-detail.php:231
+#: templates/admin/reservation-detail.php:257
 msgid "Message to guest (optional)"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:208
+#: templates/admin/reservation-detail.php:217
 msgid "Write in simple English or Japanese; it is sent as written."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:209
+#: templates/admin/reservation-detail.php:218
 msgid "Accept and email guest"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:214
+#: templates/admin/reservation-detail.php:223
 msgid "Decline"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:224
+#: templates/admin/reservation-detail.php:233
 msgid "Suggest up to two other times (optional)"
 msgstr ""
 
 #. translators: %d: 1 or 2
-#: templates/admin/reservation-detail.php:226
+#: templates/admin/reservation-detail.php:235
 #, php-format
 msgid "Time %d"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:229
+#: templates/admin/reservation-detail.php:238
 msgid "Times are not held for the guest. Check they are within opening hours."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:231
+#: templates/admin/reservation-detail.php:240
 msgid "Decline and email guest"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:236
-#: templates/admin/reservation-detail.php:250
+#: templates/admin/reservation-detail.php:245
+#: templates/admin/reservation-detail.php:259
 msgid "Cancel request"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:244
+#: templates/admin/reservation-detail.php:253
 msgid "No email will be sent to the guest."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:255
+#: templates/admin/reservation-detail.php:264
 msgid "Attended / No-show"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:256
+#: templates/admin/reservation-detail.php:265
 msgid "No email is sent to the guest."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:262
+#: templates/admin/reservation-detail.php:271
 msgid "Change details"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:264
+#: templates/admin/reservation-detail.php:273
 msgid "Reason: Agreed with guest."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:266
+#: templates/admin/reservation-detail.php:275
 msgid "Time"
 msgstr ""
 
 #. translators: 1: date, 2: times
-#: templates/admin/reservation-detail.php:272
+#: templates/admin/reservation-detail.php:281
 #, php-format
 msgid "Times on %1$s: %2$s"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:274
+#: templates/admin/reservation-detail.php:283
 msgid "Internal note (optional)"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:276
+#: templates/admin/reservation-detail.php:285
 msgid "Override rules (lead time, booking window, party size)"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:277
+#: templates/admin/reservation-detail.php:286
 msgid "Override reason"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:279
+#: templates/admin/reservation-detail.php:288
 msgid "Save and email guest"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:286
+#: templates/admin/reservation-detail.php:295
 msgid "Note (optional)"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:287
+#: templates/admin/reservation-detail.php:296
 msgid "Mark as contacted"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:291
+#: templates/admin/reservation-detail.php:300
 msgid "Resolve flag"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:293
+#: templates/admin/reservation-detail.php:302
 msgid "What was done (required)"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:294
+#: templates/admin/reservation-detail.php:303
 msgid "Resolve"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:298
+#: templates/admin/reservation-detail.php:307
 msgid "No status action is possible for this request."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:304
+#: templates/admin/reservation-detail.php:313
 msgid "Add internal note"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:308
+#: templates/admin/reservation-detail.php:317
 msgid "Never sent to the guest."
 msgstr ""
 
-#: templates/admin/reservation-detail.php:309
+#: templates/admin/reservation-detail.php:318
 msgid "Add note"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:315
+#: templates/admin/reservation-detail.php:324
 msgid "Branch rules"
 msgstr ""
 
-#: templates/admin/reservation-detail.php:318
+#: templates/admin/reservation-detail.php:327
 msgid "Lead time"
 msgstr ""
 
 #. translators: %d minutes
-#: templates/admin/reservation-detail.php:318
+#: templates/admin/reservation-detail.php:327
 #: templates/admin/reservation-report.php:18
 #, php-format
 msgid "%d min"
 msgstr ""
 
 #. translators: %d minutes
-#: templates/admin/reservation-detail.php:319
+#: templates/admin/reservation-detail.php:328
 #, php-format
 msgid "%d min before start"
 msgstr ""
 
 #. translators: %d days
-#: templates/admin/reservation-detail.php:320
+#: templates/admin/reservation-detail.php:329
 #, php-format
 msgid "%d days"
 msgstr ""
 
 #. translators: %d: count
-#: templates/admin/reservation-inbox.php:29
+#: templates/admin/reservation-inbox.php:32
 #, php-format
 msgid "%d overdue"
 msgid_plural "%d overdue"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/admin/reservation-inbox.php:39
+#: templates/admin/reservation-inbox.php:42
 msgid "Views"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:62
+#: templates/admin/reservation-inbox.php:65
 msgid "Search (reference or name)"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:68
+#: templates/admin/reservation-inbox.php:71
 #: templates/admin/reservation-report.php:82
 msgid "All in my scope"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:77
+#: templates/admin/reservation-inbox.php:80
 msgid "As in view"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:85
+#: templates/admin/reservation-inbox.php:88
 msgid "Flag"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:87
-#: templates/admin/reservation-inbox.php:103
+#: templates/admin/reservation-inbox.php:90
+#: templates/admin/reservation-inbox.php:106
 msgid "Any"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:90
-#: templates/admin/reservation-inbox.php:159
+#: templates/admin/reservation-inbox.php:93
+#: templates/admin/reservation-inbox.php:162
 msgid "Overdue"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:96
+#: templates/admin/reservation-inbox.php:99
 msgid "Anyone"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:97
+#: templates/admin/reservation-inbox.php:100
 msgid "Me"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:104
+#: templates/admin/reservation-inbox.php:107
 msgid "Has special request"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:107
+#: templates/admin/reservation-inbox.php:110
 msgid "Sort"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:115
+#: templates/admin/reservation-inbox.php:118
 msgid "Ascending"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:116
+#: templates/admin/reservation-inbox.php:119
 msgid "Descending"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:119
+#: templates/admin/reservation-inbox.php:122
 #: templates/admin/reservation-report.php:98
 msgid "Apply"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:124
+#: templates/admin/reservation-inbox.php:127
 msgid "No requests waiting."
 msgstr ""
 
 #. translators: %s: staff name
-#: templates/admin/reservation-inbox.php:138
-#: templates/admin/reservation-inbox.php:167
+#: templates/admin/reservation-inbox.php:141
+#: templates/admin/reservation-inbox.php:170
 msgid "Flags"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:163
+#: templates/admin/reservation-inbox.php:166
 msgid "Reply soon"
 msgstr ""
 
 #. translators: %s: staff name
-#: templates/admin/reservation-inbox.php:166
+#: templates/admin/reservation-inbox.php:169
 #, php-format
 msgid "Claimed by %s"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:175
+#: templates/admin/reservation-inbox.php:178
 msgid "Guest not notified — call"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:179
+#: templates/admin/reservation-inbox.php:182
 msgid "Carrier email"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:194
+#: templates/admin/reservation-inbox.php:197
 msgid "Pages"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:198
+#: templates/admin/reservation-inbox.php:201
 msgid "Previous"
 msgstr ""
 
 #. translators: 1: page, 2: pages, 3: total
-#: templates/admin/reservation-inbox.php:199
+#: templates/admin/reservation-inbox.php:202
 #, php-format
 msgid "Page %1$d of %2$d (%3$d requests)"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:203
+#: templates/admin/reservation-inbox.php:206
 msgid "Next"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:210
+#: templates/admin/reservation-inbox.php:213
 msgid "Export CSV"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:220
+#: templates/admin/reservation-inbox.php:223
 msgid "Statuses"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:225
+#: templates/admin/reservation-inbox.php:228
 msgid "Requested date from"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:226
+#: templates/admin/reservation-inbox.php:229
 msgid "Requested date to"
 msgstr ""
 
 #. translators: %d: months
-#: templates/admin/reservation-inbox.php:227
+#: templates/admin/reservation-inbox.php:230
 #, php-format
 msgid "At most %d months per export."
 msgstr ""
 
 #. translators: %d: months
-#: templates/admin/reservation-inbox.php:228
+#: templates/admin/reservation-inbox.php:231
 msgid "Reason for export (required)"
 msgstr ""
 
-#: templates/admin/reservation-inbox.php:229
+#: templates/admin/reservation-inbox.php:232
 msgid "Include special requests"
 msgstr ""
 

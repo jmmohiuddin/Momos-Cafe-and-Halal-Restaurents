@@ -157,9 +157,9 @@
 		el.firstChild.innerHTML = c.t[k].replace(/\{(\w+)\}/g, function (m, x) { return a[x] || ''; });
 	});
 
-	// Notices
+	// Notices + offer cards (FR-CORP-011(e)): re-checked against the UTC window at view time
 	var now = Date.now();
-	$$('[data-momo-notice]').forEach(function (n) {
+	$$('[data-momo-notice],[data-momo-offer]').forEach(function (n) {
 		var s = parseInt(n.getAttribute('data-start') || '0', 10), en = parseInt(n.getAttribute('data-end') || '0', 10);
 		if (s && s > now) { n.hidden = true; w.setTimeout(function () { n.hidden = false; }, Math.min(s - now, 2147483000)); }
 		if (en && en <= now) { n.hidden = true; }
@@ -177,14 +177,22 @@
 		}
 	});
 
-	// Copy buttons
-	$$('[data-momo-copy]').forEach(function (b) {
-		if (!navigator.clipboard) { b.hidden = true; return; }
-		b.addEventListener('click', function () {
-			navigator.clipboard.writeText(b.getAttribute('data-momo-copy')).then(function () { toast(b.getAttribute('data-momo-copied') || ''); });
-		});
-	});
+	// Copy (FR-BR-001(b)): Clipboard API → toast, else show + select the text
 	d.addEventListener('click', function (e) {
+		var b = e.target.closest('[data-momo-copy]');
+		if (b) {
+			var v = b.getAttribute('data-momo-copy'), ok = function () { toast(b.getAttribute('data-momo-copied') || ''); };
+			var fb = function () {
+				var f = b.nextElementSibling;
+				if (!f || !f.hasAttribute('data-momo-copy-text')) {
+					f = d.createElement('input'); f.readOnly = true; f.lang = 'ja'; f.dir = 'ltr'; f.className = 'momo-input momo-copy-text';
+					f.setAttribute('data-momo-copy-text', ''); f.setAttribute('aria-label', b.textContent.trim()); b.after(f);
+				}
+				f.value = v; f.focus(); f.select();
+				try { if (d.execCommand('copy')) { ok(); } } catch (x) { /* selected for manual copy */ }
+			};
+			if (navigator.clipboard) { navigator.clipboard.writeText(v).then(ok, fb); } else { fb(); }
+		}
 		var t = e.target.closest('[data-momo-toast-msg]');
 		if (t) { toast(t.getAttribute('data-momo-toast-msg')); }
 		var r = e.target.closest('[data-momo-reload]');

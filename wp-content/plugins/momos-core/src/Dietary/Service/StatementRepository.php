@@ -163,12 +163,22 @@ final class StatementRepository {
 			/* translators: %s: matched term */
 			return [ sprintf( __( 'Prohibited wording: “%s”.', 'momos-core' ), $v['term'] ) ];
 		}
-		$before                       = $all[ $key ]['i18n'][ $lang ] ?? null;
-		$all[ $key ]['i18n'][ $lang ] = [ 'text' => $text, 'status' => '' === $text ? 'missing' : $status, 'updated_by' => $user_id, 'updated_at' => Clock::mysql_utc() ];
+		$before  = $all[ $key ]['i18n'][ $lang ] ?? null;
+		$refusal = null;
+		// Translator ≠ reviewer (FR-I18N-007(b), BR-DIET-05): whoever wrote or last changed the text may not approve it.
+		$text_changed = ! is_array( $before ) || (string) ( $before['text'] ?? '' ) !== $text;
+		$translator   = $text_changed ? $user_id : (int) ( $before['updated_by'] ?? 0 );
+		if ( 'approved' === $status ) {
+			$refusal = \Momos\Kernel\I18n\ReviewPolicy::refuse_self_approval( 'dietary_statement', null, $lang, $user_id, $translator, [ 'key' => $key ] );
+			if ( null !== $refusal ) {
+				$status = 'needs_review';
+			}
+		}
+		$all[ $key ]['i18n'][ $lang ] = [ 'text' => $text, 'status' => '' === $text ? 'missing' : $status, 'updated_by' => $text_changed ? $user_id : (int) ( $before['updated_by'] ?? $user_id ), 'updated_at' => Clock::mysql_utc() ];
 		self::persist( $all );
 		momos_audit( 'dietary.statement_updated', 'dietary_statement', null, null, [ 'key' => $key, 'lang' => $lang, 'before' => $before ? [ 'status' => $before['status'] ?? null, 'text' => $before['text'] ?? '' ] : null, 'after' => [ 'status' => $all[ $key ]['i18n'][ $lang ]['status'], 'text' => $text ] ] );
 		self::changed( $key );
-		return [];
+		return null !== $refusal ? [ $refusal ] : [];
 	}
 
 	/** @return array{confirmed:bool,confirmed_by:?int,confirmed_at:?string} */

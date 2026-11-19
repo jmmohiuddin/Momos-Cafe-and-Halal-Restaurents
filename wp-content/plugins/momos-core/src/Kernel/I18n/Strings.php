@@ -55,6 +55,7 @@ final class Strings {
 		'404.'                             => 'presentation',
 		'admin.legal.'                     => 'admin-content',
 		'admin.translation.'               => 'admin-content',
+		'admin.media.'                     => 'admin-content',
 	];
 
 	/** Prefixes of staff/admin-only keys (ja/en admin, DEC-037) — not customer-facing. */

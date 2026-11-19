@@ -218,7 +218,8 @@ test.describe('open-now status with a frozen JST clock (TC-BR-003, AC-BR-04-01)'
 
 test.describe('branch states (screens.md §3.5, TC-BR-001/014, BR-RES-10)', () => {
 	test.skip(!HAS_WP, 'needs bin/wp');
-	const KY_ID = '31';
+	// Look the Kyoto branch up by slug: post IDs shift when other fixtures create posts before seeding.
+	const KY_ID = HAS_WP ? wp('post', 'list', '--post_type=momo_branch', '--name=demo-kyoto-kawaramachi', '--post_status=any', '--field=ID', '--format=ids').trim() : '0';
 	test.afterEach(() => {
 		wp('post', 'meta', 'update', KY_ID, 'momo_operating_status', 'open');
 		try { wp('post', 'meta', 'delete', KY_ID, 'momo_reopen_date'); } catch { /* none */ }

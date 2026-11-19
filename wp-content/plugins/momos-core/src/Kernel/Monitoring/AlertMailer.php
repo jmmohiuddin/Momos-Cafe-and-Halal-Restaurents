@@ -12,8 +12,56 @@ use Momos\Kernel\Log\Logger;
  * In development, mail goes through the configured transport (log/mail-catcher), never to real inboxes.
  */
 final class AlertMailer {
+	/**
+	 * Critical log events that are operational alerts (FR-SEC-012(b)(c), docs/operations/monitoring.md §4):
+	 * `Logger::critical()` of one of these (or of a CRITICAL_PREFIXES event) is mailed as alert type
+	 * `<event with . → _>` — throttled per type like every alert. `monitoring.alert` itself is never re-routed.
+	 */
+	public const CRITICAL_EVENTS = [
+		'notification.failure_rate',
+		'notification.queue_age',
+		'notification.digest_failed',
+		'notification.digest_not_delivered',
+		'job.expiry_heartbeat_missing',
+		'reservation.integrity.pending_past_start',
+		'captcha.degraded_submissions',
+		'captcha.secret_missing',
+		'dietary.evidence_integrity_failed',
+		'migration.failed',
+		'secret.missing',
+	];
+
+	/** Families of critical events (e.g. `notification.transport_smtp_auth_failed`). */
+	public const CRITICAL_PREFIXES = [ 'notification.transport_' ];
+
 	public static function register(): void {
 		add_action( 'momos/monitoring/alert', [ self::class, 'send' ], 10, 2 );
+		// After other observers, so they see the source event before the nested `monitoring.alert` line.
+		add_action( 'momos/log/critical', [ self::class, 'on_critical' ], 20, 2 );
+	}
+
+	public static function is_alert_event( string $event ): bool {
+		if ( in_array( $event, self::CRITICAL_EVENTS, true ) ) {
+			return true;
+		}
+		foreach ( self::CRITICAL_PREFIXES as $prefix ) {
+			if ( str_starts_with( $event, $prefix ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * `momos/log/critical` listener: notify, not only log (FR-SEC-012).
+	 *
+	 * @param array<string,mixed> $context
+	 */
+	public static function on_critical( string $event, $context = [] ): void {
+		if ( ! self::is_alert_event( $event ) ) {
+			return;
+		}
+		do_action( 'momos/monitoring/alert', str_replace( '.', '_', $event ), \Momos\Kernel\Log\Redactor::redact( is_array( $context ) ? $context : [] ) );
 	}
 
 	/** @param array<string,mixed> $context */

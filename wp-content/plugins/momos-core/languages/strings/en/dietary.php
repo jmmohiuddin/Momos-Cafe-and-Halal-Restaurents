@@ -44,4 +44,6 @@ return [
 	'halal.scope.specific_ingredients' => 'Specific ingredients',
 	'alcohol.heading'                => 'Alcohol',
 	'diet.list.separator'            => ', ',
+	// FR-DIET-002(f) audit label (SCR-A16).
+	'admin.audit.action.dietary.prohibited_terms_updated' => 'Prohibited wording list updated',
 ];

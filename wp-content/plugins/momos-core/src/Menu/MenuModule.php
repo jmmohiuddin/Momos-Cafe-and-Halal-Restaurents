@@ -19,8 +19,12 @@ final class MenuModule implements ModuleInterface {
 		add_filter( 'rest_' . ContentTypes::DISH . '_query', [ ContentTypes::class, 'exclude_samples' ] );
 		add_filter( 'wp_sitemaps_posts_query_args', [ ContentTypes::class, 'exclude_samples' ], 10, 2 );
 
+		// FR-MENU-005(a): category reorder audit action (CTO change control, Audit\Catalogue).
+		add_filter( 'momos/audit/catalogue', static fn( array $list ): array => array_merge( $list, [ Admin\CategoryOrderPage::AUDIT ] ) );
+
 		Rewrite\MenuRewrite::register();
 		Service\DishPublishValidator::register();
+		Service\DescriptionLimit::register();
 		Service\DishLifecycle::register();
 		Service\CategoryGuard::register();
 

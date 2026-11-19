@@ -50,4 +50,6 @@ return [
 	'availability_reason.ingredient_unavailable' => 'أحد المكونات غير متوفر',
 	'availability_reason.advance_order_only'     => 'بالطلب المسبق فقط',
 	'media.illustration'                  => 'الصورة للتوضيح فقط',
+	// FR-MENU-005(a) audit label (SCR-A16).
+	'admin.audit.action.menu_category.reordered' => 'تغيير ترتيب الفئات',
 ];

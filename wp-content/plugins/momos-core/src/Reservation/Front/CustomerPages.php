@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Momos\Reservation\Front;
 
 use Momos\Api\Captcha\TurnstileVerifier;
+use Momos\Branch\Query\NoticeQuery;
 use Momos\Branch\Repository\BranchRepository;
 use Momos\Branch\Repository\BranchSettingsRepository;
 use Momos\Kernel\I18n\Lang;
@@ -141,7 +142,7 @@ final class CustomerPages {
 	 * Hidden: unpublished, permanently closed, not approved in $lang (BR-I18N-02), TEST unless the
 	 * logged-in user is assigned to it (FR-RES-026).
 	 *
-	 * @return list<array{code:string,name:string,accepting:bool,reason:?string,phone:string,tel:string,policy_url:?string,is_test:bool}>
+	 * @return list<array{code:string,name:string,accepting:bool,reason:?string,phone:string,tel:string,policy_url:?string,is_test:bool,notices:list<array<string,mixed>>}>
 	 */
 	public static function branches( string $lang ): array {
 		$user = get_current_user_id();
@@ -173,6 +174,37 @@ final class CustomerPages {
 				'tel'        => (string) $row['tel'],
 				'policy_url' => $policy,
 				'is_test'    => (bool) $b['is_test'],
+				'notices'    => self::notices( (int) $id, $lang ),
+			];
+		}
+		return $out;
+	}
+
+	/**
+	 * Branch notices for the C09 form (FR-BR-009(b)): active ones in $lang only (no fallback, BR-I18N-02),
+	 * plus those starting within 24 h rendered hidden (cache safety, FR-BR-009(c)); warning first.
+	 * Server-rendered for the preselected branch and embedded in the page config so
+	 * reservation-form.js shows them when another branch is selected. A TEST branch reaches this list
+	 * only for its assigned staff (branches()), so its notices are included for them.
+	 *
+	 * @return list<array{id:int,severity:string,title:string,body:string,link_url:string,link_label:string,start_ms:int,end_ms:?int,upcoming:bool}>
+	 */
+	public static function notices( int $branch_id, string $lang ): array {
+		if ( ! class_exists( NoticeQuery::class ) ) {
+			return [];
+		}
+		$out = [];
+		foreach ( NoticeQuery::for_branch( $branch_id, $lang, 24, null, true ) as $n ) {
+			$out[] = [
+				'id'         => (int) $n['id'],
+				'severity'   => 'warning' === $n['severity'] ? 'warning' : 'info',
+				'title'      => (string) $n['title'],
+				'body'       => (string) $n['body'],
+				'link_url'   => (string) $n['link_url'],
+				'link_label' => (string) $n['link_label'],
+				'start_ms'   => (int) $n['start_ms'],
+				'end_ms'     => null === $n['end_ms'] ? null : (int) $n['end_ms'],
+				'upcoming'   => ! empty( $n['upcoming'] ),
 			];
 		}
 		return $out;
@@ -222,7 +254,7 @@ final class CustomerPages {
 		'res.submitted.promise', 'res.summary.reply_to', 'res.summary.empty', 'res.submit', 'res.submit.busy', 'res.loading_times',
 		'res.date.choose', 'res.policy.link', 'res.slots.error', 'common.tz_label', 'cta.call', 'email.duration.minutes',
 		'email.duration.hour', 'email.duration.hours', 'period.lunch', 'period.dinner', 'period.all_day', 'period.other',
-		'form.error_prefix', 'res.info.entries_cleared',
+		'form.error_prefix', 'res.info.entries_cleared', 'a11y.notice',
 	];
 
 	/**

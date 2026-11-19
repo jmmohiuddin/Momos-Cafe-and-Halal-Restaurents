@@ -49,4 +49,6 @@ return [
 	'availability_reason.ingredient_unavailable' => 'Ingredient unavailable',
 	'availability_reason.advance_order_only'     => 'Advance order only',
 	'media.illustration'                  => 'Image for illustration',
+	// FR-MENU-005(a) audit label (SCR-A16).
+	'admin.audit.action.menu_category.reordered' => 'Category order changed',
 ];

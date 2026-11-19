@@ -26,9 +26,13 @@ final class PresentationModule implements ModuleInterface {
 				$list[] = new Migration\M0007_SystemPages();
 				$list[] = new Migration\M0007_SystemPagesR2();
 				$list[] = new Migration\M0008_UnpublishWpDefaults();
+				$list[] = new Migration\M0008_NewsCategory();
 				return $list;
 			}
 		);
+		add_action( 'pre_get_posts', [ View\Content::class, 'news_main_query' ] );
+		Maintenance\MaintenanceMode::register();
+		Admin\BrandSettings::register();
 		add_action( 'update_option_' . SystemPages::OPTION, [ SystemPages::class, 'flush' ] );
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			add_action( 'cli_init', [ self::class, 'cli' ] );

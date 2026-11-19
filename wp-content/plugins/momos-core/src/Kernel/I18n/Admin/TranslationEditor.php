@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Momos\Kernel\I18n\Admin;
 
 use Momos\Kernel\I18n\Lang;
+use Momos\Kernel\I18n\ReviewPolicy;
 use Momos\Kernel\I18n\Translations;
+use Momos\Kernel\Media\AltText;
 
 /**
  * Translation editing UI (F-I18N-03, i18n-seo-analytics.md §6.1/§6.2):
@@ -13,9 +15,11 @@ use Momos\Kernel\I18n\Translations;
  *    Translators from the Translation gaps view (SCR-A11) without access to source fields.
  * Permission: `momo_translate` (Translator, HO, SA, MM, CE) or edit rights on the item; translators with
  * user meta `momo_translator_langs` only see/save those languages.
- * Only users with `momo_approve_translations` may set status "approved" (DEC-027 human review); for
- * review-class content (legal pages, filter `momos/i18n/review_class`) the reviewer must differ from the
- * user who last changed the text.
+ * Only users with `momo_approve_translations` may set status "approved" (DEC-027 human review), and the
+ * reviewer must differ from the user who last changed the text for every content class (FR-I18N-007(b),
+ * AC-I18N-03-01 — `ReviewPolicy`; the PRD names no exception for SA/HO). Approving a dish, branch, offer or
+ * page translation also needs alt text approved in that language for its images (FR-ADM-005(d), `AltText`).
+ * Translated SEO/OG titles and descriptions show live length guidance (FR-SEO-005, `SeoFields::*_WARN`).
  * Also bootstraps the other SCR-A11 screens (gaps, strings) and the content editors (Admin\Content).
  */
 final class TranslationEditor {
@@ -31,6 +35,8 @@ final class TranslationEditor {
 		add_action( 'admin_menu', [ self::class, 'menu' ], 30 );
 		add_action( 'admin_post_momos_save_translation', [ self::class, 'save_from_page' ] );
 		add_action( 'admin_notices', [ self::class, 'notices' ] );
+		add_action( 'admin_enqueue_scripts', [ self::class, 'counter_script' ], 21 );
+		add_filter( 'momos/audit/catalogue', static fn( $a ) => array_merge( (array) $a, [ 'translation.publish_blocked' ] ) );
 		TranslationGaps::register();
 		GapsPage::register();
 		StringsPage::register();
@@ -124,6 +130,7 @@ final class TranslationEditor {
 				echo '<tr><th scope="row"><label for="' . esc_attr( $fid ) . '">' . esc_html( (string) $def['label'] ) . '</label></th><td>';
 				echo '<p class="description" lang="ja">' . esc_html__( 'Source (ja):', 'momos-core' ) . ' ' . esc_html( wp_trim_words( wp_strip_all_tags( $src ), 40 ) ) . '</p>';
 				self::input( (string) $def['type'], $name, $fid, $value, $lang, $dir, isset( $def['max'] ) ? (int) $def['max'] : 0 );
+				self::length_guidance( $key, $fid, $value, $lang );
 				echo '</td></tr>';
 			}
 			echo '<tr><th scope="row"><label for="momos-tr-status-' . esc_attr( $lang ) . '">' . esc_html__( 'Status', 'momos-core' ) . '</label></th><td><select id="momos-tr-status-' . esc_attr( $lang ) . '" name="momos_tr_status[' . esc_attr( $lang ) . ']">';
@@ -142,6 +149,45 @@ final class TranslationEditor {
 			echo '</td></tr></tbody></table></details>';
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * Recommended length of translated SEO/OG fields (FR-SEO-005): titles ~60 characters (Latin scripts) /
+	 * ~32 full-width (CJK), descriptions ~160 / ~120 — `Seo\SeoFields::TITLE_WARN` / `DESC_WARN`
+	 * ([CJK, other]). Null for fields without guidance.
+	 */
+	public static function length_limit( string $key, string $lang ): ?int {
+		$title = class_exists( \Momos\Seo\SeoFields::class ) ? \Momos\Seo\SeoFields::TITLE_WARN : [ 32, 60 ];
+		$desc  = class_exists( \Momos\Seo\SeoFields::class ) ? \Momos\Seo\SeoFields::DESC_WARN : [ 120, 160 ];
+		$cjk   = in_array( $lang, [ 'ja', 'zh', 'ko' ], true ) ? 0 : 1;
+		return match ( $key ) {
+			'seo_title', 'og_title' => (int) $title[ $cjk ],
+			'seo_description', 'og_description' => (int) $desc[ $cjk ],
+			default => null,
+		};
+	}
+
+	/** Live, non-blocking length counter below a translated SEO/OG field (FR-SEO-005); updated by counter_script(). */
+	private static function length_guidance( string $key, string $fid, string $value, string $lang ): void {
+		$max = self::length_limit( $key, $lang );
+		if ( null === $max ) {
+			return;
+		}
+		$len  = mb_strlen( $value );
+		$over = $len > $max;
+		/* translators: 1: current length, 2: recommended maximum */
+		$text = $over ? sprintf( __( 'Longer than recommended (%1$d/%2$d)', 'momos-core' ), $len, $max ) : $len . '/' . $max;
+		echo '<p class="description momos-tr-count' . ( $over ? ' momos-tr-count--over' : '' ) . '" data-momos-count-for="' . esc_attr( $fid ) . '" data-max="' . (int) $max . '" aria-live="polite">' . esc_html( $text ) . '</p>';
+	}
+
+	/** Keeps the translated SEO/OG length counters live while typing (FR-SEO-005; admin only, no dependency). */
+	public static function counter_script(): void {
+		if ( ! wp_script_is( 'momos-fields', 'enqueued' ) ) {
+			return;
+		}
+		/* translators: 1: current length, 2: recommended maximum */
+		$msg = wp_json_encode( __( 'Longer than recommended (%1$d/%2$d)', 'momos-core' ) );
+		wp_add_inline_script( 'momos-fields', '(function(){var m=' . $msg . ';function u(p,f){var l=Array.from(f.value).length,x=+p.dataset.max,o=l>x;p.textContent=o?m.replace("%1$d",l).replace("%2$d",x):l+"/"+x;p.classList.toggle("momos-tr-count--over",o);p.style.color=o?"#b32d2e":"";}document.addEventListener("input",function(e){var t=e.target;if(t&&t.id){var p=document.querySelector(\'[data-momos-count-for="\'+t.id+\'"]\');if(p){u(p,t);}}});})();' );
 	}
 
 	private static function input( string $type, string $name, string $fid, string $value, string $lang, string $dir, int $max ): void {
@@ -263,11 +309,21 @@ final class TranslationEditor {
 			if ( ! $changed && $status === $current ) {
 				continue;
 			}
-			if ( 'approved' === $status && 'approved' !== $current && self::is_review_class( $type, $id ) ) {
+			// Making text public (new approval, or approved text changed): reviewer ≠ translator for every content
+			// class (FR-I18N-007(b), AC-I18N-03-01), then alt text in that language (FR-ADM-005(d), AC-ADM-04-02).
+			if ( 'approved' === $status && ( 'approved' !== $current || $changed ) ) {
 				$translator = $changed ? $user : Translations::translated_by( $type, $id, $lang );
-				if ( $translator === $user ) {
-					$errors[] = __( 'You cannot approve your own translation of this content.', 'momos-core' );
+				$refusal    = ReviewPolicy::refuse_self_approval( 'translation', is_int( $id ) ? $id : null, $lang, $user, $translator, [ 'type' => $type, 'kind' => Translations::kind_of( $type, $id ) ] );
+				if ( null === $refusal && 'post' === $type && AltText::missing( (int) $id, $lang ) ) {
+					$refusal = AltText::message( $user );
+					momos_audit( 'translation.publish_blocked', 'translation', (int) $id, null, [ 'reason' => 'alt_text_missing', 'lang' => $lang, 'images' => AltText::missing( (int) $id, $lang ) ] );
+				}
+				if ( null !== $refusal ) {
+					$errors[] = $refusal;
 					$status   = 'needs_review';
+					if ( ! $changed && $status === $current ) {
+						continue;
+					}
 				}
 			}
 			Translations::save( $type, $id, $lang, $row, $status, $user );

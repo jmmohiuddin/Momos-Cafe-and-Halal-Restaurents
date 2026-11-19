@@ -1,0 +1,34 @@
+# gitleaks configuration for the weekly full-history secret scan (AC-SEC-01-06, FR-SEC-008; Doc 12 TC-SEC-011).
+# Used by .github/workflows/security-weekly.yml (job `gitleaks`). Default rules apply; the allowlist below
+# lists ONLY documented, non-secret development/test fixture values. Every entry names the file it belongs to.
+# Never add a real credential here: rotate it and rewrite the history instead.
+
+title = "Momo's platform secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented dev/test fixtures (no production secrets)"
+regexes = [
+  # config/wp-config.dev.php: local-development salts, literally "dev-only-…-change-me".
+  '''^dev-only-[a-z-]+$''',
+  # config/wp-config.dev.php, tests/phpunit/wp-tests-config.php: local MariaDB password of the dev/test database.
+  '''^momos_dev_pw$''',
+  # tests/phpunit/wp-tests-config.php: HMAC pepper and token key of the PHPUnit database only.
+  '''^test-(hmac|token)-key-[a-z0-9-]+$''',
+  # tests/phpunit/integration/QaSecurityTest.php: synthetic 43-character status token for the log-redaction test.
+  '''^IZmqW0Rc6DHkYrpWuE5bTX_nMBlHhg7yLV-yrfwdtes$''',
+  # src/Seed/Data/People.php, tests/e2e/**: passwords of seeded demo/QA accounts on throw-away local sites.
+  '''^(Momos-Dev|E2E-[A-Za-z-]+|QA-[A-Za-z-]+)-2026''',
+  # tests/e2e/specs/*.spec.ts: deliberately wrong passwords of the login-throttling tests.
+  '''^wrong-password-[0-9]+$''',
+  # docs/api/momos-v1.md: example Idempotency-Key UUID in the API documentation.
+  '''^6f1c2a1e-6b1d-4f7a-9a54-0d2b5c1f9e11$''',
+]
+paths = [
+  # This file (it quotes the fixture values above).
+  '''^\.github/gitleaks\.toml$''',
+  # Public deny-list of breached passwords (SEC-003 password policy), not credentials.
+  '''^wp-content/plugins/momos-core/src/Access/Login/PasswordPolicy\.php$''',
+]

@@ -45,4 +45,6 @@ return [
 	'halal.scope.specific_ingredients' => 'مخصوص اجزاء',
 	'alcohol.heading'                => 'الکحل',
 	'diet.list.separator'            => '، ',
+	// FR-DIET-002(f) audit label (SCR-A16).
+	'admin.audit.action.dietary.prohibited_terms_updated' => 'ممنوعہ الفاظ کی فہرست اپ ڈیٹ',
 ];

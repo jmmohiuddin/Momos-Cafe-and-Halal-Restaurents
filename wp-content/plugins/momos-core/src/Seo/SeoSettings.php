@@ -25,6 +25,11 @@ final class SeoSettings {
 
 	public const GTM_PATTERN = '/^GTM-[A-Z0-9]{4,10}$/';
 
+	public const SCHEMA_OPTION = 'momos_seo_schema';
+
+	/** FR-SEO-006(b): servesCuisine and priceRange must stay under 100 characters. */
+	public const SCHEMA_MAX_CHARS = 99;
+
 	public static function register(): void {
 		add_filter( 'map_meta_cap', [ self::class, 'map_caps' ], 10, 4 );
 	}
@@ -56,6 +61,66 @@ final class SeoSettings {
 
 	public static function retention_days(): int {
 		return self::all()['log_retention_days'];
+	}
+
+	/**
+	 * Restaurant structured-data values (FR-SEO-006(b), Q-415).
+	 *
+	 * @return array{serves_cuisine:array<string,string>,price_range:string}
+	 */
+	public static function schema(): array {
+		$raw     = get_option( self::SCHEMA_OPTION, [] );
+		$raw     = is_array( $raw ) ? $raw : [];
+		$cuisine = [];
+		foreach ( \Momos\Kernel\I18n\Lang::codes() as $lang ) {
+			$cuisine[ $lang ] = trim( (string) ( $raw['serves_cuisine'][ $lang ] ?? '' ) );
+		}
+		return [
+			'serves_cuisine' => $cuisine,
+			'price_range'    => trim( (string) ( $raw['price_range'] ?? '' ) ),
+		];
+	}
+
+	/** `servesCuisine` in that language, or '' (omitted — no fallback to another language, DEC-027). */
+	public static function serves_cuisine( string $lang ): string {
+		return self::schema()['serves_cuisine'][ $lang ] ?? '';
+	}
+
+	public static function price_range(): string {
+		return self::schema()['price_range'];
+	}
+
+	/**
+	 * Validate and store the structured-data values; nothing is stored when a value is too long.
+	 *
+	 * @param array{serves_cuisine?:mixed,price_range?:mixed} $values
+	 * @return array{errors:array<string,string>,before:array<string,mixed>,after:array<string,mixed>}
+	 */
+	public static function save_schema( array $values ): array {
+		$before  = self::schema();
+		$errors  = [];
+		$cuisine = [];
+		$input   = is_array( $values['serves_cuisine'] ?? null ) ? $values['serves_cuisine'] : [];
+		foreach ( \Momos\Kernel\I18n\Lang::codes() as $lang ) {
+			$cuisine[ $lang ] = sanitize_text_field( is_scalar( $input[ $lang ] ?? null ) ? (string) $input[ $lang ] : '' );
+			if ( mb_strlen( $cuisine[ $lang ] ) > self::SCHEMA_MAX_CHARS ) {
+				/* translators: 1: language name, 2: maximum number of characters */
+				$errors[ 'serves_cuisine_' . $lang ] = sprintf( __( 'Cuisine (%1$s) must be at most %2$d characters.', 'momos-core' ), \Momos\Kernel\I18n\Lang::ALL[ $lang ]['english'], self::SCHEMA_MAX_CHARS );
+			}
+		}
+		$price = sanitize_text_field( is_scalar( $values['price_range'] ?? null ) ? (string) $values['price_range'] : '' );
+		if ( mb_strlen( $price ) > self::SCHEMA_MAX_CHARS ) {
+			/* translators: %d: maximum number of characters */
+			$errors['price_range'] = sprintf( __( 'Price range must be at most %d characters.', 'momos-core' ), self::SCHEMA_MAX_CHARS );
+		}
+		$after = [
+			'serves_cuisine' => $cuisine,
+			'price_range'    => $price,
+		];
+		if ( ! $errors ) {
+			update_option( self::SCHEMA_OPTION, $after, true );
+		}
+		return [ 'errors' => $errors, 'before' => $before, 'after' => $after ];
 	}
 
 	/** Valid GTM container ID for this environment, or '' (no GTM). */

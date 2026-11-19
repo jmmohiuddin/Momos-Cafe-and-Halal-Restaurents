@@ -46,6 +46,13 @@ fi
 
 # The bootstrap registers the seed module through the `momos/modules` filter when the kernel does not list it yet.
 WP=("$ROOT/bin/wp" "--require=$ROOT/wp-content/plugins/momos-core/src/Seed/cli-bootstrap.php")
+# Deterministic demo dates: the seed places closures, special hours and reservations relative to "now", and the
+# E2E specs assert those dates. Seed against a fixed JST reference date (override with MOMOS_SEED_NOW, or set
+# MOMOS_SEED_NOW=real to seed against the real clock). The frozen-clock option is removed again afterwards.
+SEED_NOW="${MOMOS_SEED_NOW:-2026-11-19T09:00:00+09:00}"
+if [ "$SEED_NOW" != "real" ]; then "$ROOT/bin/wp" option update momos_frozen_now "$SEED_NOW" >/dev/null; fi
+trap '"$ROOT/bin/wp" option delete momos_frozen_now >/dev/null 2>&1 || true' EXIT
 "${WP[@]}" momos seed --reset --demo ${SEED_ARGS[@]+"${SEED_ARGS[@]}"}
+"$ROOT/bin/wp" option delete momos_frozen_now >/dev/null 2>&1 || true
 "$ROOT/bin/wp" rewrite flush >/dev/null
 echo "E2E database '$MOMOS_DB_NAME' seeded. Base URL: $MOMOS_URL"

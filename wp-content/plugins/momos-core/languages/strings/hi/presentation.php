@@ -223,4 +223,12 @@ return [
 	'res.placeholder.body' => 'ऑनलाइन टेबल अनुरोध जल्द शुरू होंगे। तब तक आरक्षण के लिए शाखा को कॉल करें।',
 	'res.placeholder.phones' => 'शाखाओं के फ़ोन नंबर',
 	'status.title' => 'अनुरोध की स्थिति',
+	'gallery.open_photo' => 'फ़ोटो खोलें',
+	'gallery.lightbox.label' => 'फ़ोटो व्यूअर',
+	'gallery.prev' => 'पिछली फ़ोटो',
+	'gallery.next' => 'अगली फ़ोटो',
+	'gallery.count' => '{total} में से फ़ोटो {n}',
+	'branch.map.show' => 'नक्शा दिखाएँ',
+	'branch.map.iframe_title' => '{branch} का नक्शा (Google Maps)',
+	'halal.brand_neutral' => 'हलाल से जुड़ी जानकारी हर शाखा के लिए अलग दिखाई जाती है।',
 ];

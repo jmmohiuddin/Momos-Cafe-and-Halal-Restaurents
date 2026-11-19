@@ -53,9 +53,25 @@ final class ClaimResolver {
 		}
 	}
 
-	/** Brand-level statement (home/about): an approved `brand.*` statement, else `brand.neutral`. */
+	/**
+	 * Brand-level statement (home, about, halal page intro — FR-CORP-001(e), FR-CORP-003(a), TRD G1
+	 * `momo_brand_halal_statement_key`): the template selected in Brand settings when it is approved and
+	 * translated in $lang, else the first approved `brand.*` statement, else `brand.neutral`.
+	 * A selected template is skipped when it still has register variables (`{certifier}` …, nothing to fill
+	 * at brand level) or when it is a `certified` template while not every public branch has a displayable
+	 * certified record (BR-DIET-01: "certified" never appears without an active certificate).
+	 */
 	public static function brand_claim( ?string $lang = null ): array {
-		$lang = $lang ?? Locale::current();
+		$lang     = $lang ?? Locale::current();
+		$selected = \Momos\Kernel\Settings::get( 'momo_brand_halal_statement_key' );
+		$selected = is_string( $selected ) ? trim( $selected ) : '';
+		if ( '' !== $selected ) {
+			$row  = StatementRepository::get( $selected );
+			$text = null === $row ? null : StatementRepository::text( $selected, $lang );
+			if ( null !== $text && ! preg_match( '/\{[a-z_]+\}/', $text ) && ( 'certified' !== $row['claim_type'] || self::all_branches_certified() ) ) {
+				return [ 'template_key' => $selected, 'statement' => $text, 'statement_available' => true ];
+			}
+		}
 		foreach ( StatementRepository::all() as $key => $row ) {
 			if ( ! str_starts_with( $key, 'brand.' ) || 'brand.neutral' === $key ) {
 				continue;

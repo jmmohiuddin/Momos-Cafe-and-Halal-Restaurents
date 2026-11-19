@@ -221,4 +221,12 @@ return [
 	'res.placeholder.body' => 'Online table requests will open soon. Until then, please call the branch to reserve.',
 	'res.placeholder.phones' => 'Branch phone numbers',
 	'status.title' => 'Request status',
+	'gallery.open_photo' => 'Open photo',
+	'gallery.lightbox.label' => 'Photo viewer',
+	'gallery.prev' => 'Previous photo',
+	'gallery.next' => 'Next photo',
+	'gallery.count' => 'Photo {n} of {total}',
+	'branch.map.show' => 'Show map',
+	'branch.map.iframe_title' => 'Map of {branch} (Google Maps)',
+	'halal.brand_neutral' => 'Halal information is shown for each branch.',
 ];

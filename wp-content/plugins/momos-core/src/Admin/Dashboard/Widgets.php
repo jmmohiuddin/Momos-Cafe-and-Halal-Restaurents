@@ -38,7 +38,17 @@ final class Widgets {
 			}
 		}
 		if ( current_user_can( 'momo_translate' ) ) {
-			$add( 'translation_gaps', __( 'Translation gaps', 'momos-core' ), [ self::class, 'translation_gaps' ] );
+			$mode  = self::gaps_mode();
+			$title = match ( $mode ) {
+				'menu' => self::t( 'admin.dash.tr_gaps.menu_title' ),
+				'pages' => self::t( 'admin.dash.tr_gaps.pages_title' ),
+				default => __( 'Translation gaps', 'momos-core' ),
+			};
+			$add( 'translation_gaps', $title, [ self::class, 'translation_gaps' ] );
+		}
+		// ROLE-04 (d): pages awaiting review (pending pages; publishers see every pending page).
+		if ( current_user_can( 'edit_others_pages' ) && current_user_can( 'publish_pages' ) ) {
+			$add( 'pages_pending', self::t( 'admin.dash.pages_pending.title' ), [ self::class, 'pages_pending' ] );
 		}
 		if ( self::is_translator() && class_exists( \Momos\Kernel\I18n\Admin\TranslationGaps::class ) ) {
 			$add( 'translation_jobs', self::t( 'admin.dash.tr_jobs.title' ), [ self::class, 'translation_jobs' ] );
@@ -180,8 +190,71 @@ final class Widgets {
 		self::catalog_line( $n, 'admin.dash.attendance.count', 'admin.dash.attendance.none', admin_url( 'admin.php?page=momos-reservations&view=attendance' ) );
 	}
 
-	/** Items not approved per enabled target language (pages, branches, dishes, categories). */
+	/**
+	 * Which translation-gap view the viewer gets (FR-ADM-001(b)/(c)/(d)): ROLE-03 (dishes, no pages) →
+	 * `menu`; ROLE-04 (pages, no dishes) → `pages`; everyone else (HO/SA, translators) → `all`.
+	 */
+	public static function gaps_mode(): string {
+		if ( current_user_can( 'momo_manage_languages' ) ) {
+			return 'all';
+		}
+		$dishes = current_user_can( 'edit_momo_dishes' );
+		$pages  = current_user_can( 'edit_pages' );
+		if ( $dishes && ! $pages ) {
+			return 'menu';
+		}
+		if ( $pages && ! $dishes ) {
+			return 'pages';
+		}
+		return 'all';
+	}
+
+	/** Content types (TranslationGaps::TYPES) of the menu / pages gap views. */
+	public const GAP_TYPES = [
+		'menu'  => [ 'dish', 'category' ],
+		'pages' => [ 'page' ],
+	];
+
+	/**
+	 * Translation gaps of one content family per target language with the language's LCCS completeness %
+	 * (FR-ADM-001(c) "menu translation gaps" for ROLE-03, (d) "page translation gaps" for ROLE-04;
+	 * TranslationGaps::lccs_percent). Each count links to SCR-A11 filtered by language and type.
+	 */
+	public static function typed_gaps( string $mode ): void {
+		$types = self::GAP_TYPES[ $mode ] ?? [];
+		$langs = Lang::targets();
+		$rows  = [];
+		foreach ( \Momos\Kernel\I18n\Admin\TranslationGaps::counts( $langs ) as $lang => $by_type ) {
+			$n = 0;
+			foreach ( $types as $type ) {
+				$n += array_sum( array_map( 'intval', (array) ( $by_type[ $type ] ?? [] ) ) );
+			}
+			$rows[ (string) $lang ] = $n;
+		}
+		echo '<table class="widefat striped momos-dash-gaps"><thead><tr><th scope="col">' . esc_html( self::t( 'admin.dash.tr_gaps.language' ) ) . '</th><th scope="col">' . esc_html( self::t( 'admin.dash.tr_gaps.items' ) ) . '</th><th scope="col">' . esc_html( self::t( 'admin.dash.tr_gaps.lccs' ) ) . '</th></tr></thead><tbody>';
+		foreach ( $rows as $lang => $n ) {
+			$url = add_query_arg( [ 'page' => 'momos-translation-gaps', 'lang' => $lang, 'type' => $types[0] ?? '' ], admin_url( 'admin.php' ) );
+			echo '<tr><td>' . esc_html( Lang::native( $lang ) ) . '</td><td>' . ( $n > 0 ? '<a href="' . esc_url( $url ) . '">' . esc_html( number_format_i18n( $n ) ) . '</a>' : '✓ 0' ) . '</td><td>' . esc_html( number_format_i18n( \Momos\Kernel\I18n\Admin\TranslationGaps::lccs_percent( $lang ) ) . ' %' ) . '</td></tr>';
+		}
+		echo '</tbody></table>';
+	}
+
+	/** ROLE-04 (FR-ADM-001(d)): pages in `pending`, linked to the pending pages list. */
+	public static function pages_pending(): void {
+		$n = (int) ( wp_count_posts( 'page' )->pending ?? 0 );
+		self::catalog_line( $n, 'admin.dash.pages_pending.count', 'admin.dash.pages_pending.none', admin_url( 'edit.php?post_type=page&post_status=pending' ) );
+	}
+
+	/**
+	 * Items not approved per enabled target language (pages, branches, dishes, categories) with the LCCS %
+	 * (FR-ADM-001(b)); ROLE-03/04 get their content family only (typed_gaps).
+	 */
 	public static function translation_gaps(): void {
+		$mode = self::gaps_mode();
+		if ( isset( self::GAP_TYPES[ $mode ] ) && class_exists( \Momos\Kernel\I18n\Admin\TranslationGaps::class ) ) {
+			self::typed_gaps( $mode );
+			return;
+		}
 		global $wpdb;
 		$types = array_values( array_filter( [ 'page', 'momo_branch', 'momo_dish', 'momo_notice', 'momo_offer' ], 'post_type_exists' ) );
 		if ( ! $types ) {
@@ -201,9 +274,10 @@ final class Widgets {
 			echo '<p>✓ ' . esc_html__( 'All published items are translated in every public language.', 'momos-core' ) . '</p>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Language', 'momos-core' ) . '</th><th scope="col">' . esc_html__( 'Items not yet approved', 'momos-core' ) . '</th></tr></thead><tbody>';
+		$lccs = class_exists( \Momos\Kernel\I18n\Admin\TranslationGaps::class );
+		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Language', 'momos-core' ) . '</th><th scope="col">' . esc_html__( 'Items not yet approved', 'momos-core' ) . '</th>' . ( $lccs ? '<th scope="col">' . esc_html( self::t( 'admin.dash.tr_gaps.lccs' ) ) . '</th>' : '' ) . '</tr></thead><tbody>';
 		foreach ( $rows as $lang => $n ) {
-			echo '<tr><td>' . esc_html( Lang::native( $lang ) ) . '</td><td>' . esc_html( (string) $n ) . '</td></tr>';
+			echo '<tr><td>' . esc_html( Lang::native( $lang ) ) . '</td><td>' . esc_html( (string) $n ) . '</td>' . ( $lccs ? '<td>' . esc_html( number_format_i18n( \Momos\Kernel\I18n\Admin\TranslationGaps::lccs_percent( (string) $lang ) ) . ' %' ) . '</td>' : '' ) . '</tr>';
 		}
 		echo '</tbody></table>';
 	}

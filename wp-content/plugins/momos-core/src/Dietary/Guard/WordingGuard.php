@@ -6,7 +6,9 @@ namespace Momos\Dietary\Guard;
 use Momos\Kernel\Fields\FieldRegistry;
 
 /**
- * Prohibited claim wording (BR-DIET-01/03, Doc 11 §8.6/§9.5, config/claim-keywords.php).
+ * Prohibited claim wording (BR-DIET-01/03, Doc 11 §8.6/§9.5, config/claim-keywords.php). The term lists
+ * per language are those Head Office maintains in Settings (FR-DIET-002(f), SCR-A15 —
+ * Fields\ProhibitedTermsFields); a language never saved there uses the file's master list.
  *  - check(): every matched master term (all classes) for a language (null = all languages).
  *  - statement_violations(): blocking check for G2 templates — absolute/group/practice/recognition/
  *    allergen/ordering classes are always blocked; certification wording only in `certified` and
@@ -25,12 +27,43 @@ final class WordingGuard {
 		add_filter( 'wp_insert_post_data', [ self::class, 'warn_on_save' ], 20, 2 );
 	}
 
-	/** @return array<string,mixed> */
+	/** @var array<string,mixed>|null */
+	private static ?array $file = null;
+
+	/** Shipped master list (config/claim-keywords.php), the seed of the settings lists. @return array<string,mixed> */
+	public static function file_config(): array {
+		if ( null === self::$file ) {
+			self::$file = (array) require MOMOS_CORE_DIR . '/config/claim-keywords.php';
+		}
+		return self::$file;
+	}
+
+	/**
+	 * Effective list: the file, with the `classes` terms of every language saved in Settings replaced by
+	 * the Head Office list (FR-DIET-002(f)). `scan_base` and `image_terms` stay as shipped.
+	 *
+	 * @return array<string,mixed>
+	 */
 	public static function config(): array {
 		if ( null === self::$config ) {
-			self::$config = (array) require MOMOS_CORE_DIR . '/config/claim-keywords.php';
+			$cfg   = self::file_config();
+			$saved = class_exists( \Momos\Dietary\Fields\ProhibitedTermsFields::class ) ? \Momos\Dietary\Fields\ProhibitedTermsFields::saved_lists() : [];
+			foreach ( $saved as $lang => $rows ) {
+				foreach ( array_keys( (array) ( $cfg['classes'] ?? [] ) ) as $class ) {
+					unset( $cfg['classes'][ $class ][ $lang ] );
+				}
+				foreach ( $rows as $row ) {
+					$cfg['classes'][ $row['class'] ][ $lang ][] = $row['term'];
+				}
+			}
+			self::$config = $cfg;
 		}
 		return self::$config;
+	}
+
+	/** Forget the effective list (after a Settings save). */
+	public static function flush(): void {
+		self::$config = null;
 	}
 
 	/**

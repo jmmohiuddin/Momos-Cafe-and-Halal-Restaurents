@@ -1,7 +1,8 @@
 <?php
 /**
  * CMP-AddressBlock (§7.4): pin · localised address (non-ja) · Japanese address `<span lang="ja" dir="ltr">`
- * (always) · copy button (hidden without the Clipboard API; toast `branch.copied`) · access lines.
+ * (always) · copy button (component `copy-address`; toast `branch.copied`, select-and-show fallback without the
+ * Clipboard API) · access lines.
  *
  * @package momos
  * @var array{address:array{local:string,ja:string,postal:string},access?:array{lines:list<string>,notes:string}} $args
@@ -26,7 +27,7 @@ if ( '' === trim( (string) ( $momos_a['ja'] ?? '' ) ) && '' === trim( (string) (
 				<?php endif; ?>
 				<?php if ( '' !== $momos_ja ) : ?>
 					<p class="<?php echo '' !== (string) ( $momos_a['local'] ?? '' ) ? 'momo-muted momo-small' : ''; ?>"><?php echo \Momos\Presentation\Helpers\Bdi::ja( $momos_ja ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
-					<button type="button" class="momo-btn momo-btn--sm momo-btn--secondary momo-address__copy" data-momo-copy="<?php echo esc_attr( $momos_ja ); ?>" data-momo-copied="<?php echo esc_attr( momos_s( 'branch.copied' ) ); ?>"><?php momos_the_icon( 'copy', 'momo-icon--sm' ); ?><span><?php echo esc_html( momos_s( 'branch.copy_address' ) ); ?></span></button>
+					<?php momos_component( 'copy-address', [ 'text' => $momos_ja ] ); ?>
 				<?php endif; ?>
 			</div>
 		</div>

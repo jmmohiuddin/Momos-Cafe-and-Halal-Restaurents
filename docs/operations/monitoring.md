@@ -3,7 +3,8 @@
 Sources: NFR-OBS-01, FR-FND-003(f), Doc 09 TRD §6.13, Doc 11 §6.9 (SEC-080…084), access-security-privacy §12,
 `Kernel\Jobs\Schedule`, `Kernel\Monitoring\AlertMailer`, `Kernel\Monitoring\StatusPanel`, `Kernel\Log\Logger`.
 Three channels exist: the **external monitor** (uptime + heartbeats, owner-provided), **alert emails** sent by
-momos-core, and **critical log lines** that the host's log watcher must forward.
+momos-core (including every critical condition of §4), and **critical log lines** that the host's log watcher should
+forward as well (PHP fatals, mail outages).
 
 ## 1. Where to look
 
@@ -33,9 +34,13 @@ Configure one check per critical job in the external monitor (a shared URL only 
 | `MOMOS_HEARTBEAT_URL_RETENTION` | `momos_job_retention` (03:15 JST daily) | 26 h | personal data is not being anonymised on time (PRV-012) | `wp momos privacy retention --dry-run`, then without `--dry-run`; see `retention_failed` below |
 | `MOMOS_HEARTBEAT_URL_CERTIFICATE_EXPIRY` | `momos_job_certificate_expiry` (60 min) | 26 h | an expired halal certificate could stay visible | run `wp momos jobs run` once; check the Halal register |
 
-Docs name `MOMOS_HEARTBEAT_URL_QUEUE`; this build does not read it — use `…_NOTIFICATION_DISPATCH`.
-The Settings switch "Send job heartbeats to the external monitor" (`momo_heartbeat_enabled`) is not consulted by
-`Schedule::beat()` in this build: heartbeats are on whenever a URL constant is defined.
+| `MOMOS_HEARTBEAT_URL_QUEUE` | notification queue worker (Dispatcher / QueueSweeper, every run) | 30 min | the notification worker stopped (FR-SEC-012(b)) — no E01/E07 leaves even if the dispatch job itself still beats | as `…_NOTIFICATION_DISPATCH` |
+
+The notification queue worker stamps option `momos_job_heartbeat_queue` on every run; each stamp also pings
+`MOMOS_HEARTBEAT_URL_QUEUE` (else the shared `MOMOS_HEARTBEAT_URL`) through `Schedule::ping('queue')`
+(`Schedule::EXTERNAL_HEARTBEAT_OPTIONS`). All pings honour the Settings switch "Send job heartbeats to the external
+monitor" (`momo_heartbeat_enabled`, default on): when it is off no heartbeat is sent, so the external checks alert —
+use it only for planned maintenance. Filter `momos/monitoring/heartbeat_url` (url, job) can route a ping elsewhere.
 
 ## 3. Alert emails (`momos/monitoring/alert`)
 
@@ -51,12 +56,16 @@ the body has type, UTC time, context keys (IDs and counts, never personal data) 
 | `access_denials` (`user_id`, `count`) | `Audit\AuditLogger` | one user hit more than 10 `access.denied` in an hour (probing other branches?) | audit log filtered by the user; talk to the user / HO; disable the account if unexplained (SEV-2) |
 | `retention_failed` (`failed`, `errors`) | `Privacy\Retention\RetentionJob` | a retention batch failed; the next run resumes | `wp momos privacy retention`; read the error codes in the momos log; SEV-3, SEV-2 if it repeats |
 | `retention_stale` (`hours`) | retention watch (hourly) | no successful retention run for 26 h | as above + check cron |
+| `notification_failure_rate`, `notification_queue_age`, `notification_transport_*`, `notification_digest_failed`, `notification_digest_not_delivered`, `job_expiry_heartbeat_missing`, `reservation_integrity_pending_past_start`, `captcha_degraded_submissions`, `captcha_secret_missing`, `dietary_evidence_integrity_failed`, `migration_failed`, `secret_missing` | the critical log events of §4 (`AlertMailer::CRITICAL_EVENTS` / `CRITICAL_PREFIXES`, listener on `momos/log/critical`) | see §4 | see §4 |
 
-## 4. Critical log lines (forward with the host log watcher)
+## 4. Critical log lines (emailed as alerts)
 
-These are logged at `critical` (`Logger::critical`, action `momos/log/critical`) but **not emailed** by momos-core;
-the host/log shipper must alert on `"level":"critical"` in `MOMOS_LOG_FILE` (or `momos {…}` lines in the PHP error log),
-together with PHP fatals.
+These are logged at `critical` (`Logger::critical`, action `momos/log/critical`) **and emailed** by momos-core
+(FR-SEC-012(b)(c)): `AlertMailer::on_critical()` turns each event below into the alert type `<event>` with dots replaced
+by underscores (e.g. `notification.failure_rate` → `notification_failure_rate`), context redacted, at most one email per
+type per hour (§3). The host/log shipper should still alert on `"level":"critical"` in `MOMOS_LOG_FILE` (or `momos {…}`
+lines in the PHP error log) and on PHP fatals, because an email cannot be sent when PHP or mail itself is down.
+Code that adds a new critical condition must add its event to `AlertMailer::CRITICAL_EVENTS` and to this table.
 
 | Event | Meaning | First response |
 |---|---|---|
@@ -70,7 +79,7 @@ together with PHP fatals.
 | `dietary.evidence_integrity_failed` | an evidence file's SHA-256 no longer matches | treat as SEV-2 (tampering?) — restore the file from backup |
 | `migration.failed` | a migration step threw | do not reopen; `wp momos migrate` output; rollback.md |
 | `secret.missing` | `MOMOS_HASH_PEPPER` absent — hashing fails closed (submissions fail) | restore the secret immediately (SEV-1 if production) |
-| `monitoring.alert` | mirror of every alert email | — |
+| `monitoring.alert` | mirror of every alert email (not re-routed) | — |
 
 ## 5. External uptime monitor (owner)
 

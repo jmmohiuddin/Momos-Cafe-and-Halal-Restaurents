@@ -21,7 +21,8 @@ $momos_h   = max( 2, min( 4, (int) ( $args['h'] ?? 3 ) ) );
 $momos_id  = 'momo-offer-' . (int) ( $momos_o['id'] ?? wp_rand() );
 $momos_lng = momos_theme_lang();
 ?>
-<article class="momo-card momo-offer-card" id="<?php echo esc_attr( $momos_id ); ?>">
+<?php // FR-CORP-011(e): start/end (UTC ms) let frame.js hide a card from a cached page once it has expired (as notices). ?>
+<article class="momo-card momo-offer-card" id="<?php echo esc_attr( $momos_id ); ?>" data-momo-offer<?php echo momos_attrs( [ 'data-start' => isset( $momos_o['start_ms'] ) ? (string) $momos_o['start_ms'] : null, 'data-end' => isset( $momos_o['end_ms'] ) ? (string) $momos_o['end_ms'] : null ] ); // phpcs:ignore WordPress.Security.EscapeOutput ?>>
 	<?php if ( ! empty( $momos_o['image_id'] ) ) : ?>
 		<?php
 		// Alt in the page language (MediaFields translation; '' = decorative next to the title — never the

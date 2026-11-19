@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 $variant  = 'head_office' === $d['variant'] ? 'head_office' : 'branch';
 $branch   = 'branch' === $variant ? (int) ( $d['row']['branch_id'] ?? $d['row']['object_id'] ?? 0 ) : null;
 $run      = $d['created_utc'];
-$sections = DigestJob::sections( $branch, $run );
+$sections = DigestJob::sections( $branch, $run, $t );
 $blocks   = [ [ 'type' => 'p', 'text' => $t( 'staff.email.e10.intro' ) ] ];
 $empty    = true;
 foreach ( $sections as $s ) {

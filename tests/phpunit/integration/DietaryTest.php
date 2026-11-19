@@ -212,8 +212,12 @@ final class DietaryTest extends TestCase {
 		$this->assertSame( $row['text_ja'], StatementRepository::text( 'no_claim', 'ja' ) );
 		$this->assertNull( StatementRepository::text( 'no_claim', 'en' ), 'EN draft needs approval' );
 		$tr = $this->user( 'momo_translator' );
-		StatementRepository::save_translation( 'no_claim', 'en', 'Please ask our staff at this branch about ingredients and preparation.', 'approved', $tr );
-		$this->assertSame( 'Please ask our staff at this branch about ingredients and preparation.', StatementRepository::text( 'no_claim', 'en' ) );
+		// Translator ≠ reviewer (FR-I18N-007(b), BR-DIET-05): the translator's own approval is refused and kept for review.
+		$this->assertNotEmpty( StatementRepository::save_translation( 'no_claim', 'en', 'Please ask our staff at this branch about ingredients and cooking.', 'approved', $tr ) );
+		$this->assertNull( StatementRepository::text( 'no_claim', 'en' ), 'self-approved claim text is not public' );
+		$this->assertSame( 'needs_review', StatementRepository::get( 'no_claim' )['i18n']['en']['status'] );
+		$this->assertSame( [], StatementRepository::save_translation( 'no_claim', 'en', 'Please ask our staff at this branch about ingredients and cooking.', 'approved', $dca ) );
+		$this->assertSame( 'Please ask our staff at this branch about ingredients and cooking.', StatementRepository::text( 'no_claim', 'en' ) );
 		// JA master change → approved translations go back to review (no stale claim text).
 		StatementRepository::save_row( [ 'key' => 'no_claim', 'claim_type' => 'no_claim', 'text_ja' => '食材については店舗スタッフにお尋ねください。', 'approved' => true ], $dca, 'no_claim' );
 		$this->assertNull( StatementRepository::text( 'no_claim', 'en' ) );

@@ -1,7 +1,8 @@
 <?php
 /**
  * CMP-HalalStatement — claim statement block (§7.5, DEC-020/021). Text ONLY from approved templates via
- * `Dietary\ClaimResolver` (never typed in the theme). Certified: certifier / scope / certificate no. /
+ * `Dietary\ClaimResolver` (never typed in the theme); brand context falls back to the catalog's documented
+ * neutral sentence through `Presentation\View\Home::halal_claim()` (FR-CORP-001(e)). Certified: certifier / scope / certificate no. /
  * valid until (`<dl>`) + mark image only when the resolver supplies it. Emerald disc with a
  * shield-check outline (not a seal shape). No absolute or "fully/strictly" wording (Doc 07 §6.6 prohibited terms).
  *
@@ -14,7 +15,12 @@ defined( 'ABSPATH' ) || exit;
 $momos_ctx   = (string) ( $args['context'] ?? 'branch' );
 $momos_claim = $args['claim'] ?? null;
 if ( null === $momos_claim && class_exists( \Momos\Dietary\Service\ClaimResolver::class ) ) {
-	$momos_claim = 'brand' === $momos_ctx ? \Momos\Dietary\Service\ClaimResolver::brand_claim() : ( ! empty( $args['branch_id'] ) ? \Momos\Dietary\Service\ClaimResolver::branch_claim( (int) $args['branch_id'] ) : null );
+	$momos_claim = 'brand' !== $momos_ctx && ! empty( $args['branch_id'] ) ? \Momos\Dietary\Service\ClaimResolver::branch_claim( (int) $args['branch_id'] ) : null;
+}
+if ( null === $momos_claim && 'brand' === $momos_ctx && class_exists( \Momos\Presentation\View\Home::class ) ) {
+	// Brand context never disappears (FR-CORP-001(e), AC-CORP-01-04): selected brand statement → approved
+	// `brand.neutral` → documented neutral sentence (Doc 07 §6.4), never a claim, certifier or mark.
+	$momos_claim = \Momos\Presentation\View\Home::halal_claim();
 }
 if ( ! is_array( $momos_claim ) || '' === trim( (string) ( $momos_claim['statement'] ?? '' ) ) ) {
 	return; // No approved statement text: render nothing (no fallback wording in the theme).

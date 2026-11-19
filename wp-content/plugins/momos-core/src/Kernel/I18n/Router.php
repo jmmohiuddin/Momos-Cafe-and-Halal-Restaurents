@@ -61,9 +61,7 @@ final class Router {
 		}
 		$lang = Url::lang_of_path( '' === $path ? '/' : $path );
 		Locale::set( $lang );
-		if ( Lang::SOURCE !== $lang && ! Lang::is_enabled( $lang ) ) {
-			self::$disabled_language = true;
-		}
+		self::$disabled_language = Lang::SOURCE !== $lang && ! Lang::is_enabled( $lang );
 	}
 
 	/** @param bool $do */
@@ -99,13 +97,31 @@ final class Router {
 		}
 	}
 
+	/**
+	 * Hidden language (FR-FND-001(c)(d), AC-FND-01-03, FR-CORP-007): anonymous visitors get HTTP 404 rendered as
+	 * the Japanese 404 page (F-CORP-07) — the request locale returns to `ja` before the template renders, so no
+	 * hidden-language string, `lang`/`dir` attribute or link appears in the HTML. Staff with
+	 * `momo_preview_languages` keep the preview.
+	 */
 	public static function guard_disabled_language(): void {
 		if ( self::$disabled_language && ! current_user_can( 'momo_preview_languages' ) ) {
-			global $wp_query;
+			global $wp_query, $wp_locale;
+			Locale::set( Lang::SOURCE );
+			if ( function_exists( 'switch_to_locale' ) && determine_locale() !== Lang::locale( Lang::SOURCE ) ) {
+				switch_to_locale( Lang::locale( Lang::SOURCE ) );
+			}
+			if ( $wp_locale instanceof \WP_Locale ) {
+				$wp_locale->text_direction = 'ltr';
+			}
 			$wp_query->set_404();
 			status_header( 404 );
 			nocache_headers();
 		}
+	}
+
+	/** True when the current request targets a hidden language (set by detect()). */
+	public static function is_disabled_language_request(): bool {
+		return self::$disabled_language;
 	}
 
 	public static function filter_link( string $url ): string {

@@ -106,6 +106,10 @@ final class Context {
 				if ( 'offers' === $role && ! self::offers_active( $lang ) ) {
 					return false;
 				}
+				// AC-CORP-03-03: the halal page is not published in a language without reviewed statement templates.
+				if ( 'halal' === $role && class_exists( \Momos\Presentation\View\HalalPage::class ) && ! \Momos\Presentation\View\HalalPage::published( $lang ) ) {
+					return false;
+				}
 				if ( self::is_string_driven( $role ) ) {
 					return $id > 0 && 'publish' === get_post_status( $id );
 				}

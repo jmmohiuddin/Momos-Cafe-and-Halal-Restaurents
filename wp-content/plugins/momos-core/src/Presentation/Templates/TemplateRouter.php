@@ -148,6 +148,9 @@ final class TemplateRouter {
 			return false;
 		}
 		$id = (int) get_queried_object_id();
+		if ( is_page() && 'halal' === SystemPages::role_of( $id ) ) {
+			return ! \Momos\Presentation\View\HalalPage::published( Locale::current() ); // AC-CORP-03-03 per-language gate.
+		}
 		if ( is_page() && in_array( SystemPages::role_of( $id ), self::STRING_DRIVEN, true ) ) {
 			return false;
 		}

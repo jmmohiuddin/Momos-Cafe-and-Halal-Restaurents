@@ -28,11 +28,16 @@ final class Brand {
 		return is_array( $raw ) ? ( $raw[ $name ] ?? null ) : null;
 	}
 
-	/** Translatable brand text in $lang ('' when not approved in $lang — never mixed language). */
+	/**
+	 * Translatable brand text in $lang ('' when not approved in $lang — never mixed language). An empty source field
+	 * hides the element in every language (FR-FND-005(b), AC-FND-01-10), even if an older translation is still stored
+	 * (clearing a source value does not flag translations, IMPL-009).
+	 */
 	public static function text( string $name, ?string $lang = null ): string {
-		$lang = $lang ?? Locale::current();
-		if ( Lang::SOURCE === $lang ) {
-			return trim( (string) self::option( $name ) );
+		$lang   = $lang ?? Locale::current();
+		$source = trim( (string) self::option( $name ) );
+		if ( Lang::SOURCE === $lang || '' === $source ) {
+			return $source;
 		}
 		return trim( Translations::option( self::PAGE, $name, $lang ) );
 	}

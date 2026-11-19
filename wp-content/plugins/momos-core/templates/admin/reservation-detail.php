@@ -19,6 +19,7 @@ use Momos\Reservation\Admin\InboxPage;
 use Momos\Reservation\Domain\DeclineReason;
 use Momos\Reservation\Domain\ReservationStatus;
 use Momos\Reservation\Domain\StaffCancelReason;
+use Momos\Reservation\Support\AdminTime;
 
 $status       = ReservationStatus::from( (string) $d['status'] );
 $allowed      = (array) $d['allowed_actions'];
@@ -102,6 +103,14 @@ require __DIR__ . '/reservation-styles.php';
 						<?php endif; ?>
 					</dd>
 					<dt><?php esc_html_e( 'Received', 'momos-core' ); ?></dt><dd><?php echo esc_html( (string) $d['created_at'] ); ?></dd>
+					<?php // FR-RES-009(a): consent version + consent time (JST) and the record version (optimistic lock). ?>
+					<dt><?php esc_html_e( 'Consent version', 'momos-core' ); ?></dt>
+					<dd class="momos-consent"><bdi dir="ltr"><?php echo esc_html( (string) ( $d['consent_version'] ?? '' ) ); ?></bdi>
+						<?php
+						if ( ! empty( $d['consent_at'] ) ) :
+							?>
+							· <time datetime="<?php echo esc_attr( (string) $d['consent_at'] ); ?>"><?php echo esc_html( AdminTime::instant( (string) $d['consent_at'] ) ); ?></time><?php endif; ?></dd>
+					<dt><?php esc_html_e( 'Version', 'momos-core' ); ?></dt><dd class="momos-record-version"><?php echo (int) $d['version']; ?></dd>
 					<?php if ( 'pending' === $d['status'] ) : ?>
 						<dt><?php esc_html_e( 'Expires if undecided at', 'momos-core' ); ?></dt><dd><?php echo esc_html( (string) $d['decision_deadline'] ); ?></dd>
 					<?php endif; ?>

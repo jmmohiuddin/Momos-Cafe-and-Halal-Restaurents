@@ -34,6 +34,7 @@ final class DietaryModule implements ModuleInterface {
 		Guard\ClaimTagGuard::register();
 		Guard\IngredientChangeWatcher::register();
 		Guard\WordingGuard::register();
+		Fields\ProhibitedTermsFields::register();
 		Guard\CertificateGuard::register();
 		Guard\AllergenGuard::register();
 

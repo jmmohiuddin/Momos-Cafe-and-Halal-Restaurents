@@ -145,6 +145,25 @@ final class Commands {
 		if ( ! isset( $assoc['yes'] ) ) {
 			\WP_CLI::error( 'This rewrites personal data. Re-run with --yes.' );
 		}
+		$result = self::sanitize_data();
+		$counts = $result['counts'];
+		$left   = $result['left'];
+		\WP_CLI\Utils\format_items( 'table', array_map( static fn( $k, $v ) => [ 'table' => $k, 'rows' => $v ], array_keys( $counts ), $counts ), [ 'table', 'rows' ] );
+		if ( $left > 0 ) {
+			\WP_CLI::error( "{$left} real email addresses remain." );
+		}
+		\WP_CLI::success( 'Sanitized. All users must reset passwords and re-enrol 2FA.' );
+	}
+
+	/**
+	 * The data rewrite of `wp momos sanitize` (FR-FND-002(b), AC-FND-01-08), without the CLI guards (testable):
+	 * reservation PII → `res{id}@example.com`, notification recipients → `masked@example.com`, users →
+	 * `user{id}@example.com` (new random password; 2FA and sessions removed); modules reset their own options
+	 * (`momos/sanitize`). Returns the row counts and the number of addresses outside `@example.com` left.
+	 *
+	 * @return array{counts:array<string,int>,left:int}
+	 */
+	public static function sanitize_data(): array {
 		global $wpdb;
 		$r                       = Tables::reservations();
 		$counts                  = [];
@@ -165,10 +184,6 @@ final class Commands {
 		$left = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$r} WHERE email IS NOT NULL AND email NOT LIKE '%@example.com'" ); // phpcs:ignore
 		$left += (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users} WHERE user_email NOT LIKE '%@example.com'" ); // phpcs:ignore
 		momos_audit( 'environment.sanitized', 'environment', null, null, $counts, 'system' );
-		\WP_CLI\Utils\format_items( 'table', array_map( static fn( $k, $v ) => [ 'table' => $k, 'rows' => $v ], array_keys( $counts ), $counts ), [ 'table', 'rows' ] );
-		if ( $left > 0 ) {
-			\WP_CLI::error( "{$left} real email addresses remain." );
-		}
-		\WP_CLI::success( 'Sanitized. All users must reset passwords and re-enrol 2FA.' );
+		return [ 'counts' => $counts, 'left' => $left ];
 	}
 }

@@ -60,7 +60,13 @@ final class SeoSitemapSchemaTest extends SeoTestCaseTest {
 
 		$pages = $this->locs( 'pages', 'en' );
 		$this->assertContains( $home . '/en/', $pages );
-		$this->assertContains( $home . '/en/halal/', $pages, 'string-driven system pages are in every enabled language' );
+		$this->assertContains( $home . '/en/branches/', $pages, 'string-driven system pages are in every enabled language' );
+		// AC-CORP-03-03: /en/halal/ is listed only when it is published in en (reviewed statement templates).
+		if ( \Momos\Presentation\View\HalalPage::published( 'en' ) ) {
+			$this->assertContains( $home . '/en/halal/', $pages );
+		} else {
+			$this->assertNotContains( $home . '/en/halal/', $pages, 'unpublished halal page is not in the sitemap' );
+		}
 		$this->assertNotContains( Sitemap::class, $pages );
 		foreach ( $pages as $loc ) {
 			$this->assertStringNotContainsString( '/reservation/submitted/', $loc );

@@ -122,8 +122,12 @@ final class Content {
 		return is_array( $raw ) ? array_values( array_filter( $raw, 'is_array' ) ) : [];
 	}
 
+	/** Slug of the native category whose posts form the News list (FR-CORP-005(b), AC-CORP-05-01). */
+	public const NEWS_CATEGORY = 'news';
+
 	/**
-	 * News list (C14): native posts visible in the language, newest first, 10 per page.
+	 * News list (C14, FR-CORP-005(b), AC-CORP-05-01): published posts in the category `news` that are visible in the
+	 * language, newest first, 10 per page (12 posts → 10 + 2).
 	 *
 	 * @return array{items:list<array{id:int,title:string,excerpt:string,date_iso:string,date:string,url:string,image_id:int}>,pages:int}
 	 */
@@ -133,6 +137,7 @@ final class Content {
 			[
 				'post_type'           => 'post',
 				'post_status'         => 'publish',
+				'category_name'       => self::NEWS_CATEGORY,
 				'posts_per_page'      => self::NEWS_PER_PAGE,
 				'paged'               => max( 1, $page ),
 				'orderby'             => 'date',
@@ -158,6 +163,18 @@ final class Content {
 			];
 		}
 		return [ 'items' => $items, 'pages' => (int) $q->max_num_pages ];
+	}
+
+	/**
+	 * The posts page's main query lists the same set as news() (category `news`, 10 per page), so `/news/page/N/`
+	 * beyond the last news page is a 404 rather than an empty list (FR-CORP-005(b)).
+	 */
+	public static function news_main_query( \WP_Query $q ): void {
+		if ( is_admin() || ! $q->is_main_query() || ! $q->is_home() ) {
+			return;
+		}
+		$q->set( 'category_name', self::NEWS_CATEGORY );
+		$q->set( 'posts_per_page', self::NEWS_PER_PAGE );
 	}
 
 	/**

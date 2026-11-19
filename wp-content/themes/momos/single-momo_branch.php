@@ -121,7 +121,9 @@ $momos_trail    = [
 					momos_component( 'alert', [ 'type' => 'info', 'body' => momos_s( 'branch.not_accepting' ) ] );
 				}
 				if ( '' !== (string) $momos_b['tel'] ) {
-					echo '<a class="momo-btn momo-btn--secondary momo-btn--block" href="' . esc_attr( (string) $momos_b['tel'] ) . '" data-momo-event="click_phone" data-momo-cta="branch_page" data-momo-branch="' . esc_attr( $momos_code ) . '">' . momos_icon( 'phone' ) . '<span>' . esc_html( momos_s( 'cta.call' ) ) . '</span> ' . momos_ltr( (string) $momos_b['phone'] ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
+					// Open but not accepting online requests: "Call to reserve" takes the place of Request a table (PRD F-BR-01 A2).
+					$momos_call = '' === $momos_req && empty( $momos_b['temp_closed'] );
+					echo '<a class="momo-btn momo-btn--' . ( $momos_call ? 'primary' : 'secondary' ) . ' momo-btn--block" href="' . esc_attr( (string) $momos_b['tel'] ) . '" data-momo-event="click_phone" data-momo-cta="branch_page" data-momo-branch="' . esc_attr( $momos_code ) . '">' . momos_icon( 'phone' ) . '<span>' . esc_html( momos_s( $momos_call ? 'cta.call_to_reserve' : 'cta.call' ) ) . '</span> ' . momos_ltr( (string) $momos_b['phone'] ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
 				}
 				if ( '' !== (string) $momos_b['directions'] ) {
 					momos_component( 'button', [ 'label' => momos_s( 'cta.directions' ), 'aria_label' => momos_s( 'cta.directions_to', [ 'branch' => (string) $momos_b['name'] ] ) . ' ' . momos_s( 'a11y.new_tab' ), 'url' => (string) $momos_b['directions'], 'variant' => 'secondary', 'block' => true, 'icon' => 'directions', 'external' => true, 'attrs' => [ 'data-momo-event' => 'click_directions', 'data-momo-cta' => 'branch_page', 'data-momo-branch' => $momos_code ] ] );
@@ -147,7 +149,7 @@ $momos_trail    = [
 				<h2 id="branch-access-h"><?php echo esc_html( momos_s( 'branch.address.title' ) ); ?></h2>
 				<div class="momo-branch-sec__split">
 					<?php momos_component( 'address-block', [ 'address' => $momos_addr, 'access' => $momos_access ] ); ?>
-					<?php momos_component( 'map-facade', [ 'name' => (string) $momos_b['name'], 'image_id' => (int) get_post_meta( $momos_id, 'momo_map_preview_image', true ), 'maps_url' => $momos_maps, 'directions_url' => (string) $momos_b['directions'], 'branch_code' => $momos_code, 'cta_location' => 'branch_page' ] ); ?>
+					<?php momos_component( 'map-facade', [ 'name' => (string) $momos_b['name'], 'image_id' => (int) get_post_meta( $momos_id, 'momo_map_preview_image', true ), 'maps_url' => $momos_maps, 'directions_url' => (string) $momos_b['directions'], 'embed_url' => $momos_bv::map_embed_url( $momos_raw ), 'branch_code' => $momos_code, 'cta_location' => 'branch_page' ] ); ?>
 				</div>
 			</section>
 		<?php endif; ?>

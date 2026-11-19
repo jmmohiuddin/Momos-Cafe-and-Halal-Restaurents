@@ -20,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
 .momos-res .momos-when { font-size: 1.15em; font-weight: 600; }
 .momos-res .momos-newbar { position: sticky; inset-block-start: 32px; z-index: 5; margin-block: 8px; }
 .momos-res .momos-grid { display: grid; gap: 16px; }
+.momos-res .momos-grid > *, .momos-res .momos-grid > * > * { min-inline-size: 0; } /* AC-RES-04-05: wide panels never widen the page */
 .momos-res .momos-card { background: #fff; border: 1px solid #dcdcde; border-radius: 8px; padding: 16px; }
 .momos-res .momos-card h2 { margin-block-start: 0; font-size: 1.1em; }
 .momos-res dl.momos-dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
@@ -40,10 +41,11 @@ defined( 'ABSPATH' ) || exit;
 }
 @media (max-width: 767px) {
 	.momos-res table.momos-table thead { display: none; }
-	.momos-res table.momos-table, .momos-res table.momos-table tbody, .momos-res table.momos-table tr, .momos-res table.momos-table td { display: block; inline-size: 100%; }
+	.momos-res table.momos-table, .momos-res table.momos-table tbody, .momos-res table.momos-table tr, .momos-res table.momos-table td { display: block; inline-size: 100%; box-sizing: border-box; } /* AC-RES-04-05: no horizontal scroll at 390 px */
 	.momos-res table.momos-table tr { margin-block-end: 12px; border: 1px solid #dcdcde; border-radius: 8px; background: #fff; }
 	.momos-res table.momos-table td::before { content: attr(data-label) ": "; font-weight: 600; }
 	.momos-res table.momos-table td.momos-when-cell::before { content: none; }
+	.momos-res .momos-grid table { display: block; max-inline-size: 100%; overflow-x: auto; }
 	.momos-res .momos-actionbar { position: sticky; inset-block-end: 0; background: #fff; padding-block: 8px; border-block-start: 1px solid #dcdcde; }
 }
 </style>

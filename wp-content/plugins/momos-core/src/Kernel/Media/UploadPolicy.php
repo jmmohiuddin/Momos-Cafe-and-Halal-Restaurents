@@ -10,6 +10,7 @@ namespace Momos\Kernel\Media;
  *   PDF certificate evidence never goes through the media library: the Dietary evidence handler stores it
  *   outside the web root with its own checks (EvidenceStore).
  * - Size ≤ 5 MB (⟦TBD 5 MB⟧, FR-ADM-005).
+ * - JPEG/WebP originals lose their EXIF/GPS metadata on upload (FR-ADM-005(c), `MetadataStripper`).
  * - Enforced in `upload_mimes` (what core accepts and advertises) and again in the upload/sideload prefilters,
  *   so neither ALLOW_UNFILTERED_UPLOADS nor a plugin re-adding types widens the list.
  */
@@ -28,6 +29,8 @@ final class UploadPolicy {
 		add_filter( 'upload_size_limit', [ self::class, 'size_limit' ], PHP_INT_MAX );
 		add_filter( 'wp_handle_upload_prefilter', [ self::class, 'prefilter' ], PHP_INT_MAX );
 		add_filter( 'wp_handle_sideload_prefilter', [ self::class, 'prefilter' ], PHP_INT_MAX );
+		// EXIF/GPS removed from public originals before sub-sizes are generated (FR-ADM-005(c), AC-ADM-04-03).
+		MetadataStripper::register();
 	}
 
 	/**

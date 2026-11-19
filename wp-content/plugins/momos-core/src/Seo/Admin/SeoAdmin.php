@@ -11,7 +11,8 @@ use Momos\Seo\SeoSettings;
 /**
  * SEO → Redirects & 404 log (i18n-seo-analytics.md §14.4 [IMPL], §16; SA/HO via `momo_manage_redirects`):
  * redirect list with add/edit/delete and "Verify all" (HEAD checks), aggregated 404 log sorted by hits
- * with "Create redirect", weekly review record (8 weeks after launch), and SA-only technical settings.
+ * with "Create redirect", weekly review record (8 weeks after launch), Restaurant structured-data values
+ * (SA/HO: servesCuisine per language and priceRange, FR-SEO-006(b), F-SEO-02, Q-415) and SA-only technical settings.
  * Every handler: capability + nonce; denial → 403 + `access.denied`; changes audited
  * (`redirect.created/updated/deleted`, `settings.updated`) with paths only — never personal data.
  */
@@ -21,7 +22,7 @@ final class SeoAdmin {
 
 	public static function register(): void {
 		add_action( 'admin_menu', [ self::class, 'menu' ], 30 );
-		foreach ( [ 'momos_redirect_save', 'momos_redirect_delete', 'momos_redirect_verify', 'momos_404_review', 'momos_404_clear', 'momos_seo_settings' ] as $action ) {
+		foreach ( [ 'momos_redirect_save', 'momos_redirect_delete', 'momos_redirect_verify', 'momos_404_review', 'momos_404_clear', 'momos_seo_settings', 'momos_seo_schema' ] as $action ) {
 			add_action( 'admin_post_' . $action, [ self::class, 'handle_' . substr( $action, 6 ) ] );
 		}
 	}
@@ -139,6 +140,28 @@ final class SeoAdmin {
 		self::back( 'settings', 'saved' );
 	}
 
+	/** Structured-data values (FR-SEO-006(b), Q-415): SA and HO. */
+	public static function handle_seo_schema(): void {
+		self::guard( 'momos_seo_schema' );
+		$cuisine = [];
+		$posted  = isset( $_POST['serves_cuisine'] ) && is_array( $_POST['serves_cuisine'] ) ? wp_unslash( $_POST['serves_cuisine'] ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised per language in SeoSettings::save_schema().
+		foreach ( \Momos\Kernel\I18n\Lang::codes() as $lang ) {
+			$cuisine[ $lang ] = isset( $posted[ $lang ] ) && is_string( $posted[ $lang ] ) ? $posted[ $lang ] : '';
+		}
+		$res = SeoSettings::save_schema(
+			[
+				'serves_cuisine' => $cuisine,
+				'price_range'    => isset( $_POST['price_range'] ) && is_string( $_POST['price_range'] ) ? wp_unslash( $_POST['price_range'] ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised in SeoSettings::save_schema().
+			]
+		);
+		if ( $res['errors'] ) {
+			self::back( 'schema', 'error', $res['errors'], $res['after'] );
+		}
+		momos_audit( 'settings.updated', 'seo_schema', null, null, [ 'before' => $res['before'], 'after' => $res['after'] ] );
+		do_action( 'momos/cache/purge', [ 'momo-global' ] ); // Branch pages carry the Restaurant JSON-LD.
+		self::back( 'schema', 'saved' );
+	}
+
 	// ------------------------------------------------------------------ screen
 
 	public static function render(): void {
@@ -150,6 +173,7 @@ final class SeoAdmin {
 			'redirects' => __( 'Redirects', 'momos-core' ),
 			'notfound'  => __( '404 log', 'momos-core' ),
 			'reviews'   => __( 'Weekly review', 'momos-core' ),
+			'schema'    => __( 'Structured data', 'momos-core' ),
 		];
 		if ( current_user_can( 'manage_options' ) ) {
 			$tabs['settings'] = __( 'Settings', 'momos-core' );
@@ -171,6 +195,7 @@ final class SeoAdmin {
 			'notfound' => self::tab_404(),
 			'reviews' => self::tab_reviews( $state['form'] ),
 			'settings' => self::tab_settings(),
+			'schema' => self::tab_schema( $state['form'] ),
 			default => self::tab_redirects( $state['form'] ),
 		};
 		echo '</div>';
@@ -322,6 +347,41 @@ final class SeoAdmin {
 			}
 			echo '</tbody></table>';
 		}
+	}
+
+	/**
+	 * Restaurant JSON-LD values (FR-SEO-006(b), Q-415): one cuisine text per language, one price range.
+	 *
+	 * @param array<string,mixed> $form Values of a refused save (shown again).
+	 */
+	private static function tab_schema( array $form ): void {
+		$v = $form ? $form + [ 'serves_cuisine' => [], 'price_range' => '' ] : SeoSettings::schema();
+		echo '<p class="description">' . esc_html__( 'Restaurant structured data (JSON-LD) on every branch page. Each value is output only when filled in; leave a field empty to omit it. Values must match what the site shows and be under 100 characters.', 'momos-core' ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		wp_nonce_field( 'momos_seo_schema' );
+		echo '<input type="hidden" name="action" value="momos_seo_schema"><table class="form-table" role="presentation"><tbody>';
+		foreach ( \Momos\Kernel\I18n\Lang::ALL as $code => $l ) {
+			printf(
+				'<tr><th scope="row"><label for="momo-seo-cuisine-%1$s">%2$s</label></th><td><input type="text" id="momo-seo-cuisine-%1$s" class="regular-text" name="serves_cuisine[%1$s]" value="%3$s" maxlength="%4$d" lang="%5$s" dir="%6$s"></td></tr>',
+				esc_attr( $code ),
+				/* translators: %s: language name, e.g. Japanese */
+				esc_html( sprintf( __( 'Cuisine (servesCuisine) — %s', 'momos-core' ), $l['english'] ) ),
+				esc_attr( (string) ( $v['serves_cuisine'][ $code ] ?? '' ) ),
+				(int) SeoSettings::SCHEMA_MAX_CHARS,
+				esc_attr( $l['html'] ),
+				esc_attr( $l['dir'] )
+			);
+		}
+		printf(
+			'<tr><th scope="row"><label for="momo-seo-price">%1$s</label></th><td><input type="text" id="momo-seo-price" class="regular-text" name="price_range" value="%2$s" maxlength="%3$d" dir="auto" aria-describedby="momo-seo-price-help"><p class="description" id="momo-seo-price-help">%4$s</p></td></tr>',
+			esc_html__( 'Price range (priceRange)', 'momos-core' ),
+			esc_attr( (string) ( $v['price_range'] ?? '' ) ),
+			(int) SeoSettings::SCHEMA_MAX_CHARS,
+			esc_html__( 'Same value for every language and branch.', 'momos-core' )
+		);
+		echo '</tbody></table>';
+		submit_button();
+		echo '</form>';
 	}
 
 	private static function tab_settings(): void {

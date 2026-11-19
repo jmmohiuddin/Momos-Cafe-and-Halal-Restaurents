@@ -847,7 +847,12 @@ final class DemoSeeder {
 			}
 			foreach ( $langs as $lang ) {
 				$current = trim( (string) ( $row['i18n'][ $lang ]['text'] ?? '' ) );
-				$errors  = StatementRepository::save_translation( $key, $lang, '' !== $current ? $current : $texts[ $lang ], 'approved', $approver );
+				$text    = '' !== $current ? $current : $texts[ $lang ];
+				// Translator ≠ reviewer (FR-I18N-007(b)): demo_tr writes the text, demo_ho approves it.
+				if ( $text !== $current ) {
+					StatementRepository::save_translation( $key, $lang, $text, 'needs_review', $this->users['demo_tr'] );
+				}
+				$errors = StatementRepository::save_translation( $key, $lang, $text, 'approved', $approver );
 				if ( $errors ) {
 					throw new SeedException( "Statement {$key} ({$lang}) refused: " . implode( ' | ', $errors ) );
 				}

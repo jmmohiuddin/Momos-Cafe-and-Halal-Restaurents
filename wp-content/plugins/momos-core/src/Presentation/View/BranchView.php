@@ -264,6 +264,39 @@ final class BranchView {
 		return '';
 	}
 
+	/** Constant holding the referrer-restricted Maps Embed API key (TRD §4.6; constants/env only, SEC-070). */
+	public const MAPS_EMBED_KEY = 'MOMOS_GMAPS_EMBED_KEY';
+
+	/**
+	 * Maps Embed API URL for the "Show map" button (FR-BR-002 A3, TRD §4.6, DEC-029): only when the G3 setting
+	 * `momo_map_embed_on_click` is on and `MOMOS_GMAPS_EMBED_KEY` is defined; '' otherwise (links only). The iframe
+	 * is created client-side after the click, so nothing is requested from Google before it (AC-BR-02-03).
+	 * Query: `place_id:{id}`, else `{lat},{lng}`, else the Japanese address.
+	 *
+	 * @param array<string,mixed> $branch BranchRepository::get() row
+	 */
+	public static function map_embed_url( array $branch, ?string $lang = null ): string {
+		if ( '1' !== (string) \Momos\Kernel\Settings::get( 'momo_map_embed_on_click', '1' ) || ! \Momos\Kernel\Env::has( self::MAPS_EMBED_KEY ) ) {
+			return '';
+		}
+		if ( '' !== (string) ( $branch['place_id'] ?? '' ) ) {
+			$q = 'place_id:' . $branch['place_id'];
+		} elseif ( null !== ( $branch['lat'] ?? null ) && null !== ( $branch['lng'] ?? null ) ) {
+			$q = $branch['lat'] . ',' . $branch['lng'];
+		} else {
+			$q = trim( (string) ( $branch['address_ja'] ?? '' ) );
+		}
+		if ( '' === $q ) {
+			return '';
+		}
+		$args = [
+			'key'      => \Momos\Kernel\Env::secret( self::MAPS_EMBED_KEY ),
+			'q'        => $q,
+			'language' => $lang ?? Locale::current(),
+		];
+		return add_query_arg( array_map( 'rawurlencode', $args ), 'https://www.google.com/maps/embed/v1/place' );
+	}
+
 	/** @return list<int> real branch photos (featured + `momo_gallery`; illustrative images are refused on save). */
 	public static function photos( int $branch_id ): array {
 		$ids = array_filter( array_merge( [ (int) get_post_thumbnail_id( $branch_id ) ], array_map( 'intval', (array) get_post_meta( $branch_id, 'momo_gallery', true ) ) ) );

@@ -25,8 +25,33 @@ use Momos\Notification\Support\ReservationReader;
 final class DigestJob {
 	public const HOOK = 'momos_job_daily_digest';
 
-	/** Branch-manager audit actions listed in the HO digest (FR-BR-008(c)). */
-	public const BRANCH_CHANGE_ACTIONS = [ 'branch.hours_updated', 'branch.content_updated', 'branch.closure_created', 'branch.closure_updated', 'branch.closure_deleted', 'branch_menu_item.availability_changed', 'branch_menu_item.updated' ];
+	/**
+	 * Branch-manager audit actions listed in the HO digest (FR-BR-008(a)/(c), BR-BR-02, FR-NOT-002(e)):
+	 * hours, closures, description/photos (FR-BR-004, AC-BR-03-06), branch-scoped notices (F-BR-05),
+	 * dish availability at the branch (F-MENU-04 "BM availability changes in HO digest") and the
+	 * offers a BM drafts or withdraws (FR-CORP-010(d)). Names are the Audit\Catalogue names written
+	 * by HoursRepository, ClosureRepository, BranchGuard, NoticeService, BranchMenuService, OfferService.
+	 */
+	public const BRANCH_CHANGE_ACTIONS = [
+		'branch.hours_updated',
+		'branch.content_updated',
+		'branch.closure_created',
+		'branch.closure_updated',
+		'branch.closure_deleted',
+		'notice.published',
+		'notice.updated',
+		'notice.trashed',
+		'menu_item.offered_changed',
+		'menu_item.price_changed',
+		'menu_item.availability_changed',
+		'offer.submitted',
+		'offer.updated',
+		'offer.withdrawn',
+		'offer.trashed',
+	];
+
+	/** Audit `changes` keys that are context, not changed fields (never listed). */
+	private const CONTEXT_KEYS = [ 'role', 'scope', 'branches', 'dish_id', 'created' ];
 
 	public static function register(): void {
 		add_action( self::HOOK, [ self::class, 'run' ] );
@@ -130,9 +155,13 @@ final class DigestJob {
 	 * branch grouped by code + HO sections). Each section: key, branch code ('' for HO-wide), count,
 	 * items (language-neutral reference lines), link (admin filtered view).
 	 *
+	 * $t (optional) translates catalog keys in the recipient's language (the E10 template passes the
+	 * renderer's translator); used for weekday names in branch-change lines (AC-BR-04-06).
+	 *
+	 * @param (callable(string):string)|null $t
 	 * @return list<array{key:string,code:string,count:int,items:list<string>,link:?string}>
 	 */
-	public static function sections( ?int $branch_id, \DateTimeImmutable $run ): array {
+	public static function sections( ?int $branch_id, \DateTimeImmutable $run, ?callable $t = null ): array {
 		$from = Clock::mysql_utc( $run->modify( '-24 hours' ) );
 		$to   = Clock::mysql_utc( $run );
 		$out  = [];
@@ -145,7 +174,7 @@ final class DigestJob {
 			}
 		}
 		if ( null === $branch_id ) {
-			$out = array_merge( $out, self::ho_sections( $from, $to, $run ) );
+			$out = array_merge( $out, self::ho_sections( $from, $to, $run, $t ) );
 		}
 		return $out;
 	}
@@ -181,30 +210,22 @@ final class DigestJob {
 		];
 	}
 
-	/** @return list<array{key:string,code:string,count:int,items:list<string>,link:?string}> */
-	private static function ho_sections( string $from, string $to, \DateTimeImmutable $run ): array {
+	/**
+	 * @param (callable(string):string)|null $t
+	 * @return list<array{key:string,code:string,count:int,items:list<string>,link:?string}>
+	 */
+	private static function ho_sections( string $from, string $to, \DateTimeImmutable $run, ?callable $t = null ): array {
 		global $wpdb;
 		$out = [];
 
-		// Branch changes by Branch Managers in W (US-NOT-007): branch, action, field before → after, user.
+		// Branch changes by Branch Managers in W (US-NOT-007, AC-BR-04-06): branch, action, field before → after, user.
 		$audit   = Tables::audit();
 		$actions = self::BRANCH_CHANGE_ACTIONS;
 		$ph      = implode( ',', array_fill( 0, count( $actions ), '%s' ) );
-		$rows    = (array) $wpdb->get_results( $wpdb->prepare( "SELECT action, branch_id, actor_id, changes FROM {$audit} WHERE occurred_at >= %s AND occurred_at < %s AND actor_role = %s AND (action IN ({$ph}) OR action LIKE %s) ORDER BY occurred_at ASC LIMIT 100", array_merge( [ $from, $to, 'momo_branch_manager' ], $actions, [ 'notice.%' ] ) ), ARRAY_A ); // phpcs:ignore
+		$rows    = (array) $wpdb->get_results( $wpdb->prepare( "SELECT action, object_type, object_id, branch_id, actor_id, changes FROM {$audit} WHERE occurred_at >= %s AND occurred_at < %s AND actor_role = %s AND action IN ({$ph}) ORDER BY occurred_at ASC, id ASC LIMIT 100", array_merge( [ $from, $to, 'momo_branch_manager' ], $actions ) ), ARRAY_A ); // phpcs:ignore
 		$items   = [];
 		foreach ( $rows as $a ) {
-			$code    = $a['branch_id'] ? (string) get_post_meta( (int) $a['branch_id'], 'momo_branch_code', true ) : '';
-			$user    = $a['actor_id'] ? get_userdata( (int) $a['actor_id'] ) : null;
-			$changes = \Momos\Kernel\Support\Json::decode_array( (string) $a['changes'] );
-			$fields  = [];
-			foreach ( array_slice( $changes, 0, 3, true ) as $field => $pair ) {
-				if ( is_array( $pair ) && 2 === count( $pair ) && array_is_list( $pair ) ) {
-					$fields[] = $field . ': ' . self::short( $pair[0] ) . ' → ' . self::short( $pair[1] );
-				} else {
-					$fields[] = (string) $field;
-				}
-			}
-			$items[] = trim( $code . ' · ' . $a['action'] . ( $fields ? ' · ' . implode( '; ', $fields ) : '' ) . ( $user ? ' · ' . $user->display_name : '' ), ' ·' );
+			$items[] = self::change_line( $a, $t );
 		}
 		$out[] = [ 'key' => 'branch_changes', 'code' => '', 'count' => count( $items ), 'items' => $items, 'link' => admin_url( 'admin.php?page=momos-audit' ) ];
 
@@ -244,6 +265,146 @@ final class DigestJob {
 			'link'  => admin_url( 'admin.php?page=momos-reservations&status=pending' ),
 		];
 		return $out;
+	}
+
+	/**
+	 * One language-neutral HO digest line for a BM change (AC-BR-04-06, AC-BR-03-06):
+	 * "CODE · action · [object ·] field: before → after; … · User". No PII (audit payloads hold none).
+	 *
+	 * @param array<string,mixed>            $a audit row (action, object_type, object_id, branch_id, actor_id, changes)
+	 * @param (callable(string):string)|null $t
+	 */
+	public static function change_line( array $a, ?callable $t = null ): string {
+		$code    = ! empty( $a['branch_id'] ) ? (string) get_post_meta( (int) $a['branch_id'], 'momo_branch_code', true ) : '';
+		$user    = ! empty( $a['actor_id'] ) ? get_userdata( (int) $a['actor_id'] ) : null;
+		$changes = \Momos\Kernel\Support\Json::decode_array( (string) ( $a['changes'] ?? '' ) );
+		$action  = (string) $a['action'];
+		$object  = '';
+		if ( str_starts_with( $action, 'menu_item.' ) && ! empty( $changes['dish_id'] ) ) {
+			$object = get_the_title( (int) $changes['dish_id'] );
+		} elseif ( in_array( (string) ( $a['object_type'] ?? '' ), [ 'notice', 'offer' ], true ) && ! empty( $a['object_id'] ) ) {
+			$object = get_the_title( (int) $a['object_id'] );
+		}
+		$fields = match ( true ) {
+			'branch.hours_updated' === $action => self::hours_fields( $changes, $t ),
+			str_starts_with( $action, 'branch.closure_' ) => self::closure_fields( $changes ),
+			default => self::generic_fields( $changes ),
+		};
+		$parts = array_filter( [ $code, $action, '' !== $object ? '«' . self::short( $object ) . '»' : '', implode( '; ', $fields ), $user ? $user->display_name : '' ], static fn( $p ) => '' !== $p );
+		return implode( ' · ', $parts );
+	}
+
+	/**
+	 * Weekly-hours change: one "Weekday: before → after" per changed weekday (HoursRepository::compact
+	 * shape: weekday => ["HH:MM:SS-HH:MM:SS[ LO HH:MM:SS] (label)", …]); dated sets are prefixed.
+	 *
+	 * @param array<string,mixed>            $c
+	 * @param (callable(string):string)|null $t
+	 * @return list<string>
+	 */
+	private static function hours_fields( array $c, ?callable $t ): array {
+		$before = is_array( $c['before'] ?? null ) ? $c['before'] : [];
+		$after  = is_array( $c['after'] ?? null ) ? $c['after'] : [];
+		$set    = is_array( $c['set'] ?? null ) ? $c['set'] : [];
+		$prefix = ! empty( $set['valid_from'] ) ? $set['valid_from'] . '–' . ( $set['valid_until'] ?? '' ) . ' ' : '';
+		$names  = [ 1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun' ];
+		$out    = [];
+		for ( $d = 1; $d <= 7; $d++ ) {
+			$b = self::periods( $before[ $d ] ?? $before[ (string) $d ] ?? [] );
+			$n = self::periods( $after[ $d ] ?? $after[ (string) $d ] ?? [] );
+			if ( $b === $n ) {
+				continue;
+			}
+			$day   = null !== $t ? $t( 'branch.weekday.' . $d ) : $names[ $d ];
+			$out[] = $prefix . $day . ': ' . $b . ' → ' . $n;
+		}
+		return $out;
+	}
+
+	/** "11:00–15:00 (L.O. 14:30), 17:00–22:00"; "—" when the day has no period (closed). */
+	private static function periods( mixed $list ): string {
+		$out = [];
+		foreach ( is_array( $list ) ? $list : [] as $p ) {
+			if ( ! is_string( $p ) ) {
+				continue;
+			}
+			if ( preg_match( '/^(\d{2}:\d{2})(?::\d{2})?-(\d{2}:\d{2})(?::\d{2})?(?: LO (\d{2}:\d{2})(?::\d{2})?)?/', $p, $m ) ) {
+				$out[] = $m[1] . '–' . $m[2] . ( ! empty( $m[3] ) ? ' (L.O. ' . $m[3] . ')' : '' );
+			} else {
+				$out[] = self::short( $p );
+			}
+		}
+		return $out ? implode( ', ', $out ) : '—';
+	}
+
+	/**
+	 * Closure change: "YYYY-MM-DD: before → after" (ClosureRepository::audit_shape: type, reason, periods).
+	 *
+	 * @param array<string,mixed> $c
+	 * @return list<string>
+	 */
+	private static function closure_fields( array $c ): array {
+		$shape = static function ( mixed $s ): string {
+			if ( ! is_array( $s ) ) {
+				return '—';
+			}
+			$p = self::periods( $s['periods'] ?? [] );
+			return trim( (string) ( $s['type'] ?? '' ) . ( '—' !== $p ? ' ' . $p : '' ) . ( ! empty( $s['reason'] ) ? ' (' . $s['reason'] . ')' : '' ) );
+		};
+		return [ (string) ( $c['date'] ?? '' ) . ': ' . $shape( $c['before'] ?? null ) . ' → ' . $shape( $c['after'] ?? null ) ];
+	}
+
+	/**
+	 * Any other change set: `field: before → after` for [old, new] pairs, `before → after` for the
+	 * before/after shape (branch menu items), `fields: a, b` for field lists; context keys skipped.
+	 *
+	 * @param array<string,mixed> $c
+	 * @return list<string>
+	 */
+	private static function generic_fields( array $c ): array {
+		$out = [];
+		if ( array_key_exists( 'before', $c ) && array_key_exists( 'after', $c ) ) {
+			$b = $c['before'];
+			$n = $c['after'];
+			if ( is_array( $b ) && is_array( $n ) ) {
+				foreach ( $n as $k => $v ) {
+					if ( ( $b[ $k ] ?? null ) !== $v ) {
+						$out[] = $k . ': ' . self::value( $b[ $k ] ?? null ) . ' → ' . self::value( $v );
+					}
+				}
+			} else {
+				$out[] = self::value( $b ) . ' → ' . self::value( $n );
+			}
+			return $out;
+		}
+		foreach ( $c as $field => $v ) {
+			if ( in_array( (string) $field, self::CONTEXT_KEYS, true ) ) {
+				continue;
+			}
+			if ( 'fields' === $field && is_array( $v ) ) {
+				if ( $v ) {
+					$out[] = implode( ', ', array_map( 'strval', $v ) );
+				}
+			} elseif ( is_array( $v ) && 2 === count( $v ) && array_is_list( $v ) ) {
+				$out[] = $field . ': ' . self::value( $v[0] ) . ' → ' . self::value( $v[1] );
+			} else {
+				$out[] = (string) $field;
+			}
+			if ( count( $out ) >= 4 ) {
+				break;
+			}
+		}
+		return $out;
+	}
+
+	private static function value( mixed $v ): string {
+		if ( null === $v || '' === $v || [] === $v ) {
+			return '—';
+		}
+		if ( is_bool( $v ) ) {
+			return $v ? 'on' : 'off';
+		}
+		return self::short( $v );
 	}
 
 	private static function short( mixed $v ): string {

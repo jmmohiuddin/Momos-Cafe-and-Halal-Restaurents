@@ -50,4 +50,6 @@ return [
 	'availability_reason.ingredient_unavailable' => 'উপকরণ পাওয়া যাচ্ছে না',
 	'availability_reason.advance_order_only'     => 'শুধু অগ্রিম অর্ডারে',
 	'media.illustration'                  => 'ছবিটি শুধু উদাহরণের জন্য',
+	// FR-MENU-005(a) audit label (SCR-A16).
+	'admin.audit.action.menu_category.reordered' => 'বিভাগের ক্রম পরিবর্তন',
 ];

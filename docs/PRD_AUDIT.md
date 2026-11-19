@@ -826,3 +826,61 @@ Verdicts: built_tested · built_untested · partial · missing · owner_dependen
 | US group NOT (built) | US-NOT-001..007 | cross-cutting | NotificationRenderTest; QaReservationEmailTest; NotificationQueueTest; NotificationDispatchTest (failure flag); NotificationDigestAdminTest (digest) |
 | US group ADM (built) | US-ADM-001..005, 007, 008 | cross-cutting | AccessUsersTest (accounts, disable, sessions, vendor expiry); AccessLoginTest (2FA, lockout); AuditLoggerTest::test_viewer_forbidden_for_bm_tc_acl_018_and_filters; AdminSettingsTest::test_dashboard_widgets_by_role; qa-staff-auth.spec |
 | US group CNT/SEO/FND/PRV (built) | US-CNT-001, US-SEO-001, 002, 003, US-FND-002, US-PRV-001, 002, 003, 004 | cross-cutting | qa-customer-content.spec SCR-C12; SeoHeadTest; SeoSitemapSchemaTest; AdminSettingsTest::test_g1_g3_fields...; PrivacyConsentTest; PrivacyRetentionTest; PrivacyDsrTest; AccessUsersTest::test_breakglass_rules_tc_acl_022_tc_sec_022 |
+
+## Follow-up (2026-11-20): gaps built after this audit
+
+Six fixers built every confirmed gap (49 items done, 1 confirmed not needed: hub tiles show image + name per Doc 07 §5.6) and added tests for the 31 untested items. Then the CTO wired the remaining cross-area items: reviewer ≠ translator for halal/alcohol statement translations, unpublished halal pages excluded from hreflang/sitemap/language switcher, deterministic E2E seed dates, Japanese admin catalog (+39 strings). Decisions: CHG-012…015.
+
+| Fixer | Items |
+|---|---|
+| kernel-i18n-media | FR-FND-001(d) / AC-FND-01-03 / FR-CORP-007 — done |
+| kernel-i18n-media | FR-I18N-007(b) / AC-I18N-03-01 (+ spec §6.2) — done |
+| kernel-i18n-media | FR-ADM-005(d) / AC-ADM-04-02 / US-ADM-006 — done |
+| kernel-i18n-media | FR-ADM-005(c) / AC-ADM-04-03 — done |
+| kernel-i18n-media | FR-ADM-005(f) — done |
+| kernel-i18n-media | FR-SEO-005 — done |
+| kernel-i18n-media | FR-SEC-012 — done |
+| kernel-i18n-media | AC-FND-01-04 — done |
+| kernel-i18n-media | AC-FND-01-08 — done |
+| kernel-i18n-media | AC-CORP-02-01 — done |
+| kernel-i18n-media | FR-SEC-008 — done |
+| kernel-i18n-media | PRD §18.4 external_ref — done |
+| theme-presentation | 1 FR-CORP-012(c) / AC-CORP-10-01 gallery lightbox — done |
+| theme-presentation | 2 FR-BR-001(b) / AC-BR-01-04 copy Japanese address on cards + reopen date — done |
+| theme-presentation | 3 FR-BR-002 Alt A3 Show map — done |
+| theme-presentation | 4 AC-MENU-01-01 / FR-MENU-002(b) Prices may differ by branch — done |
+| theme-presentation | 5 FR-MENU-002(a) / FR-MENU-003(a) spice 0 'Not spicy' — done |
+| theme-presentation | 6 FR-MENU-001(a) category intro on hub tiles — not_needed |
+| theme-presentation | 7 FR-CORP-011(e) offers re-checked client-side — done |
+| theme-presentation | 8 FR-CORP-001(e)(f) + AC-CORP-01-05 homepage halal + response promise — done |
+| theme-presentation | 9 AC-CORP-03-03 / FR-CORP-003 per-language halal gate — done |
+| theme-presentation | 10 FR-CORP-005(b) + AC-CORP-05-01 News category, 10 per page — done |
+| theme-presentation | 11 FR-CORP-007 A1 + FR-FND-005 maintenance + brand settings — done |
+| theme-presentation | 12 FR-I18N-003(d) language bar announced politely — done |
+| theme-presentation | 13 Untested ACs → tests — done |
+| branch-notification-admin | F-MENU-04 — done |
+| branch-notification-admin | AC-BR-04-06 — done |
+| branch-notification-admin | FR-CORP-010(c) — done |
+| branch-notification-admin | FR-ADM-002(e)/F-ADM-02 — done |
+| branch-notification-admin | FR-ADM-001(d)/AC-ADM-01-02 — done |
+| branch-notification-admin | FR-BR-005+AC-BR-03-07 — done |
+| branch-notification-admin | AC-BR-03-06 — done |
+| branch-notification-admin | AC-SEO-02-04 — done |
+| menu-dietary | FR-MENU-004(a) — done |
+| menu-dietary | FR-MENU-005(a) — done |
+| menu-dietary | FR-DIET-002(f) — done |
+| menu-dietary | FR-CORP-001(e)/FR-CORP-003(a) — done |
+| menu-dietary | AC-MENU-02-04 — done |
+| menu-dietary | AC-DIET-01-07 — done |
+| menu-dietary | AC-DIET-01-08 — done |
+| menu-dietary | AC-DIET-02-06 — done |
+| reservation | FR-RES-009(a) — done |
+| reservation | FR-I18N-010(c) / AC-I18N-04-01 — done |
+| reservation | FR-BR-009(b) — done |
+| reservation | AC-RES-01-15 — done |
+| reservation | AC-RES-04-05 — done |
+| reservation | AC-PRV-01-01 — done |
+| reservation | AC-PRV-01-03 — done |
+| security-seo | FR-SEC-002 / AC-SEC-01-02 — done |
+| security-seo | FR-SEO-006 / F-SEO-02 — done |
+| security-seo | AC-SEC-01-06 — done |

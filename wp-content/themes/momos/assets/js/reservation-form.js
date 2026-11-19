@@ -38,7 +38,8 @@
 		langExplicit: false,
 		captchaId: null,
 		captchaToken: '',
-		captchaWaiters: []
+		captchaWaiters: [],
+		noticeCode: cfg.prefill && cfg.prefill.branch || '' // Branch whose notices the server rendered.
 	};
 
 	var f = {
@@ -51,7 +52,7 @@
 		partyChips: $('[data-res-party-chips]'), stepper: $('[data-res-party-stepper]'), more: $('[data-res-party-more]'), partyCall: $('[data-res-party-call]'),
 		branchInfo: $('[data-res-branch-info]'), testBanner: $('[data-res-test-banner]'), policy: $('[data-res-policy]'), errsum: $('#res-errsum'),
 		banner: $('[data-res-banner]'), submit: $('[data-res-submit]'), submitLabel: $('[data-res-submit-label]'), callAlt: $('[data-res-call-alt]'),
-		promise: d.querySelector('[data-res-promise]'), captcha: $('[data-res-captcha]')
+		promise: d.querySelector('[data-res-promise]'), captcha: $('[data-res-captcha]'), notices: $('[data-res-notices]')
 	};
 
 	// ---------------------------------------------------------------- helpers
@@ -247,9 +248,31 @@
 	}
 
 	// ---------------------------------------------------------------- branch-dependent UI
+	/**
+	 * FR-BR-009(b): notices of the selected branch from the page config (CustomerPages::notices, page
+	 * language only), CMP-NoticeBanner card markup; not-yet-started or ended ones are skipped (FR-BR-009(c)).
+	 * The server already rendered the preselected branch's notices, so the box is rebuilt only on change.
+	 */
+	function renderNotices() {
+		if (!ui.notices || f.branch.value === st.noticeCode) { return; }
+		st.noticeCode = f.branch.value;
+		var b = branch(), now = Date.now();
+		ui.notices.textContent = '';
+		((b && b.notices) || []).forEach(function (n) {
+			if (n.start_ms > now || (n.end_ms && now >= n.end_ms)) { return; }
+			var sev = n.severity === 'warning' ? 'warning' : 'info';
+			var body = R.el('p', { class: 'momo-notice__body', text: n.body });
+			if (n.link_label && /^(https?:\/\/|\/)/.test(n.link_url || '')) { body.appendChild(d.createTextNode(' ')); body.appendChild(R.el('a', { href: n.link_url, text: n.link_label })); }
+			ui.notices.appendChild(R.el('div', { class: 'momo-notice momo-notice--' + sev + ' momo-notice--card', role: 'region', 'aria-label': R.t('a11y.notice'), 'data-momo-notice': 'static', 'data-end': n.end_ms || null }, [
+				R.el('div', { class: 'momo-notice__inner' }, [R.icon(sev === 'warning' ? 'alert-triangle' : 'info'), R.el('div', { class: 'momo-notice__text' }, [n.title ? R.el('p', { class: 'momo-notice__title', text: n.title }) : null, body])])
+			]));
+		});
+		ui.notices.hidden = !ui.notices.firstChild;
+	}
 	function renderBranchUi() {
 		var b = branch();
 		if (ui.testBanner) { ui.testBanner.hidden = !(b && b.is_test); }
+		renderNotices();
 		// Policy link (DEC-054): only when the branch policy page is published in this language.
 		if (b && b.policy_url) {
 			var a = $('a', ui.policy);

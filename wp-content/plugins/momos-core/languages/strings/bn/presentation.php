@@ -223,4 +223,12 @@ return [
 	'res.placeholder.body' => 'অনলাইন টেবিল অনুরোধ শিগগিরই চালু হবে। ততদিন রিজার্ভেশনের জন্য শাখায় কল করুন।',
 	'res.placeholder.phones' => 'শাখাগুলোর ফোন নম্বর',
 	'status.title' => 'অনুরোধের অবস্থা',
+	'gallery.open_photo' => 'ছবি খুলুন',
+	'gallery.lightbox.label' => 'ছবি দেখার জানালা',
+	'gallery.prev' => 'আগের ছবি',
+	'gallery.next' => 'পরের ছবি',
+	'gallery.count' => '{total}টির মধ্যে ছবি {n}',
+	'branch.map.show' => 'মানচিত্র দেখান',
+	'branch.map.iframe_title' => '{branch}-এর মানচিত্র (Google Maps)',
+	'halal.brand_neutral' => 'হালাল সংক্রান্ত তথ্য প্রতিটি শাখার জন্য আলাদাভাবে দেখানো হয়।',
 ];

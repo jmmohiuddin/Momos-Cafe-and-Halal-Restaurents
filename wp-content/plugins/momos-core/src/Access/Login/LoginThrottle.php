@@ -14,7 +14,14 @@ use Momos\Kernel\Support\Hash;
  * Login throttling and lockout (SEC-004 canonical values, FR-SEC-002, AC-SEC-01-02; spec §5.3):
  *  - `login_ip`:   ⟦10⟧ failures (password or 2FA) per IP within 15 min → IP locked ⟦60 min⟧;
  *  - `login_user`: ⟦10⟧ failures per existing account within 15 min → account locked ⟦60 min⟧ from any IP;
+ *  - progressive delay (FR-SEC-002): from the ⟦5th⟧ failure in the window, per account and per IP, the next
+ *    attempt is accepted only 2^(n-5) s (capped at BACKOFF_MAX) after the last failure; an attempt inside
+ *    that window is refused with the same generic error before its password counts (no sleep() in PHP
+ *    workers) and is itself recorded as a failure, so hammering reaches the lock sooner, never later;
  *  - invalid username → IP locked immediately when `momo_login_lock_invalid_username` (default on);
+ *  - any account lock alerts ROLE-01 (AC-SEC-01-02) through `momos/monitoring/alert` with the per-user type
+ *    `account_lockout_{id}` (AlertMailer sends one mail per type per hour = throttled per user); locks of
+ *    administrator/Head Office accounts additionally escalate as `privileged_lockout` (SEC-004);
  *  - `lostpw_ip`:  ⟦5⟧ lost-password requests per IP per hour → generic confirmation, no email;
  *  - lost-password form: the same confirmation for unknown and existing accounts (no enumeration
  *    oracle, TC-SEC-003, spec §5.3) — `uniform_lostpassword()`.
@@ -27,6 +34,8 @@ final class LoginThrottle {
 	public const LOCK_SECONDS        = 3600;
 	public const LOSTPW_PER_HOUR     = 5;
 	public const SITE_ALERT_PER_HOUR = 20;
+	public const BACKOFF_AFTER       = 5;
+	public const BACKOFF_MAX         = 30;
 
 	private static ?int $locked_until   = null;
 	private static bool $lostpw_blocked = false;
@@ -72,6 +81,35 @@ final class LoginThrottle {
 			$until = max( $until, self::load( 'user', (string) $user_id )['locked_until'] );
 		}
 		return $until > self::now() ? $until : null;
+	}
+
+	/**
+	 * End (unix) of the progressive-delay window for the user and/or IP, or null when an attempt may be
+	 * made now (FR-SEC-002): n ≥ BACKOFF_AFTER failures within WINDOW → last failure + min(2^(n-5), BACKOFF_MAX) s.
+	 */
+	public static function backoff_until( ?int $user_id, ?string $ip ): ?int {
+		$now     = self::now();
+		$until   = 0;
+		$buckets = [];
+		if ( null !== $ip && '' !== $ip ) {
+			$buckets[] = self::load( 'ip', $ip )['fails'];
+		}
+		if ( $user_id ) {
+			$buckets[] = self::load( 'user', (string) $user_id )['fails'];
+		}
+		foreach ( $buckets as $fails ) {
+			$fails = array_filter( $fails, static fn( int $t ) => $t > $now - self::WINDOW );
+			$n     = count( $fails );
+			if ( $n >= self::BACKOFF_AFTER ) {
+				$until = max( $until, max( $fails ) + self::backoff_seconds( $n ) );
+			}
+		}
+		return $until > $now ? $until : null;
+	}
+
+	/** Delay after the n-th failure: 1, 2, 4, 8, 16 … s, capped (FR-SEC-002). */
+	public static function backoff_seconds( int $failures ): int {
+		return $failures < self::BACKOFF_AFTER ? 0 : (int) min( self::BACKOFF_MAX, 2 ** min( 10, $failures - self::BACKOFF_AFTER ) );
 	}
 
 	/**
@@ -122,7 +160,12 @@ final class LoginThrottle {
 
 	private static function on_lock( string $bucket, ?int $user_id, int $until ): void {
 		AuditTrail::for_user( $user_id, 'auth.lockout', 'auth', $user_id, null, [ 'bucket' => 'login_' . $bucket, 'until' => gmdate( 'Y-m-d H:i:s', $until ) ] );
-		$privileged = $user_id && array_intersect( [ 'administrator', 'momo_head_office' ], (array) ( get_userdata( $user_id )->roles ?? [] ) );
+		if ( ! $user_id ) {
+			return; // IP locks are covered by the site-wide failure alert.
+		}
+		// AC-SEC-01-02: ROLE-01 is alerted on any account lock; the per-user type throttles per account.
+		do_action( 'momos/monitoring/alert', 'account_lockout_' . $user_id, [ 'user_id' => $user_id, 'bucket' => 'login_user', 'lock_minutes' => (int) ( self::LOCK_SECONDS / 60 ) ] );
+		$privileged = array_intersect( [ 'administrator', 'momo_head_office' ], (array) ( get_userdata( $user_id )->roles ?? [] ) );
 		if ( $privileged ) {
 			Logger::warning( 'security.privileged_lockout', [ 'user_id' => $user_id ] );
 			do_action( 'momos/monitoring/alert', 'privileged_lockout', [ 'user_id' => $user_id ] );
@@ -143,7 +186,8 @@ final class LoginThrottle {
 
 	/**
 	 * Priority 99, after the password check: locked IP/account → refused even with a correct
-	 * password; disabled or expired account → the same generic error (spec §5.1 step 2).
+	 * password; inside the progressive-delay window → refused with the generic error whatever the
+	 * password (FR-SEC-002); disabled or expired account → the same generic error (spec §5.1 step 2).
 	 *
 	 * @param \WP_User|\WP_Error|null $user
 	 * @return \WP_User|\WP_Error|null
@@ -154,6 +198,10 @@ final class LoginThrottle {
 		if ( null !== $until ) {
 			self::$locked_until = $until;
 			return new \WP_Error( 'momos_locked', self::locked_message( $until ) );
+		}
+		$empty = $user instanceof \WP_Error && in_array( $user->get_error_code(), [ 'empty_username', 'empty_password' ], true );
+		if ( ! $empty && null !== self::backoff_until( $candidate ? (int) $candidate->ID : null, RequestContext::ip() ) ) {
+			return new \WP_Error( 'momos_throttled', self::generic_message() );
 		}
 		if ( $user instanceof \WP_User && \Momos\Access\AccountStatus::is_inactive( (int) $user->ID ) ) {
 			AuditTrail::for_user( (int) $user->ID, 'auth.disabled_login', 'user', (int) $user->ID, null, [ 'state' => \Momos\Access\AccountStatus::is_disabled( (int) $user->ID ) ? 'disabled' : 'expired' ] );
@@ -175,7 +223,11 @@ final class LoginThrottle {
 			self::$locked_until = $until;
 		}
 		// Never the typed username (SEC-081): only the account id when it exists.
-		AuditTrail::for_user( $user ? (int) $user->ID : null, 'auth.login_failed', 'auth', $user ? (int) $user->ID : null, null, [ 'reason' => $user ? 'credentials' : 'unknown_account' ] );
+		$reason = $user ? 'credentials' : 'unknown_account';
+		if ( $error instanceof \WP_Error && 'momos_throttled' === $error->get_error_code() ) {
+			$reason = 'throttled';
+		}
+		AuditTrail::for_user( $user ? (int) $user->ID : null, 'auth.login_failed', 'auth', $user ? (int) $user->ID : null, null, [ 'reason' => $reason ] );
 	}
 
 	public static function login_errors( $html ): string {

@@ -1,6 +1,7 @@
 <?php
 /**
- * CMP-BranchCard (§7.3). Name + concept tag · area · open status · address · phone (LTR) · actions
+ * CMP-BranchCard (§7.3). Name + concept tag · area · open status · address + "Copy Japanese address"
+ * (FR-BR-001(b), AC-BR-01-04; same component as the detail address block) · phone (LTR) · actions
  * Request (only while accepting) / Directions / Details. Temporarily closed: warning chip, no request.
  *
  * @package momos
@@ -69,6 +70,7 @@ $momos_ja   = 'ja' === momos_theme_lang();
 					<span dir="auto"><?php echo esc_html( (string) $momos_b['address'] ); ?></span><br>
 				<?php endif; ?>
 				<?php echo class_exists( \Momos\Presentation\Helpers\Bdi::class ) ? \Momos\Presentation\Helpers\Bdi::ja( (string) $momos_b['address_ja'] ) : esc_html( (string) $momos_b['address_ja'] ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				<?php momos_component( 'copy-address', [ 'text' => (string) ( $momos_b['address_copy'] ?? $momos_b['address_ja'] ), 'label' => momos_s( 'branch.copy_address' ) . ' — ' . (string) $momos_b['name'] ] ); ?>
 			</span></div>
 		<?php endif; ?>
 		<?php if ( ! empty( $momos_b['tel'] ) ) : ?>

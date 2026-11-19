@@ -8,7 +8,8 @@ use Momos\Menu\ContentTypes;
 use Momos\Menu\Fields\MenuFields;
 
 /**
- * Publish validation of a dish (FR-MENU-004, spec §3.8, TC-DISH-003, AC-MENU-03-02/07).
+ * Publish validation of a dish (FR-MENU-004, spec §3.8, TC-DISH-003, AC-MENU-03-02/07), including the
+ * 1,500-character limit of the long description (FR-MENU-004(a), DescriptionLimit).
  * Hooked on `momos/fields/publish_errors/momo_dish` (FieldRegistry downgrades a new publication to
  * draft when errors are returned). Allergen states may be `not_verified` (warning only).
  */
@@ -26,7 +27,7 @@ final class DishPublishValidator {
 	public static function filter( array $errors, array $values, array $data, int $post_id ): array {
 		// FieldRegistry's generic "title required" message is replaced by the combined list below.
 		$errors = array_values( array_filter( $errors, static fn( $e ) => __( 'A title is required to publish.', 'momos-core' ) !== $e ) );
-		return array_merge( $errors, self::errors( $values, $post_id, (string) ( $data['post_title'] ?? '' ), self::submitted_categories( $post_id ), self::submitted_thumbnail( $post_id ) ) );
+		return array_merge( $errors, self::errors( $values, $post_id, (string) ( $data['post_title'] ?? '' ), self::submitted_categories( $post_id ), self::submitted_thumbnail( $post_id ), wp_unslash( (string) ( $data['post_content'] ?? '' ) ) ) );
 	}
 
 	/**
@@ -34,7 +35,7 @@ final class DishPublishValidator {
 	 * @param list<int>           $category_ids
 	 * @return list<string>
 	 */
-	public static function errors( array $v, int $post_id, string $title, array $category_ids, int $thumbnail_id ): array {
+	public static function errors( array $v, int $post_id, string $title, array $category_ids, int $thumbnail_id, string $content = '' ): array {
 		$missing = [];
 		$errors  = [];
 		$title   = trim( $title );
@@ -42,6 +43,9 @@ final class DishPublishValidator {
 			$missing[] = __( 'name', 'momos-core' );
 		} elseif ( mb_strlen( $title ) > 100 ) {
 			$errors[] = __( 'The dish name can have at most 100 characters.', 'momos-core' );
+		}
+		if ( DescriptionLimit::exceeds( $content ) ) {
+			$errors[] = DescriptionLimit::message( DescriptionLimit::length( $content ) );
 		}
 		if ( '' === trim( (string) ( $v['momo_short_description'] ?? '' ) ) ) {
 			$missing[] = __( 'short description', 'momos-core' );
@@ -108,7 +112,7 @@ final class DishPublishValidator {
 			$values += FieldRegistry::post_values( $post_id, $g );
 		}
 		$cats = wp_get_object_terms( $post_id, ContentTypes::CATEGORY, [ 'fields' => 'ids' ] );
-		return self::errors( $values, $post_id, $post->post_title, is_array( $cats ) ? array_map( 'intval', $cats ) : [], (int) get_post_thumbnail_id( $post_id ) );
+		return self::errors( $values, $post_id, $post->post_title, is_array( $cats ) ? array_map( 'intval', $cats ) : [], (int) get_post_thumbnail_id( $post_id ), (string) $post->post_content );
 	}
 
 	/** @return list<int> categories as submitted in the classic editor, else stored. */

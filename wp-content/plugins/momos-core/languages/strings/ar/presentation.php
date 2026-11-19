@@ -223,4 +223,12 @@ return [
 	'res.placeholder.body' => 'ستتوفر طلبات الطاولات عبر الإنترنت قريبًا. حتى ذلك الحين، يرجى الاتصال بالفرع للحجز.',
 	'res.placeholder.phones' => 'أرقام هواتف الفروع',
 	'status.title' => 'حالة الطلب',
+	'gallery.open_photo' => 'فتح الصورة',
+	'gallery.lightbox.label' => 'عارض الصور',
+	'gallery.prev' => 'الصورة السابقة',
+	'gallery.next' => 'الصورة التالية',
+	'gallery.count' => 'الصورة {n} من {total}',
+	'branch.map.show' => 'عرض الخريطة',
+	'branch.map.iframe_title' => 'خريطة {branch} (خرائط Google)',
+	'halal.brand_neutral' => 'تُعرض معلومات الحلال لكل فرع على حدة.',
 ];

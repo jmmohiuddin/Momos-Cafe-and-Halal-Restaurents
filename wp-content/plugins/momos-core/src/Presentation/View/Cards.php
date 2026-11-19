@@ -53,6 +53,8 @@ final class Cards {
 			return null;
 		}
 		$accepting = ActionBar::accepting( $branch_id, $b );
+		$ja_addr   = BranchView::address( $branch_id, \Momos\Kernel\I18n\Lang::SOURCE );
+		$copy      = trim( $ja_addr['postal'] . ' ' . $ja_addr['ja'] );
 		return [
 			'id'          => $branch_id,
 			'code'        => $b['code'],
@@ -61,6 +63,8 @@ final class Cards {
 			'area'        => Translations::post( $branch_id, 'momo_area_label', $lang ),
 			'address'     => trim( Translations::post( $branch_id, 'momo_address_line1', $lang ) . ' ' . Translations::post( $branch_id, 'momo_address_line2', $lang ) ),
 			'address_ja'  => (string) $b['address_ja'],
+			// Exact Japanese address for the copy button, postal code once (FR-BR-001(b), AC-BR-01-04, DEF-009).
+			'address_copy' => (string) $copy,
 			'phone'       => '' !== $b['phone_e164'] ? PhoneFormatter::display( $b['phone_e164'], $b['phone_display'], $lang ) : '',
 			'tel'         => '' !== $b['phone_e164'] ? PhoneFormatter::tel_href( $b['phone_e164'] ) : '',
 			'url'         => Url::localize( (string) get_permalink( $branch_id ), $lang ),
@@ -91,7 +95,8 @@ final class Cards {
 		if ( 'temporarily_closed' === ( $s['closed_reason'] ?? '' ) ) {
 			$reopen = (string) get_post_meta( $branch_id, 'momo_reopen_date', true );
 			$html   = '' !== $reopen
-				? Bdi::t( 'branch.temp_closed', [ 'date' => DateFormatter::short( $reopen, $lang ) ], [ 'date' ], $lang )
+				// Long date with the year (Doc 07 §6.10 "Long date (pages)"; AC-BR-01-01 "Reopens 10 Dec 2026").
+				? Bdi::t( 'branch.temp_closed', [ 'date' => DateFormatter::long( $reopen, $lang ) ], [ 'date' ], $lang )
 				: esc_html( momos_t( 'branch.temp_closed_nodate', [], $lang ) );
 			return [ 'state' => 'temp_closed', 'html' => $html ];
 		}
@@ -210,6 +215,9 @@ final class Cards {
 			'image_id'     => (int) get_post_thumbnail_id( $offer_id ),
 			'illustrative' => '1' === (string) get_post_meta( (int) get_post_thumbnail_id( $offer_id ), 'momo_image_illustrative', true ) || '1' === (string) get_post_meta( $offer_id, 'momo_image_illustrative', true ),
 			'cta'          => \Momos\Branch\Query\OfferQuery::cta( $offer_id, $lang ),
+			// FR-CORP-011(e): validity instants (UTC epoch ms) so frame.js re-checks a cached card at view time.
+			'start_ms'     => $start ? $start->getTimestamp() * 1000 : null,
+			'end_ms'       => $end ? $end->getTimestamp() * 1000 : null,
 		];
 	}
 }

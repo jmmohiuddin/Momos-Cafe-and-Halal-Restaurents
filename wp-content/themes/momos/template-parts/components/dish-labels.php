@@ -15,8 +15,10 @@ $momos_out   = '';
 foreach ( (array) ( $momos_c['tags'] ?? [] ) as $momos_t ) {
 	$momos_out .= '<span class="momo-diet">' . momos_icon( $momos_icons[ $momos_t['code'] ] ?? 'check', 'momo-icon--sm' ) . esc_html( (string) $momos_t['label'] ) . '</span>';
 }
-$momos_sp = (int) ( $momos_c['spice'] ?? 0 );
-if ( $momos_sp > 0 && ! empty( $momos_c['spice_label'] ) ) {
+// Spice 0–3: three chilli icons (filled = level) + text, level 0 included ("Not spicy") — FR-MENU-002(a),
+// FR-MENU-003(a), Doc 08 CMP-DietaryIcon. Rendered whenever the card carries a spice label.
+$momos_sp = max( 0, min( 3, (int) ( $momos_c['spice'] ?? 0 ) ) );
+if ( isset( $momos_c['spice'] ) && ! empty( $momos_c['spice_label'] ) ) {
 	$momos_ch = '';
 	for ( $i = 1; $i <= 3; $i++ ) {
 		$momos_ch .= momos_icon( $i <= $momos_sp ? 'chili-filled' : 'chili-outline' );

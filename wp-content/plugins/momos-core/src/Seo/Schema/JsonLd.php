@@ -175,6 +175,15 @@ final class JsonLd {
 			if ( null !== $menu ) {
 				$node['menu'] = Context::clean( $menu );
 			}
+			// FR-SEO-006(b) / Q-415: only when Head Office has supplied the values (SEO settings).
+			$cuisine = SeoSettings::serves_cuisine( $lang );
+			if ( '' !== $cuisine ) {
+				$node['servesCuisine'] = $cuisine;
+			}
+			$price = SeoSettings::price_range();
+			if ( '' !== $price ) {
+				$node['priceRange'] = $price;
+			}
 			if ( 'open' === $b['operating_status'] && '1' === (string) get_post_meta( $branch_id, 'momo_res_enabled', true ) ) {
 				$node['acceptsReservations'] = true;
 			}

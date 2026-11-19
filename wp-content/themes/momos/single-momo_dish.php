@@ -105,7 +105,7 @@ $momos_price   = static function ( string $key, string $price_html, string $bran
 		$momos_sp   = (int) ( $momos_card['spice'] ?? 0 );
 		?>
 		<div class="momo-dish-facts">
-			<?php momos_component( 'dish-labels', [ 'card' => [ 'tags' => $momos_tags, 'spice' => $momos_sp, 'spice_label' => $momos_sp > 0 ? momos_s( 'menu.spice', [ 'label' => (string) $momos_card['spice_label'] ] ) : '' ] ] ); ?>
+			<?php momos_component( 'dish-labels', [ 'card' => [ 'tags' => $momos_tags, 'spice' => $momos_sp, 'spice_label' => momos_s( 'menu.spice', [ 'label' => (string) $momos_card['spice_label'] ] ) ] ] ); // Level 0 too: "Spice: Not spicy" (FR-MENU-003(a)). ?>
 			<?php if ( ! empty( $momos_card['advance_order_hours'] ) ) : ?>
 				<div class="momo-alert momo-alert--warning" role="note">
 					<?php momos_the_icon( 'clock' ); ?>

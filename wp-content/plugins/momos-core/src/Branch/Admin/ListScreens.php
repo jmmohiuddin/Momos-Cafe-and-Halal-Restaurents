@@ -3,23 +3,33 @@ declare(strict_types=1);
 
 namespace Momos\Branch\Admin;
 
+use Momos\Access\AccountStatus;
+use Momos\Branch\Domain\OfferScope;
 use Momos\Branch\Domain\OfferState;
 use Momos\Branch\Fields\BranchFields;
 use Momos\Branch\PostType\BranchScopeTaxonomy;
 use Momos\Branch\Query\NoticeQuery;
 use Momos\Branch\Query\OfferQuery;
 use Momos\Branch\Service\BranchAccess;
+use Momos\Kernel\Clock\Clock;
 use Momos\Kernel\Db\Tables;
 use Momos\Kernel\I18n\Lang;
 use Momos\Kernel\I18n\Translations;
 
 /**
  * Admin list/edit screen additions (SCR-A03/A13/A20, spec §7): list columns, scoped list tables
- * for branch-scoped staff, GATE-01 block in the publish box, assigned-staff panel, offer row
- * action "Duplicate as draft" and the HO dashboard widget "Offers waiting for approval".
+ * for branch-scoped staff, offer list filters by state / scope / branch (FR-CORP-010(c)), GATE-01
+ * block in the publish box, assigned-staff panel (active users only, FR-ADM-002(e)), offer row
+ * action "Duplicate as draft" and the HO dashboard widget "Offers awaiting approval: N"
+ * (FR-ADM-001(b), AC-ADM-01-02).
  */
 final class ListScreens {
 	private const SCOPED_TYPES = [ 'momo_branch', 'momo_notice', 'momo_offer' ];
+
+	/** Offer list filter query args (FR-CORP-010(c)). */
+	public const F_STATE  = 'momo_offer_state';
+	public const F_SCOPE  = 'momo_offer_scope';
+	public const F_BRANCH = 'momo_offer_branch';
 
 	public static function register(): void {
 		add_filter( 'manage_momo_branch_posts_columns', [ self::class, 'branch_columns' ] );
@@ -29,6 +39,8 @@ final class ListScreens {
 		add_filter( 'manage_momo_offer_posts_columns', [ self::class, 'offer_columns' ] );
 		add_action( 'manage_momo_offer_posts_custom_column', [ self::class, 'offer_cell' ], 10, 2 );
 		add_action( 'pre_get_posts', [ self::class, 'scope_lists' ] );
+		add_action( 'pre_get_posts', [ self::class, 'offer_filters' ], 11 );
+		add_action( 'restrict_manage_posts', [ self::class, 'offer_filter_controls' ], 10, 2 );
 		add_filter( 'wp_count_posts', [ self::class, 'scope_counts' ], 10, 2 );
 		add_action( 'post_submitbox_misc_actions', [ self::class, 'gate_block' ] );
 		add_action( 'add_meta_boxes_momo_branch', [ self::class, 'staff_panel' ] );
@@ -205,6 +217,144 @@ final class ListScreens {
 		}
 	}
 
+	// ------------------------------------------------------------------ offer list filters (FR-CORP-010(c))
+
+	/**
+	 * Requested offer filters, validated: state ∈ OfferState, scope ∈ OfferScope, branch = a branch the
+	 * user may see (branch-scoped staff: assigned branches only; anything else is ignored).
+	 *
+	 * @param array<string,mixed> $req
+	 * @return array{state:string,scope:string,branch:int}
+	 */
+	public static function offer_filter_values( array $req ): array {
+		$state  = isset( $req[ self::F_STATE ] ) ? sanitize_key( (string) $req[ self::F_STATE ] ) : '';
+		$scope  = isset( $req[ self::F_SCOPE ] ) ? sanitize_key( (string) $req[ self::F_SCOPE ] ) : '';
+		$branch = isset( $req[ self::F_BRANCH ] ) ? absint( $req[ self::F_BRANCH ] ) : 0;
+		return [
+			'state'  => OfferState::is_valid( $state ) ? $state : '',
+			'scope'  => OfferScope::is_valid( $scope ) ? $scope : '',
+			'branch' => $branch > 0 && in_array( $branch, self::filter_branch_ids(), true ) ? $branch : 0,
+		];
+	}
+
+	/**
+	 * Branches offered in the branch filter: every branch for unscoped staff, assigned ones otherwise.
+	 *
+	 * @return list<int>
+	 */
+	public static function filter_branch_ids(): array {
+		$ids   = array_map( 'intval', get_posts( [ 'post_type' => 'momo_branch', 'post_status' => [ 'publish', 'draft', 'pending', 'future', 'private' ], 'fields' => 'ids', 'posts_per_page' => 200, 'orderby' => 'title', 'order' => 'ASC', 'no_found_rows' => true, 'suppress_filters' => true ] ) );
+		$scope = momos_user_branch_ids();
+		return null === $scope ? $ids : array_values( array_intersect( $ids, array_map( 'intval', $scope ) ) );
+	}
+
+	/** Filter controls above the offers list (state, scope, branch). */
+	public static function offer_filter_controls( string $post_type, string $which = 'top' ): void {
+		if ( 'momo_offer' !== $post_type || 'top' !== $which ) {
+			return;
+		}
+		$f      = self::offer_filter_values( wp_unslash( $_GET ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filters, validated above.
+		$select = static function ( string $name, string $label, string $all, array $choices, string $current ): void {
+			echo '<label class="screen-reader-text" for="' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
+			echo '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $name ) . '"><option value="">' . esc_html( $all ) . '</option>';
+			foreach ( $choices as $value => $text ) {
+				echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $current, (string) $value, false ) . '>' . esc_html( $text ) . '</option>';
+			}
+			echo '</select>';
+		};
+		$select( self::F_STATE, self::t( 'admin.offers.filter.state' ), self::t( 'admin.offers.filter.all_states' ), self::offer_state_labels(), $f['state'] );
+		$select(
+			self::F_SCOPE,
+			self::t( 'admin.offers.filter.scope' ),
+			self::t( 'admin.offers.filter.all_scopes' ),
+			[
+				OfferScope::AllBranches->value => self::t( 'admin.offers.scope.all_branches' ),
+				OfferScope::Branches->value    => self::t( 'admin.offers.scope.branches' ),
+			],
+			$f['scope']
+		);
+		$branches = [];
+		foreach ( self::filter_branch_ids() as $b ) {
+			$code           = (string) get_post_meta( $b, 'momo_branch_code', true );
+			$branches[ $b ] = get_the_title( $b ) . ( '' !== $code ? ' (' . $code . ')' : '' );
+		}
+		$select( self::F_BRANCH, self::t( 'admin.offers.filter.branch' ), self::t( 'admin.offers.filter.all_branches' ), $branches, $f['branch'] ? (string) $f['branch'] : '' );
+	}
+
+	/**
+	 * Apply the offer filters to the main admin list query. State is the computed state of
+	 * OfferQuery::state() (status + stored UTC validity); branch = offers that apply to that branch
+	 * (scoped to it, or all branches). Runs after scope_lists(), so the scoped post__in is kept.
+	 */
+	public static function offer_filters( \WP_Query $q ): void {
+		if ( ! is_admin() || ! $q->is_main_query() || 'momo_offer' !== (string) $q->get( 'post_type' ) ) {
+			return;
+		}
+		self::apply_offer_filters( $q, self::offer_filter_values( wp_unslash( $_GET ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filters.
+	}
+
+	/** @param array{state:string,scope:string,branch:int} $f */
+	public static function apply_offer_filters( \WP_Query $q, array $f ): void {
+		$meta = [];
+		$now  = Clock::mysql_utc();
+		switch ( $f['state'] ) {
+			case OfferState::Draft->value:
+				$q->set( 'post_status', [ 'draft', 'future', 'private' ] );
+				break;
+			case OfferState::Pending->value:
+				$q->set( 'post_status', 'pending' );
+				break;
+			case OfferState::Scheduled->value:
+				$q->set( 'post_status', 'publish' );
+				$meta[] = [ 'key' => '_momo_offer_start_utc', 'value' => $now, 'compare' => '>', 'type' => 'DATETIME' ];
+				break;
+			case OfferState::Active->value:
+				$q->set( 'post_status', 'publish' );
+				$meta[] = [
+					'relation' => 'OR',
+					[ 'key' => '_momo_offer_start_utc', 'compare' => 'NOT EXISTS' ],
+					[ 'key' => '_momo_offer_start_utc', 'value' => $now, 'compare' => '<=', 'type' => 'DATETIME' ],
+				];
+				$meta[] = [
+					'relation' => 'OR',
+					[ 'key' => '_momo_offer_end_utc', 'compare' => 'NOT EXISTS' ],
+					[ 'key' => '_momo_offer_end_utc', 'value' => $now, 'compare' => '>', 'type' => 'DATETIME' ],
+				];
+				break;
+			case OfferState::Expired->value:
+				$q->set( 'post_status', 'publish' );
+				$meta[] = [ 'key' => '_momo_offer_end_utc', 'value' => $now, 'compare' => '<=', 'type' => 'DATETIME' ];
+				break;
+		}
+		if ( OfferScope::AllBranches->value === $f['scope'] ) {
+			$meta[] = [ 'key' => 'momo_offer_scope', 'value' => OfferScope::AllBranches->value ];
+		} elseif ( OfferScope::Branches->value === $f['scope'] ) {
+			$meta[] = [
+				'relation' => 'OR',
+				[ 'key' => 'momo_offer_scope', 'compare' => 'NOT EXISTS' ],
+				[ 'key' => 'momo_offer_scope', 'value' => OfferScope::AllBranches->value, 'compare' => '!=' ],
+			];
+		}
+		if ( $meta ) {
+			$existing = (array) $q->get( 'meta_query' );
+			$q->set( 'meta_query', array_merge( array_filter( $existing ), [ 'relation' => 'AND' ], $meta ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list filter.
+		}
+		if ( $f['branch'] > 0 ) {
+			$term = BranchScopeTaxonomy::term_for_branch( $f['branch'] );
+			$ids  = $term ? array_map( 'intval', (array) get_objects_in_term( $term->term_id, BranchScopeTaxonomy::TAX ) ) : [];
+			$all  = get_posts( [ 'post_type' => 'momo_offer', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 1000, 'no_found_rows' => true, 'suppress_filters' => true, 'meta_key' => 'momo_offer_scope', 'meta_value' => OfferScope::AllBranches->value ] ); // phpcs:ignore WordPress.DB.SlowDBQuery -- admin list filter.
+			$ids  = array_values( array_unique( array_merge( $ids, array_map( 'intval', $all ) ) ) );
+			$in   = array_map( 'intval', (array) $q->get( 'post__in' ) );
+			$ids  = $in ? array_values( array_intersect( $in, $ids ) ) : $ids;
+			$q->set( 'post__in', $ids ?: [ 0 ] );
+		}
+	}
+
+	/** Admin catalog string in the viewer's admin language (ja/en, DEC-037). @param array<string,string|int> $args */
+	private static function t( string $key, array $args = [] ): string {
+		return momos_t( $key, $args, str_starts_with( (string) get_user_locale(), 'ja' ) ? 'ja' : 'en' );
+	}
+
 	private static function branch_names( int $post_id ): string {
 		return implode( ', ', array_map( static fn( $b ) => get_the_title( $b ), BranchScopeTaxonomy::branch_ids_of_post( $post_id ) ) );
 	}
@@ -314,9 +464,7 @@ final class ListScreens {
 			'momos-branch-staff',
 			__( 'Assigned staff', 'momos-core' ),
 			static function ( \WP_Post $p ): void {
-				global $wpdb;
-				$t     = Tables::user_branches();
-				$users = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( "SELECT user_id FROM {$t} WHERE branch_id = %d", $p->ID ) ) ); // phpcs:ignore
+				$users = self::assigned_staff( $p->ID );
 				if ( ! $users ) {
 					echo '<p>' . esc_html__( 'No staff assigned.', 'momos-core' ) . '</p>';
 					return;
@@ -337,18 +485,31 @@ final class ListScreens {
 		);
 	}
 
+	/**
+	 * Active users assigned to a branch (FR-ADM-002(e), F-ADM-02): disabled accounts and accounts past
+	 * their access window are left out (AccountStatus::is_inactive); assignment rows are kept for
+	 * history (AccountService::disable), so they are filtered here.
+	 *
+	 * @return list<int>
+	 */
+	public static function assigned_staff( int $branch_id ): array {
+		global $wpdb;
+		$t     = Tables::user_branches();
+		$users = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( "SELECT user_id FROM {$t} WHERE branch_id = %d ORDER BY user_id", $branch_id ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Tables.
+		return array_values( array_filter( $users, static fn( int $uid ): bool => false !== get_userdata( $uid ) && ! AccountStatus::is_inactive( $uid ) ) );
+	}
+
 	public static function dashboard(): void {
 		if ( ! current_user_can( 'publish_momo_offers' ) ) {
 			return;
 		}
-		wp_add_dashboard_widget(
-			'momos_offers_pending',
-			__( 'Offers waiting for approval', 'momos-core' ),
-			static function (): void {
-				$n = (int) ( wp_count_posts( 'momo_offer' )->pending ?? 0 );
-				/* translators: %d: number of offers */
-				echo '<p><a href="' . esc_url( admin_url( 'edit.php?post_type=momo_offer&post_status=pending' ) ) . '">' . esc_html( sprintf( _n( '%d offer is waiting for approval.', '%d offers are waiting for approval.', $n, 'momos-core' ), $n ) ) . '</a></p>';
-			}
-		);
+		wp_add_dashboard_widget( 'momos_offers_pending', self::t( 'admin.dash.offers_pending.title' ), [ self::class, 'offers_pending_widget' ] );
+	}
+
+	/** HO widget (AC-ADM-01-02): "Offers awaiting approval: N" → offers list filtered by state = pending. */
+	public static function offers_pending_widget(): void {
+		$n   = (int) ( wp_count_posts( 'momo_offer' )->pending ?? 0 );
+		$url = add_query_arg( [ 'post_type' => 'momo_offer', self::F_STATE => OfferState::Pending->value ], admin_url( 'edit.php' ) );
+		echo '<p class="momos-dash-count"><a href="' . esc_url( $url ) . '">' . esc_html( self::t( 'admin.dash.offers_pending.count', [ 'n' => number_format_i18n( $n ) ] ) ) . '</a></p>';
 	}
 }

@@ -222,4 +222,12 @@ return [
 	'res.placeholder.body' => 'オンラインの予約リクエストは近日受付開始予定です。それまでは店舗へお電話ください。',
 	'res.placeholder.phones' => '店舗の電話番号',
 	'status.title' => 'リクエストの状況',
+	'gallery.open_photo' => '写真を開く',
+	'gallery.lightbox.label' => '写真ビューアー',
+	'gallery.prev' => '前の写真',
+	'gallery.next' => '次の写真',
+	'gallery.count' => '{total}枚中{n}枚目',
+	'branch.map.show' => '地図を表示',
+	'branch.map.iframe_title' => '{branch}の地図（Google マップ）',
+	'halal.brand_neutral' => 'ハラールに関する情報は店舗ごとに表示しています。',
 ];

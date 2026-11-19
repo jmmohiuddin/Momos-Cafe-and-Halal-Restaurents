@@ -223,4 +223,12 @@ return [
 	'res.placeholder.body' => 'آن لائن میز کی درخواستیں جلد شروع ہوں گی۔ تب تک ریزرویشن کے لیے برانچ کو کال کریں۔',
 	'res.placeholder.phones' => 'برانچوں کے فون نمبر',
 	'status.title' => 'درخواست کی صورتحال',
+	'gallery.open_photo' => 'تصویر کھولیں',
+	'gallery.lightbox.label' => 'تصویر ناظر',
+	'gallery.prev' => 'پچھلی تصویر',
+	'gallery.next' => 'اگلی تصویر',
+	'gallery.count' => '{total} میں سے تصویر {n}',
+	'branch.map.show' => 'نقشہ دکھائیں',
+	'branch.map.iframe_title' => '{branch} کا نقشہ (Google Maps)',
+	'halal.brand_neutral' => 'حلال سے متعلق معلومات ہر برانچ کے لیے الگ دکھائی جاتی ہیں۔',
 ];

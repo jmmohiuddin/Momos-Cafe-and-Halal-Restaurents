@@ -50,4 +50,6 @@ return [
 	'availability_reason.ingredient_unavailable' => 'सामग्री उपलब्ध नहीं',
 	'availability_reason.advance_order_only'     => 'केवल अग्रिम ऑर्डर पर',
 	'media.illustration'                  => 'चित्र केवल उदाहरण के लिए है',
+	// FR-MENU-005(a) audit label (SCR-A16).
+	'admin.audit.action.menu_category.reordered' => 'श्रेणी क्रम बदला गया',
 ];

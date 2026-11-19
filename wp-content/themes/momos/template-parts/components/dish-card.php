@@ -56,7 +56,8 @@ foreach ( (array) ( $momos_c['data'] ?? [] ) as $momos_k => $momos_v ) {
 	<?php endif; ?>
 	<?php momos_component( 'dish-labels', [ 'card' => $momos_c ] ); ?>
 	<?php if ( ! empty( $momos_c['price_html'] ) ) : ?>
-		<div class="momo-dish-card__foot"><?php momos_component( 'price', [ 'html' => (string) $momos_c['price_html'], 'sample' => $momos_smp ] ); ?></div>
+		<?php // FR-MENU-002(b), AC-MENU-01-01: no branch selected and prices differ → reference price + "Prices may differ by branch". ?>
+		<div class="momo-dish-card__foot"><?php momos_component( 'price', [ 'html' => (string) $momos_c['price_html'], 'sample' => $momos_smp, 'context' => ! empty( $momos_c['prices_may_differ'] ) ? momos_s( 'menu.prices_may_differ' ) : '' ] ); ?></div>
 	<?php elseif ( $momos_smp ) : ?>
 		<div class="momo-dish-card__foot"><span class="momo-sample"><?php echo esc_html( momos_s( 'demo.sample_badge' ) ); ?></span></div>
 	<?php endif; ?>

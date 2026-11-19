@@ -121,7 +121,8 @@ $momos_cats = class_exists( \Momos\Presentation\View\MenuView::class ) ? \Momos\
 <?php endif; ?>
 
 <?php
-// Halal summary band only when the statement renders (screens.md §2 "sections without data are not rendered").
+// Halal summary band (FR-CORP-001(e)): the brand statement, else the neutral text — it always renders while the
+// Presentation layer is available (Home::halal_claim); the guard only covers a bare theme without momos-core.
 ob_start();
 momos_component( 'claim-statement', [ 'context' => 'brand', 'h' => 2, 'link' => true ] );
 $momos_claim_html = trim( (string) ob_get_clean() );
@@ -148,6 +149,11 @@ if ( '' !== $momos_claim_html ) :
 				],
 			]
 		);
+		// FR-CORP-001(f), AC-CORP-01-05, DEC-013: the configured promise only when its copy is approved in this language.
+		$momos_promise = class_exists( \Momos\Presentation\View\Home::class ) ? \Momos\Presentation\View\Home::response_promise() : '';
+		if ( '' !== $momos_promise ) {
+			echo '<p class="momo-center-action momo-muted" data-momo-promise>' . esc_html( $momos_promise ) . '</p>';
+		}
 		?>
 		<p class="momo-center-action"><?php momos_component( 'button', [ 'label' => momos_s( 'cta.request_table' ), 'url' => momos_page_url( 'reservation' ), 'variant' => 'primary', 'icon' => 'calendar', 'attrs' => [ 'data-momo-event' => 'click_reservation', 'data-momo-cta' => 'home_section' ] ] ); ?></p>
 	</div>

@@ -50,4 +50,6 @@ return [
 	'availability_reason.ingredient_unavailable' => '食材の入荷待ち',
 	'availability_reason.advance_order_only'     => '要予約注文',
 	'media.illustration'                  => '写真はイメージです',
+	// FR-MENU-005(a) audit label (SCR-A16).
+	'admin.audit.action.menu_category.reordered' => 'カテゴリーの並び順変更',
 ];

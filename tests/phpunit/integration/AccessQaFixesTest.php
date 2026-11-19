@@ -324,7 +324,7 @@ final class AccessQaFixesTest extends AccessTestCaseTest {
 		$mm = $this->widgets_for( $this->user_with_role( 'momo_menu_manager' ) );
 		$this->assertSame( [ 'momos_allergens', 'momos_demo_content', 'momos_dishes', 'momos_translation_gaps' ], $mm );
 		$ce = $this->widgets_for( $this->user_with_role( 'momo_content_editor' ) );
-		$this->assertSame( [ 'momos_demo_content', 'momos_offers_ending', 'momos_offers_own', 'momos_translation_gaps' ], $ce );
+		$this->assertSame( [ 'momos_demo_content', 'momos_offers_ending', 'momos_offers_own', 'momos_pages_pending', 'momos_translation_gaps' ], $ce, 'ROLE-04 (d): pages awaiting review (FR-ADM-001)' );
 		$tr = $this->widgets_for( $this->user_with_role( 'momo_translator' ) );
 		$this->assertContains( 'momos_translation_jobs', $tr );
 		$ho = $this->widgets_for( $this->user_with_role( 'momo_head_office' ) );

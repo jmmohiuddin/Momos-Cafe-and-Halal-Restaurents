@@ -45,4 +45,6 @@ return [
 	'halal.scope.specific_ingredients' => 'নির্দিষ্ট উপকরণ',
 	'alcohol.heading'                => 'অ্যালকোহল',
 	'diet.list.separator'            => ', ',
+	// FR-DIET-002(f) audit label (SCR-A16).
+	'admin.audit.action.dietary.prohibited_terms_updated' => 'নিষিদ্ধ শব্দের তালিকা হালনাগাদ',
 ];
