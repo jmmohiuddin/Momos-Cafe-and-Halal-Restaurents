@@ -7,8 +7,8 @@ VERSION="${1:-$(grep "define( 'MOMOS_CORE_VERSION'" "$ROOT/wp-content/plugins/mo
 OUT="$ROOT/build/momos-$VERSION"
 rm -rf "$OUT" && mkdir -p "$OUT/wp-content/plugins" "$OUT/wp-content/themes"
 cp -R "$ROOT/wp-content/mu-plugins" "$OUT/wp-content/"
-rsync -a --exclude vendor --exclude tests "$ROOT/wp-content/plugins/momos-core" "$OUT/wp-content/plugins/"
-( cd "$OUT/wp-content/plugins/momos-core" && composer install -q --no-dev --optimize-autoloader --no-interaction )
+rsync -a --exclude .git --exclude vendor --exclude tests "$ROOT/wp-content/plugins/momos-core" "$OUT/wp-content/plugins/"
+( cd "$OUT/wp-content/plugins/momos-core" && composer install -q --no-dev --prefer-dist --optimize-autoloader --no-interaction )
 rsync -a --exclude node_modules "$ROOT/wp-content/themes/momos" "$OUT/wp-content/themes/"
 # Static maintenance page (SCR-C20) as the WordPress drop-in, shown during `wp maintenance-mode activate`.
 # Regenerate it first with `bin/wp momos maintenance-page` when brand/language settings change.
@@ -45,6 +45,7 @@ else
 fi
 mkdir -p "$OUT/wp-content/uploads"
 cp "$ROOT/config/server/htaccess-uploads.conf" "$OUT/wp-content/uploads/.htaccess"
+find "$OUT" -name .git -prune -exec rm -rf {} +
 find "$OUT" -name "*.php" -print0 | xargs -0 -n 50 -P 4 php -l >/dev/null
 ( cd "$ROOT/build" && rm -f "momos-$VERSION.zip" && zip -qr "momos-$VERSION.zip" "momos-$VERSION" && sha256sum "momos-$VERSION.zip" > "momos-$VERSION.zip.sha256" )
 echo "$ROOT/build/momos-$VERSION.zip"

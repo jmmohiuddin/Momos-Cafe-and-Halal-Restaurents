@@ -114,3 +114,15 @@ install or activate a plugin outside the release (`DISALLOW_FILE_MODS` blocks it
 - Data: synthetic only. A production copy may be used only after `wp momos sanitize --yes` (refused in production;
   rewrites guest names/emails/phones, notification recipients, user emails and passwords, removes 2FA secrets and
   sessions, audits `environment.sanitized`, fails if any real email remains). Better: never copy production at all.
+
+## 9. Preview / staging site on shared hosting (Hostinger "Import WordPress website")
+
+`MOMOS_EXPORT_URL=https://<site>.hostingersite.com bin/export-site.sh [--no-photos]` builds `build/export-<host>/`:
+`site.zip` (WordPress core, momos-core with production dependencies, theme, mu-loader, this site's media, and a
+**staging** `wp-config.php` with random salts and secrets), `dump.sql` (freshly seeded fictional demo content with the
+target URL), and `credentials.txt` (random passwords for every account — hand over privately). The preview never
+sends email (log transport, files under `../momos-private/mail`), uses the Turnstile test mode, and is noindex.
+Import both files with the host's WordPress importer (it fills the DB_* values; if not, edit `wp-config.php`).
+Verified locally: import into a clean directory + empty database → all customer pages 200 in six languages,
+`X-Robots-Tag: noindex, nofollow`, admin login with a generated password; the development password is refused.
+This is a preview only — production follows sections 1–7 and docs/RELEASE_CHECKLIST.md.
