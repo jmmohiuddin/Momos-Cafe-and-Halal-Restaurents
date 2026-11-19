@@ -17,7 +17,9 @@ if ( '' === $momos_body ) {
 $momos_sev  = 'warning' === ( $args['severity'] ?? 'info' ) ? 'warning' : 'info';
 $momos_card = ! empty( $args['card'] );
 $momos_id   = 'momo-notice-' . ( ! empty( $args['id'] ) ? (int) $args['id'] : substr( md5( $momos_body ), 0, 8 ) );
-$momos_long = mb_strlen( $momos_body ) > 80;
+// Mobile shows title + 1 body line (§7.1): anything wider than ~1 line at 360 px gets the clamp + "More" server-side
+// (East-Asian characters count double), so the collapsed height is in the first paint (no layout shift).
+$momos_long = mb_strwidth( $momos_body ) > 44;
 $momos_attr = [
 	'class'            => 'momo-notice momo-notice--' . $momos_sev . ( $momos_card ? ' momo-notice--card' : '' ) . ( $momos_long ? ' is-collapsible' : '' ),
 	'role'             => 'region',

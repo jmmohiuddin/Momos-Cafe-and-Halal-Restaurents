@@ -21,7 +21,7 @@ if ( '' === $momos_html ) {
 <?php
 if ( ! empty( $args['sample'] ) ) :
 	?>
-	<span class="momo-sample" lang="en">SAMPLE</span><?php endif; ?>
+	<span class="momo-sample"><?php echo esc_html( momos_s( 'demo.sample_badge' ) ); ?></span><?php endif; ?>
 	<?php
 	if ( ! empty( $args['context'] ) ) :
 		?>

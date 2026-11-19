@@ -13,8 +13,9 @@ use Momos\Kernel\Log\Logger;
  *   `administrator` role gets every configured capability added (core caps kept) and never the
  *   per-user CAP-DCA.
  * - Core roles subscriber/contributor/author/editor are removed (no account may hold them, §2.1).
- * - Vendor accounts carry per-user `false` for the PII caps (DEC-035, SEC-008), re-applied on
- *   every sync, profile update and role change; break-glass lifts two of them temporarily.
+ * - Vendor accounts carry per-user `false` for the PII caps and the reservation-processing /
+ *   notification-log caps (`vendor_denies`, DEC-035, SEC-008, TC-ACL-022), re-applied on every
+ *   sync, profile update and role change; break-glass lifts two of them (PII + view) temporarily.
  * - Applied by migration M0004 and re-synced whenever momos-core's version or the table changes.
  * - Role display names: English stored; Japanese shown to ja admin users (DEC-037).
  */
@@ -115,7 +116,7 @@ final class RoleInstaller {
 	}
 
 	/**
-	 * Per-user denies for vendor accounts (DEC-035): the four PII caps are stored as `false`
+	 * Per-user denies for vendor accounts (DEC-035): the `vendor_denies` caps are stored as `false`
 	 * (user caps override role caps); an active break-glass lifts BREAKGLASS_LIFTS only.
 	 * Also strips CAP-DCA from ineligible users (vendor accounts, roles other than SA/HO).
 	 */

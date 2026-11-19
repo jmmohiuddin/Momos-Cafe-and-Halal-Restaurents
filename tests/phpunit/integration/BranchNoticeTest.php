@@ -106,4 +106,35 @@ final class BranchNoticeTest extends BranchTestCaseTest {
 		$this->assertFalse( current_user_can( 'edit_post', $site ) );
 		$this->assertTrue( current_user_can( 'publish_momo_notices' ) );
 	}
+
+	/**
+	 * QA-002 / TC-ACL-021 (M3): core post.php `tax_input[momo_branch_scope]` (no momos_fields) must not
+	 * re-scope a BM's notice to an unassigned branch, nor create new scope terms; refusal is audited.
+	 * Assigned branches and HO stay allowed.
+	 */
+	public function test_core_tax_input_scope_is_guarded_qa_002(): void {
+		$own = $this->make_notice( '2026-12-01 09:00', '2026-12-05 09:00', [ $this->qaa ] );
+		$bm  = $this->user_with_role( 'momo_branch_manager', [ $this->qaa ] );
+		wp_set_current_user( $bm );
+		$qad = BranchScopeTaxonomy::term_for_branch( $this->qad );
+		$qaa = BranchScopeTaxonomy::term_for_branch( $this->qaa );
+		foreach ( [ $qad->name, $qad->slug, [ (int) $qad->term_id ], $qaa->name . ',' . $qad->name, 'NEW-TERM' ] as $value ) {
+			$this->audits = [];
+			$died         = false;
+			try {
+				wp_update_post( [ 'ID' => $own, 'post_title' => 'QA rescope', 'tax_input' => [ BranchScopeTaxonomy::TAX => $value ] ] );
+			} catch ( \WPDieException $e ) {
+				$died = true;
+			}
+			$label = wp_json_encode( $value );
+			$this->assertTrue( $died, "refused: {$label}" );
+			$this->assertSame( [ $this->qaa ], BranchScopeTaxonomy::branch_ids_of_post( $own ), "scope kept: {$label}" );
+			$this->assertContains( 'access.denied', $this->audit_actions(), "audited: {$label}" );
+		}
+		$this->assertEmpty( term_exists( 'NEW-TERM', BranchScopeTaxonomy::TAX ) );
+		$this->assertNull( OfferScopeGuard::error_for_tax_input( 'momo_notice', $own, [], $qaa->name, $bm ) );
+		$this->assertNull( OfferScopeGuard::error_for_tax_input( 'momo_notice', $own, [], $qad->name, $this->user_with_role( 'momo_head_office' ) ) );
+		wp_update_post( [ 'ID' => $own, 'post_title' => 'QA own', 'tax_input' => [ BranchScopeTaxonomy::TAX => $qaa->name ] ] );
+		$this->assertSame( [ $this->qaa ], BranchScopeTaxonomy::branch_ids_of_post( $own ) );
+	}
 }

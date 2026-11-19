@@ -34,12 +34,48 @@ final class DateFormatter {
 		return self::format( $date, $lang ?? momos_lang(), 'short' );
 	}
 
-	/** 24 h time "19:00" (Western digits in every language). */
+	/**
+	 * Date range without weekdays (offer validity; i18n-seo-analytics §4.4 "Offer date ranges", DEC-062):
+	 * ja 2026年12月1日〜12月31日 · en 1 Dec – 31 Dec 2026 · others CLDR `dMMM` – `dMMMy` (year on the start
+	 * date only when the years differ). Plain text; callers isolate it.
+	 */
+	public static function range( \DateTimeInterface|string $start, \DateTimeInterface|string $end, ?string $lang = null ): string {
+		$lang = $lang ?? momos_lang();
+		$s    = self::to_tokyo( is_string( $start ) ? new \DateTimeImmutable( $start, new \DateTimeZone( self::TZ ) ) : $start );
+		$e    = self::to_tokyo( is_string( $end ) ? new \DateTimeImmutable( $end, new \DateTimeZone( self::TZ ) ) : $end );
+		$same = $s->format( 'Y' ) === $e->format( 'Y' );
+		if ( 'ja' === $lang ) {
+			return $s->format( 'Y年n月j日' ) . '〜' . $e->format( $same ? 'n月j日' : 'Y年n月j日' );
+		}
+		if ( ! class_exists( \IntlDateFormatter::class ) ) {
+			return $s->format( 'Y-m-d' ) . ' – ' . $e->format( 'Y-m-d' );
+		}
+		if ( 'en' === $lang ) {
+			$p_start = $same ? 'd MMM' : 'd MMM y';
+			$p_end   = 'd MMM y';
+		} elseif ( class_exists( \IntlDatePatternGenerator::class ) ) {
+			$gen     = new \IntlDatePatternGenerator( self::locale( $lang ) );
+			$p_start = (string) $gen->getBestPattern( $same ? 'dMMM' : 'dMMMy' );
+			$p_end   = (string) $gen->getBestPattern( 'dMMMy' );
+		} else {
+			$p_start = $same ? 'd MMM' : 'd MMM y';
+			$p_end   = 'd MMM y';
+		}
+		$out = [];
+		foreach ( [ [ $s, $p_start ], [ $e, $p_end ] ] as [ $dt, $pattern ] ) {
+			$fmt   = new \IntlDateFormatter( self::locale( $lang ), \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, self::TZ, \IntlDateFormatter::GREGORIAN, $pattern );
+			$v     = $fmt->format( $dt );
+			$out[] = is_string( $v ) ? self::latin_digits( $v ) : $dt->format( 'Y-m-d' );
+		}
+		return $out[0] . ' – ' . $out[1];
+	}
+
+	/** 24 h time, two-digit hours (`h23`, Doc 07 §6.10): "19:00", "02:00" — Western digits in every language. */
 	public static function time( \DateTimeInterface|string $time ): string {
 		if ( is_string( $time ) ) {
-			return preg_match( '/^(\d{1,2}):(\d{2})/', $time, $m ) ? sprintf( '%d:%s', (int) $m[1], $m[2] ) : $time;
+			return preg_match( '/^(\d{1,2}):(\d{2})/', $time, $m ) ? sprintf( '%02d:%s', (int) $m[1], $m[2] ) : $time;
 		}
-		return self::to_tokyo( $time )->format( 'G:i' );
+		return self::to_tokyo( $time )->format( 'H:i' );
 	}
 
 	/** Time + zone label for reservation surfaces (non-ja only, `common.tz_label`). */

@@ -20,8 +20,10 @@ use Momos\Presentation\View\Brand;
  * The body contains no IP and no user agent (TC-PRV-015). Redirects back with `?sent=1` or
  * `?contact_error={codes}` (error codes only — never personal data in the URL).
  *
- * Turnstile (Doc 11) is not wired yet: TurnstileVerifier is bound to the reservation action
- * (kernel/API request in the TASK 2 report).
+ * Public-write integrity (FR-SEC-006, SEC-022/024, access-security-privacy §10.1): the `Origin` (else `Referer`)
+ * host must be the site host, and a Cloudflare Turnstile token (action `contact_submit`, `TurnstileVerifier`) must
+ * verify before anything is sent. A siteverify outage does not block the form (rate limit still applies; logged),
+ * as for the staff login. Non-production test mode renders a test token and never calls the network.
  */
 final class ContactForm {
 	public const ACTION      = 'momos_contact';
@@ -32,6 +34,8 @@ final class ContactForm {
 	public const MESSAGE_MAX = 2000;
 	public const RATE_LIMIT  = 5;   // ⟦5 per 10 min per IP hash⟧ screens.md §7.
 	public const RATE_WINDOW = 600;
+	public const CAPTCHA       = 'contact_submit';
+	public const CAPTCHA_FIELD = 'cf-turnstile-response';
 
 	public static function register(): void {
 		add_action( 'admin_post_nopriv_' . self::ACTION, [ self::class, 'handle' ] );
@@ -49,12 +53,20 @@ final class ContactForm {
 		if ( ! isset( $_POST['_momos_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['_momos_nonce'] ) ), self::NONCE ) ) {
 			self::back( $back, [ 'expired' ] );
 		}
+		// Cross-site posts are refused before anything else is evaluated (no CORS, no third-party forms).
+		if ( ! self::same_origin() ) {
+			Logger::warning( 'contact.origin_rejected' );
+			self::back( $back, [ 'expired' ] );
+		}
 		// Honeypot: bots fill the hidden "website" field → pretend success, send nothing.
 		if ( '' !== trim( (string) wp_unslash( $_POST['website'] ?? '' ) ) ) {
 			self::back( $back, [], true );
 		}
 		if ( ! self::rate_ok() ) {
 			self::back( $back, [ 'rate_limited' ] );
+		}
+		if ( ! self::captcha_ok( isset( $_POST[ self::CAPTCHA_FIELD ] ) && is_string( $_POST[ self::CAPTCHA_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::CAPTCHA_FIELD ] ) ) : '' ) ) {
+			self::back( $back, [ 'captcha' ] );
 		}
 		$in     = self::input( wp_unslash( $_POST ) );
 		$errors = self::validate( $in );
@@ -63,6 +75,42 @@ final class ContactForm {
 		}
 		$sent = self::send( $in, $lang );
 		self::back( $back, $sent ? [] : [ 'system' ], $sent );
+	}
+
+	/** `Origin` (else `Referer`) host = site host; a request carrying neither is refused (browsers send one on POST). */
+	public static function same_origin(): bool {
+		$site   = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? (string) wp_unslash( $_SERVER['HTTP_ORIGIN'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared only.
+		if ( '' === $origin || 'null' === $origin ) {
+			$origin = isset( $_SERVER['HTTP_REFERER'] ) ? (string) wp_unslash( $_SERVER['HTTP_REFERER'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared only.
+		}
+		$host = strtolower( (string) wp_parse_url( $origin, PHP_URL_HOST ) );
+		return '' !== $host && $host === $site;
+	}
+
+	/** Turnstile check (action `contact_submit`); an outage lets the message through (rate limit applies). */
+	public static function captcha_ok( string $token ): bool {
+		if ( ! class_exists( \Momos\Api\Captcha\TurnstileVerifier::class ) ) {
+			return true; // API module absent: honeypot + nonce + rate limit remain.
+		}
+		$result = '' === trim( $token ) ? \Momos\Api\Captcha\TurnstileVerifier::FAILED : \Momos\Api\Captcha\TurnstileVerifier::verify( substr( $token, 0, 2048 ), self::CAPTCHA );
+		if ( \Momos\Api\Captcha\TurnstileVerifier::OUTAGE === $result ) {
+			Logger::warning( 'contact.captcha_outage' );
+			return true;
+		}
+		return \Momos\Api\Captcha\TurnstileVerifier::VERIFIED === $result;
+	}
+
+	/**
+	 * Widget data for the form: site key, mode (`live` loads the Cloudflare script on C12 only, screens.md §3.9).
+	 *
+	 * @return array{site_key:string,mode:string,action:string,field:string}|null
+	 */
+	public static function captcha(): ?array {
+		if ( ! class_exists( \Momos\Api\Captcha\TurnstileVerifier::class ) ) {
+			return null;
+		}
+		return [ 'site_key' => \Momos\Api\Captcha\TurnstileVerifier::site_key(), 'mode' => \Momos\Api\Captcha\TurnstileVerifier::mode(), 'action' => self::CAPTCHA, 'field' => self::CAPTCHA_FIELD ];
 	}
 
 	/**
@@ -205,7 +253,7 @@ final class ContactForm {
 		if ( empty( $_GET['contact_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return [];
 		}
-		$allowed = [ 'name', 'email', 'topic', 'branch', 'message', 'message_length', 'consent', 'expired', 'rate_limited', 'system' ];
+		$allowed = [ 'name', 'email', 'topic', 'branch', 'message', 'message_length', 'consent', 'expired', 'rate_limited', 'captcha', 'system' ];
 		return array_values( array_intersect( explode( ',', sanitize_text_field( wp_unslash( (string) $_GET['contact_error'] ) ) ), $allowed ) ); // phpcs:ignore
 	}
 }

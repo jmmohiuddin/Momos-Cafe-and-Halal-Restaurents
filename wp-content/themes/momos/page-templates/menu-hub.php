@@ -22,7 +22,7 @@ get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_
 <div class="momo-container momo-section momo-menu-hub">
 	<?php momos_component( 'branch-select', [ 'options' => $momos_mv::selector( $momos_ctx ), 'action' => $momos_self, 'id' => 'momo-menu-branch' ] ); ?>
 	<?php if ( $momos_cats ) : ?>
-		<?php momos_component( 'category-tiles', [ 'items' => $momos_cats, 'label' => momos_s( 'menu.categories.nav' ) ] ); ?>
+		<?php momos_component( 'category-tiles', [ 'items' => $momos_cats, 'label' => momos_s( 'menu.categories.nav' ), 'priority' => 2 ] ); ?>
 	<?php elseif ( null !== $momos_ctx ) : ?>
 		<?php momos_component( 'empty-state', [ 'title' => momos_s( 'menu.category.branch_empty' ), 'icon' => 'utensils', 'action' => [ 'label' => momos_s( 'menu.category.all_branches_link' ), 'url' => $momos_self ] ] ); ?>
 	<?php else : ?>

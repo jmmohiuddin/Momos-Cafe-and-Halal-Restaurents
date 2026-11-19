@@ -19,6 +19,8 @@ use Momos\Kernel\I18n\Translations;
  * action "Duplicate as draft" and the HO dashboard widget "Offers waiting for approval".
  */
 final class ListScreens {
+	private const SCOPED_TYPES = [ 'momo_branch', 'momo_notice', 'momo_offer' ];
+
 	public static function register(): void {
 		add_filter( 'manage_momo_branch_posts_columns', [ self::class, 'branch_columns' ] );
 		add_action( 'manage_momo_branch_posts_custom_column', [ self::class, 'branch_cell' ], 10, 2 );
@@ -27,6 +29,7 @@ final class ListScreens {
 		add_filter( 'manage_momo_offer_posts_columns', [ self::class, 'offer_columns' ] );
 		add_action( 'manage_momo_offer_posts_custom_column', [ self::class, 'offer_cell' ], 10, 2 );
 		add_action( 'pre_get_posts', [ self::class, 'scope_lists' ] );
+		add_filter( 'wp_count_posts', [ self::class, 'scope_counts' ], 10, 2 );
 		add_action( 'post_submitbox_misc_actions', [ self::class, 'gate_block' ] );
 		add_action( 'add_meta_boxes_momo_branch', [ self::class, 'staff_panel' ] );
 		add_filter( 'post_row_actions', [ self::class, 'offer_row_actions' ], 10, 2 );
@@ -214,16 +217,28 @@ final class ListScreens {
 			return;
 		}
 		$pt = (string) $q->get( 'post_type' );
-		if ( ! in_array( $pt, [ 'momo_branch', 'momo_notice', 'momo_offer' ], true ) ) {
+		if ( ! in_array( $pt, self::SCOPED_TYPES, true ) ) {
 			return;
 		}
+		$ids = self::scoped_ids( $pt );
+		if ( null === $ids ) {
+			return;
+		}
+		$q->set( 'post__in', $ids ?: [ 0 ] );
+	}
+
+	/**
+	 * Post IDs of $pt the current scoped user may list; null = unscoped (all branches).
+	 *
+	 * @return list<int>|null
+	 */
+	public static function scoped_ids( string $pt ): ?array {
 		$scope = momos_user_branch_ids();
 		if ( null === $scope ) {
-			return;
+			return null;
 		}
 		if ( 'momo_branch' === $pt ) {
-			$q->set( 'post__in', $scope ?: [ 0 ] );
-			return;
+			return array_values( array_map( 'intval', $scope ) );
 		}
 		$ids = [];
 		foreach ( $scope as $b ) {
@@ -235,8 +250,37 @@ final class ListScreens {
 		$own = get_posts( [ 'post_type' => $pt, 'post_status' => 'any', 'author' => get_current_user_id(), 'fields' => 'ids', 'posts_per_page' => 500, 'no_found_rows' => true ] );
 		$ids = array_values( array_unique( array_merge( $ids, array_map( 'intval', $own ) ) ) );
 		// Items that also target unassigned branches are excluded (M3).
-		$ids = array_values( array_filter( $ids, static fn( $id ) => ! array_diff( BranchScopeTaxonomy::branch_ids_of_post( $id ), $scope ) ) );
-		$q->set( 'post__in', $ids ?: [ 0 ] );
+		return array_values( array_filter( $ids, static fn( $id ) => ! array_diff( BranchScopeTaxonomy::branch_ids_of_post( $id ), $scope ) ) );
+	}
+
+	/**
+	 * List-screen view counts ("All (n) | Published (n)") for scoped staff count only the rows
+	 * they can list (access spec §4.3 E3, TC-ACL-003, QA-010).
+	 *
+	 * @param object $counts
+	 * @return object
+	 */
+	public static function scope_counts( $counts, string $type ) {
+		if ( ! is_admin() || ! in_array( $type, self::SCOPED_TYPES, true ) ) {
+			return $counts;
+		}
+		$ids = self::scoped_ids( $type );
+		if ( null === $ids ) {
+			return $counts;
+		}
+		$out = new \stdClass();
+		foreach ( array_keys( (array) $counts ) as $status ) {
+			$out->{$status} = 0;
+		}
+		if ( $ids ) {
+			global $wpdb;
+			$in   = implode( ',', array_map( 'intval', $ids ) );
+			$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT post_status, COUNT(*) AS n FROM {$wpdb->posts} WHERE post_type = %s AND ID IN ({$in}) GROUP BY post_status", $type ), ARRAY_A ); // phpcs:ignore -- $in is a list of ints.
+			foreach ( $rows as $row ) {
+				$out->{$row['post_status']} = (int) $row['n'];
+			}
+		}
+		return $out;
 	}
 
 	// ------------------------------------------------------------------ edit screen panels

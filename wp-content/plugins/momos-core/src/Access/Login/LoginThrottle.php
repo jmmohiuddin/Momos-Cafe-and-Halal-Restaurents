@@ -15,7 +15,9 @@ use Momos\Kernel\Support\Hash;
  *  - `login_ip`:   ⟦10⟧ failures (password or 2FA) per IP within 15 min → IP locked ⟦60 min⟧;
  *  - `login_user`: ⟦10⟧ failures per existing account within 15 min → account locked ⟦60 min⟧ from any IP;
  *  - invalid username → IP locked immediately when `momo_login_lock_invalid_username` (default on);
- *  - `lostpw_ip`:  ⟦5⟧ lost-password requests per IP per hour → generic confirmation, no email.
+ *  - `lostpw_ip`:  ⟦5⟧ lost-password requests per IP per hour → generic confirmation, no email;
+ *  - lost-password form: the same confirmation for unknown and existing accounts (no enumeration
+ *    oracle, TC-SEC-003, spec §5.3) — `uniform_lostpassword()`.
  * Buckets are keyed by HMAC("rl", subject) — raw IPs are never stored. One generic error for unknown
  * user, wrong password, disabled and expired accounts; the lockout message states when to retry.
  */
@@ -35,6 +37,8 @@ final class LoginThrottle {
 		add_filter( 'login_errors', [ self::class, 'login_errors' ], 99 );
 		add_action( 'lostpassword_post', [ self::class, 'on_lostpassword' ], 10, 2 );
 		add_filter( 'send_retrieve_password_email', [ self::class, 'allow_reset_email' ], 99 );
+		add_action( 'login_form_lostpassword', [ self::class, 'uniform_lostpassword' ] );
+		add_action( 'login_form_retrievepassword', [ self::class, 'uniform_lostpassword' ] );
 	}
 
 	// ----------------------------------------------------------------- buckets
@@ -99,6 +103,12 @@ final class LoginThrottle {
 		}
 		self::count_site_failure();
 		return $locked;
+	}
+
+	/** Failures from an IP within the 15-min window (captcha step, `LoginCaptcha`). */
+	public static function recent_ip_failures( string $ip ): int {
+		$now = self::now();
+		return count( array_filter( self::load( 'ip', $ip )['fails'], static fn( int $t ) => $t > $now - self::WINDOW ) );
 	}
 
 	/** Successful login clears the account bucket (the IP bucket expires on its own). */
@@ -216,6 +226,37 @@ final class LoginThrottle {
 			self::$lostpw_blocked = true;
 			Logger::warning( 'security.rate_limited', [ 'bucket' => 'lostpw_ip' ] );
 		}
+	}
+
+	/**
+	 * wp-login.php?action=lostpassword POST: process the request ourselves and always answer with core's
+	 * confirmation redirect, whether the account exists or not and whether the e-mail could be sent
+	 * (TC-SEC-003, FR-SEC-002, spec §5.3). An empty field keeps core's "enter a username" message.
+	 */
+	public static function uniform_lostpassword(): void {
+		$target = self::lostpassword_outcome();
+		if ( null !== $target ) {
+			wp_safe_redirect( $target );
+			exit;
+		}
+	}
+
+	/** Redirect target after a lost-password POST, or null when core should handle the request. */
+	public static function lostpassword_outcome(): ?string {
+		if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || ! isset( $_POST['user_login'] ) || ! is_string( $_POST['user_login'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return null;
+		}
+		$login = trim( wp_unslash( $_POST['user_login'] ) ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput -- core sanitises in retrieve_password().
+		if ( '' === $login ) {
+			return null;
+		}
+		$result = retrieve_password( $login );
+		if ( is_wp_error( $result ) ) {
+			// Error code only (never the typed login, SEC-081).
+			Logger::info( 'auth.lostpassword_not_sent', [ 'code' => $result->get_error_code() ] );
+		}
+		$redirect = isset( $_REQUEST['redirect_to'] ) && is_string( $_REQUEST['redirect_to'] ) ? trim( wp_unslash( $_REQUEST['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput -- validated by wp_safe_redirect().
+		return '' !== $redirect ? $redirect : 'wp-login.php?checkemail=confirm';
 	}
 
 	public static function allow_reset_email( $send ): bool {

@@ -168,12 +168,14 @@ final class AdminSettingsTest extends AccessTestCaseTest {
 		$this->assertSame( 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()', $h['Permissions-Policy'] );
 		$this->assertSame( 'same-origin', $h['Cross-Origin-Opener-Policy'] );
 		$this->assertSame( 'strict-origin-when-cross-origin', $h['Referrer-Policy'] );
-		$this->assertSame( SecurityHeaders::CSP, $h['Content-Security-Policy-Report-Only'] );
+		// DEF-007: report-only = canonical CSP minus `upgrade-insecure-requests` (ignored by browsers there).
+		$this->assertSame( str_replace( ' upgrade-insecure-requests;', '', SecurityHeaders::CSP ), $h['Content-Security-Policy-Report-Only'] );
+		$this->assertStringNotContainsString( 'upgrade-insecure-requests', $h['Content-Security-Policy-Report-Only'] );
 		$this->assertArrayNotHasKey( 'Content-Security-Policy', $h );
 		$this->assertStringContainsString( "frame-ancestors 'self'", SecurityHeaders::CSP );
 		$this->assertStringNotContainsString( 'unsafe-eval', SecurityHeaders::CSP );
 		Settings::set( 'momo_csp_mode', 'enforce' );
-		$this->assertArrayHasKey( 'Content-Security-Policy', SecurityHeaders::public_headers( [] ) );
+		$this->assertSame( SecurityHeaders::CSP, SecurityHeaders::public_headers( [] )['Content-Security-Policy'] ?? null, 'enforced policy is the canonical string incl. upgrade-insecure-requests' );
 		$_SERVER['REQUEST_URI'] = '/ar/reservation/status/ABCD2345/';
 		$p = SecurityHeaders::public_headers( [] );
 		$this->assertSame( 'no-referrer', $p['Referrer-Policy'] );

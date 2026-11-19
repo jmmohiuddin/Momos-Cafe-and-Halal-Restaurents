@@ -25,6 +25,7 @@ final class SeedDemoTest extends TestCase {
 		( new \Momos\Presentation\Migration\M0007_SystemPages() )->up();
 		\Momos\Presentation\SystemPages::flush();
 		( new \Momos\Dietary\Migration\M0003_SeedAllergens() )->up(); // The WP test suite deletes terms between classes.
+		( new \Momos\Dietary\Migration\M0003_SeedStatements() )->up(); // G2 templates (idempotent; never overwrites rows).
 
 		// ---- Real (non-sample) content that must survive.
 		$real_page   = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'Real page', 'post_status' => 'publish' ] );
@@ -38,6 +39,11 @@ final class SeedDemoTest extends TestCase {
 		$home_before = get_post( $home );
 		$faq_status  = get_post_status( $faq );
 		$tagline     = \Momos\Kernel\Settings::get( 'momo_tagline' );
+		// WordPress install defaults (QA-030) and the G2 templates as migrated (QA-006): unapproved.
+		$hello      = self::factory()->post->create( [ 'post_type' => 'post', 'post_name' => 'hello-world', 'post_title' => 'Hello world!', 'post_status' => 'publish' ] );
+		$sample     = self::factory()->post->create( [ 'post_type' => 'page', 'post_name' => 'sample-page', 'post_title' => 'Sample Page', 'post_status' => 'publish' ] );
+		$statements = get_option( \Momos\Dietary\Service\StatementRepository::OPTION );
+		$this->assertNull( \Momos\Dietary\Service\StatementRepository::text( 'brand.neutral', 'en' ) );
 
 		// ---- First seed.
 		$counts = ( new DemoSeeder( null, false ) )->run();
@@ -50,6 +56,8 @@ final class SeedDemoTest extends TestCase {
 		$this->assertSame( 10, $counts['reservations'] );
 
 		$this->assert_demo_content();
+		$this->assertSame( 'draft', get_post_status( $hello ), 'WordPress "Hello world!" post is unpublished by the seed (QA-030).' );
+		$this->assertSame( 'draft', get_post_status( $sample ), 'WordPress "Sample Page" is unpublished by the seed (QA-030).' );
 		$blocking = array_filter( \Momos\Seed\SampleCheck::findings(), static fn( array $r ) => 'yes' === $r['blocking'] );
 		$this->assertCount( 54, $blocking, 'Go-live check lists every published sample item (4 branches, 24 dishes, 2 notices, 2 offers, 16 pages, 6 categories).' );
 		$first = $this->fingerprint();
@@ -80,6 +88,10 @@ final class SeedDemoTest extends TestCase {
 		$this->assertSame( '', (string) get_post_meta( $home, Writer::SAMPLE_META, true ) );
 		$this->assertSame( 'missing', Translations::status( 'post', $home, 'en' ) );
 		$this->assertSame( $faq_status, get_post_status( $faq ) );
+		$this->assertSame( 'publish', get_post_status( $hello ), 'Reset restores the WordPress default post.' );
+		$this->assertSame( 'publish', get_post_status( $sample ), 'Reset restores the WordPress default page.' );
+		$this->assertEquals( $statements, get_option( \Momos\Dietary\Service\StatementRepository::OPTION ), 'Reset restores the G2 statement rows (approvals + translations).' );
+		$this->assertNull( \Momos\Dietary\Service\StatementRepository::text( 'no_claim', 'bn' ) );
 		\Momos\Kernel\Settings::flush();
 		$this->assertSame( $tagline, \Momos\Kernel\Settings::get( 'momo_tagline' ) );
 		$this->assertSame( [], get_option( DemoSeeder::MANIFEST, [] ) );
@@ -165,6 +177,23 @@ final class SeedDemoTest extends TestCase {
 		$this->assertSame( [ $kitahama ], momos_user_branch_ids( get_user_by( 'login', 'demo_rs_kitahama' )->ID ) );
 		$this->assertSame( [ $namba ], momos_user_branch_ids( get_user_by( 'login', 'demo_bm_namba' )->ID ) );
 		$this->assertTrue( user_can( get_user_by( 'login', 'demo_ho' )->ID, 'momo_edit_dietary_claims' ) );
+
+		// QA-006: neutral G2 templates approved in all six languages (home summary, branch no_claim, dish basis line),
+		// claim templates never approved (GATE-02).
+		foreach ( \Momos\Kernel\I18n\Lang::codes() as $lang ) {
+			foreach ( array_keys( Content::statements() ) as $key ) {
+				$this->assertNotNull( \Momos\Dietary\Service\StatementRepository::text( $key, $lang ), "Statement {$key} approved in {$lang}" );
+			}
+			$this->assertTrue( \Momos\Dietary\Service\ClaimResolver::brand_claim( $lang )['statement_available'], "brand.neutral renders in {$lang}" );
+			$this->assertNotSame( '', \Momos\Dietary\Service\ClaimResolver::branch_claim( $kitahama, $lang )['statement'], "no_claim renders in {$lang}" );
+		}
+		foreach ( \Momos\Dietary\Service\StatementRepository::all() as $key => $row ) {
+			if ( in_array( $row['claim_type'], [ 'certified', 'halal_ingredients' ], true ) ) {
+				$this->assertFalse( $row['approved'], "Claim template {$key} must never be approved by the demo seed." );
+			}
+		}
+		$dish = (int) \Momos\Seed\Writer::find_post( 'momo_dish', 'dish:D9101' );
+		$this->assertNotSame( '', \Momos\Dietary\Service\ClaimResolver::dish_claim( $dish, null, 'ar' )['statement_html'] ?? '', 'Dish halal basis line (branch_default) renders.' );
 	}
 
 	/** @return array<string,mixed> */

@@ -308,6 +308,7 @@ $momos_period_row = static function ( string $name, array $p, string $err_key ) 
 <style>
 .momos-hours__layout{display:flex;gap:24px;flex-wrap:wrap}.momos-hours__main{flex:1 1 640px;min-inline-size:0}.momos-hours__preview{flex:0 1 280px}
 .momos-period{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-block-end:6px}.momos-period input,.momos-period select,.momos-hours .button{min-block-size:44px}
+.momos-hours input[type=checkbox]{inline-size:24px;block-size:24px;min-inline-size:24px;margin-block:0;margin-inline:0 6px;vertical-align:middle}.momos-hours input[type=checkbox]:checked::before{inline-size:100%;block-size:100%;margin:0}
 .momos-week th{inline-size:110px}.momos-crosses{font-size:12px;color:#996800}.momos-past{opacity:.6}.momos-sets .current{font-weight:600}
 @media (max-width:782px){.momos-week th,.momos-week td{display:block;inline-size:auto}}
 </style>

@@ -50,6 +50,12 @@ final class Assets {
 		wp_enqueue_style( 'momos-screens', get_theme_file_uri( 'assets/css/screens.css' ), [ 'momos-ui' ], self::version( 'assets/css/screens.css' ) );
 		wp_enqueue_script( 'momos-screens', get_theme_file_uri( 'assets/js/screens.js' ), [], self::version( 'assets/js/screens.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
 		wp_enqueue_script( 'momos-frame', get_theme_file_uri( 'assets/js/frame.js' ), [], self::version( 'assets/js/frame.js' ), [ 'in_footer' => true, 'strategy' => 'defer' ] );
+		// Turnstile on C12 only, live mode only (screens.md §3.9 "Turnstile loads on C09 (and C12) only"; PRV-024).
+		$contact = is_page() && 'contact' === SystemPages::role_of( (int) get_queried_object_id() );
+		$cap     = $contact ? Contact\ContactForm::captcha() : null;
+		if ( is_array( $cap ) && 'live' === $cap['mode'] && '' !== $cap['site_key'] ) {
+			wp_enqueue_script( 'momos-contact-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', [], null, [ 'in_footer' => true, 'strategy' => 'async' ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- third-party URL must not carry ?ver.
+		}
 	}
 
 	public static function dequeue(): void {

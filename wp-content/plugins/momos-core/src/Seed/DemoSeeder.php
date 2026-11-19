@@ -8,6 +8,7 @@ use Momos\Branch\PostType\BranchScopeTaxonomy;
 use Momos\Branch\Repository\ClosureRepository;
 use Momos\Branch\Repository\HoursRepository;
 use Momos\Dietary\Allergens;
+use Momos\Dietary\Service\StatementRepository;
 use Momos\Kernel\Clock\Clock;
 use Momos\Kernel\Clock\FrozenClock;
 use Momos\Kernel\Env;
@@ -42,6 +43,12 @@ use Momos\Seed\Data\People;
  */
 final class DemoSeeder {
 	public const MANIFEST = 'momos_seed_manifest';
+
+	/** Page meta keys (besides `_momos_i18n_*`) the seed may change; snapshotted and restored by --reset. */
+	public const SNAPSHOT_META = [ 'momo_faq_items', 'momo_legal_version', 'momo_legal_last_updated', Writer::SAMPLE_META ];
+
+	/** WordPress install defaults unpublished for the demo (QA-030): post type => slug. */
+	public const WP_DEFAULTS = [ 'post' => 'hello-world', 'page' => 'sample-page' ];
 
 	/** @var array<string,int> login => user id */
 	private array $users = [];
@@ -106,6 +113,8 @@ final class DemoSeeder {
 			$this->step( 'pages', fn() => $this->pages() );
 			$this->step( 'legal pages', fn() => $this->legal_pages() );
 			$this->step( 'settings', fn() => $this->settings() );
+			$this->step( 'statement templates', fn() => $this->statements() );
+			$this->step( 'WordPress default content', fn() => $this->wp_defaults() );
 			$this->step( 'reservations', fn() => $this->reservations() );
 		} finally {
 			Clock::set( $clock );
@@ -362,7 +371,7 @@ final class DemoSeeder {
 					'momo_res_enabled'                 => '1',
 				]
 			);
-			// G7 dietary: no claim on every demo branch — nothing halal-related is approved (GATE-02).
+			// G7 dietary: no claim on every demo branch; only neutral G2 templates are approved (statements(), GATE-02).
 			Writer::save_fields( 'post', $id, [ 'momo_halal_claim_type' => 'no_claim', 'momo_alcohol_served' => $b['alcohol'], 'momo_alcohol_in_cooking' => 'unknown' ] );
 			$this->closures( $id, $b['closures'] );
 
@@ -802,6 +811,70 @@ final class DemoSeeder {
 		Writer::save_fields( 'option', 'momo-settings', $notify );
 	}
 
+	/**
+	 * Neutral G2 statement templates approved for the demo by the CAP-DCA demo user (QA-006; FR-DIET-003,
+	 * screens.md §3.1 #6 / §3.5 #9 / §3.8 #7 "never empty"): Content::statements() keys only, never a claim
+	 * template. Existing approvals and translations are kept; the original rows are snapshotted once and
+	 * restored by --reset. Unchanged rows are not re-saved (idempotent, no extra audit entries).
+	 */
+	private function statements(): void {
+		$approver = $this->users['demo_ho'];
+		foreach ( Content::statements() as $key => $texts ) {
+			$row = StatementRepository::get( $key );
+			if ( null === $row ) {
+				throw new SeedException( "Statement template {$key} does not exist (run wp momos migrate)." );
+			}
+			$langs = array_values(
+				array_filter(
+					Lang::targets(),
+					static fn( string $l ): bool => 'approved' !== ( $row['i18n'][ $l ]['status'] ?? '' ) || '' === trim( (string) ( $row['i18n'][ $l ]['text'] ?? '' ) )
+				)
+			);
+			$this->count( 'statements' );
+			if ( $row['approved'] && ! $langs ) {
+				continue;
+			}
+			$m = self::manifest();
+			if ( ! isset( $m['statements'][ $key ] ) ) {
+				$m['statements'][ $key ] = $row;
+				self::save_manifest( $m );
+			}
+			if ( ! $row['approved'] ) {
+				$errors = StatementRepository::save_row( [ 'key' => $key, 'claim_type' => $row['claim_type'], 'text_ja' => '' !== $row['text_ja'] ? $row['text_ja'] : $texts['ja'], 'approved' => true ], $approver, $key );
+				if ( $errors ) {
+					throw new SeedException( "Statement {$key} refused: " . implode( ' | ', $errors ) );
+				}
+			}
+			foreach ( $langs as $lang ) {
+				$current = trim( (string) ( $row['i18n'][ $lang ]['text'] ?? '' ) );
+				$errors  = StatementRepository::save_translation( $key, $lang, '' !== $current ? $current : $texts[ $lang ], 'approved', $approver );
+				if ( $errors ) {
+					throw new SeedException( "Statement {$key} ({$lang}) refused: " . implode( ' | ', $errors ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * WordPress install defaults ("Hello world!" post, "Sample Page") are unpublished so the demo has no
+	 * English placeholder content (QA-030; TC-I18N-013, TC-CORP-004). Snapshotted like the system pages and
+	 * restored by --reset; seeded objects and system pages are never matched.
+	 */
+	private function wp_defaults(): void {
+		$system = class_exists( SystemPages::class ) ? array_map( 'intval', array_merge( array_map( [ SystemPages::class, 'id' ], array_keys( Content::pages() ) ), array_map( [ SystemPages::class, 'legal_id' ], array_keys( SystemPages::LEGAL ) ) ) ) : [];
+		foreach ( self::WP_DEFAULTS as $type => $slug ) {
+			$post = get_page_by_path( $slug, OBJECT, $type );
+			if ( ! $post instanceof \WP_Post || in_array( (int) $post->ID, $system, true ) || '' !== (string) get_post_meta( $post->ID, Writer::KEY_META, true ) ) {
+				continue;
+			}
+			if ( 'publish' === $post->post_status ) {
+				$this->snapshot_page( (int) $post->ID );
+				Writer::update_core( (int) $post->ID, [ 'post_status' => 'draft' ] );
+			}
+			$this->count( 'wp_defaults_unpublished' );
+		}
+	}
+
 	private function snapshot_page( int $id ): void {
 		$m = self::manifest();
 		if ( isset( $m['pages'][ $id ] ) ) {
@@ -810,7 +883,7 @@ final class DemoSeeder {
 		$post = get_post( $id );
 		$meta = [];
 		foreach ( (array) get_post_meta( $id ) as $k => $vals ) {
-			if ( str_starts_with( (string) $k, '_momos_i18n_' ) || in_array( $k, [ 'momo_faq_items', 'momo_legal_version', 'momo_legal_last_updated', Writer::SAMPLE_META ], true ) ) {
+			if ( str_starts_with( (string) $k, '_momos_i18n_' ) || in_array( $k, self::SNAPSHOT_META, true ) ) {
 				$meta[ $k ] = $vals[0] ?? '';
 			}
 		}

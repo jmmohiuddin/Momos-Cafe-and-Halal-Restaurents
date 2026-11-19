@@ -20,6 +20,8 @@ if ( ! is_array( $momos_c ) || '' === (string) ( $momos_c['name'] ?? '' ) ) {
 $momos_h    = max( 2, min( 4, (int) ( $args['h'] ?? 3 ) ) );
 $momos_name = (string) $momos_c['name'];
 $momos_img  = (int) ( $momos_c['image_id'] ?? 0 );
+// D5 (content-strings §10.1): demo items carry a visible SAMPLE badge outside production (DEF-011).
+$momos_smp  = ! empty( $args['sample'] ) || ( class_exists( \Momos\Presentation\View\Samples::class ) && \Momos\Presentation\View\Samples::is_marked( (int) ( $momos_c['id'] ?? 0 ) ) );
 $momos_data = [];
 foreach ( (array) ( $momos_c['data'] ?? [] ) as $momos_k => $momos_v ) {
 	if ( str_starts_with( (string) $momos_k, 'data-' ) ) {
@@ -54,6 +56,8 @@ foreach ( (array) ( $momos_c['data'] ?? [] ) as $momos_k => $momos_v ) {
 	<?php endif; ?>
 	<?php momos_component( 'dish-labels', [ 'card' => $momos_c ] ); ?>
 	<?php if ( ! empty( $momos_c['price_html'] ) ) : ?>
-		<div class="momo-dish-card__foot"><?php momos_component( 'price', [ 'html' => (string) $momos_c['price_html'], 'sample' => ! empty( $args['sample'] ) ] ); ?></div>
+		<div class="momo-dish-card__foot"><?php momos_component( 'price', [ 'html' => (string) $momos_c['price_html'], 'sample' => $momos_smp ] ); ?></div>
+	<?php elseif ( $momos_smp ) : ?>
+		<div class="momo-dish-card__foot"><span class="momo-sample"><?php echo esc_html( momos_s( 'demo.sample_badge' ) ); ?></span></div>
 	<?php endif; ?>
 </article>

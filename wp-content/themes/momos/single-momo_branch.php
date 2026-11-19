@@ -33,7 +33,7 @@ if ( ! is_array( $momos_b ) || ! is_array( $momos_raw ) ) {
 
 $momos_code    = (string) $momos_b['code'];
 $momos_hours   = $momos_bv::hours( $momos_id );
-$momos_today   = array_values( array_filter( $momos_hours, static fn( $r ) => $r['today'] ) )[0] ?? null;
+$momos_today   = $momos_hours ? $momos_bv::today( $momos_id ) : null; // Effective periods (closures/special hours), FR-BR-007.
 $momos_closure = $momos_bv::closures( $momos_id );
 $momos_addr    = $momos_bv::address( $momos_id );
 $momos_access  = $momos_bv::access( $momos_id );
@@ -99,9 +99,9 @@ $momos_trail    = [
 <div class="momo-container momo-branch-layout">
 	<aside class="momo-branch-aside" aria-label="<?php echo esc_attr( (string) $momos_b['name'] ); ?>">
 		<div class="momo-card momo-branch-summary">
-			<?php momos_component( 'open-status', [ 'status' => $momos_b['open'] ?? null ] ); ?>
+			<?php momos_component( 'open-status', [ 'status' => $momos_b['open'] ?? null, 'branch_id' => $momos_id ] ); ?>
 			<?php if ( is_array( $momos_today ) && empty( $momos_b['temp_closed'] ) ) : ?>
-				<p class="momo-branch-summary__today"><?php momos_the_icon( 'clock', 'momo-icon--sm' ); ?><span><span class="momo-branch-summary__label"><?php echo esc_html( momos_s( 'branch.today' ) ); ?></span> <?php echo wp_kses( (string) $momos_today['hours_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>
+				<p class="momo-branch-summary__today"><?php momos_the_icon( 'clock', 'momo-icon--sm' ); ?><span><?php if ( $momos_today['closed'] ) : ?><?php echo esc_html( wp_strip_all_tags( (string) $momos_today['closed_html'] ) ); ?><?php else : ?><span class="momo-branch-summary__label"><?php echo esc_html( momos_s( 'branch.today' ) ); ?></span> <?php echo wp_kses( (string) $momos_today['hours_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?><?php endif; ?>
 				<?php
 				if ( '' !== $momos_today['lo_html'] ) :
 					?>

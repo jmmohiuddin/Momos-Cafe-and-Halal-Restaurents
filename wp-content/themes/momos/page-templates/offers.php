@@ -59,9 +59,9 @@ get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_
 			<p class="momo-result-count" role="status" data-momo-result-count data-one="<?php echo esc_attr( momos_s( 'offers.count.one', [ 'n' => '{n}' ] ) ); ?>" data-other="<?php echo esc_attr( momos_s( 'offers.count.other', [ 'n' => '{n}' ] ) ); ?>"></p>
 		<?php endif; ?>
 		<ul class="momo-grid momo-grid--3 momo-list-reset" data-momo-offer-list>
-			<?php foreach ( $momos_ids as $momos_oid ) : ?>
+			<?php foreach ( array_values( $momos_ids ) as $momos_i => $momos_oid ) : ?>
 				<?php $momos_s = $momos_scope[ (int) $momos_oid ]; ?>
-				<li data-scope="<?php echo esc_attr( $momos_s ); ?>"<?php echo '' !== $momos_sel && 'all' !== $momos_s && ! in_array( $momos_sel, explode( ' ', $momos_s ), true ) ? ' hidden' : ''; ?>><?php momos_component( 'offer-card', [ 'offer_id' => (int) $momos_oid, 'h' => 2 ] ); ?></li>
+				<li data-scope="<?php echo esc_attr( $momos_s ); ?>"<?php echo '' !== $momos_sel && 'all' !== $momos_s && ! in_array( $momos_sel, explode( ' ', $momos_s ), true ) ? ' hidden' : ''; ?>><?php momos_component( 'offer-card', [ 'offer_id' => (int) $momos_oid, 'h' => 2, 'priority' => 0 === $momos_i ] ); ?></li>
 			<?php endforeach; ?>
 		</ul>
 	<?php else : ?>

@@ -198,7 +198,7 @@ final class Menu {
 			[
 				'sku' => 'D9118', 'slug' => 'vegetable-samosa', 'cat' => 'sides', 'image' => 'veg-samosa', 'original' => '', 'spice' => 1, 'price' => 580, 'tags' => [ 'vegetarian' ], 'ingredients' => [ 'wheat', 'potato', 'vegetables' ], 'allergens' => [ [ 'wheat' ], [ 'soybean', 'sesame' ] ], 'branches' => $all,
 				'name'  => self::t( 'ベジサモサ', 'Vegetable samosa', 'سمبوسة الخضار', 'سبزی سموسہ', 'वेज समोसा', 'সবজি সমুচা' ),
-				'short' => self::t( 'スパイスで味付けしたじゃがいもとグリーンピースを包んで揚げました（2個）。', 'Crisp pastries filled with spiced potato and peas (2 pieces).', 'معجنات مقرمشة محشوة بالبطاطس والبازلاء المتبلة (قطعتان).', 'مصالحے دار آلو اور مٹر سے بھرے خستہ سموسے (2 عدد)۔', 'मसालेदार आलू और मटर से भरे कुरकुरे समोसे (2 पीस)।', 'মসলাদার আলু ও মটরশুঁটি ভরা মুচমুচে সমুচা (২টি)।' ),
+				'short' => self::t( 'スパイスで味付けしたじゃがいもとグリーンピースを包んで揚げました（2個）。', 'Crisp pastries filled with spiced potato and peas (2 pieces).', 'معجنات مقرمشة محشوة بالبطاطس والبازلاء المتبلة (قطعتان).', 'مصالحے دار آلو اور مٹر سے بھرے خستہ سموسے (2 عدد)۔', 'मसालेदार आलू और मटर से भरे कुरकुरे समोसे (2 पीस)।', 'মসলাদার আলু ও মটরশুঁটি ভরা মুচমুচে সমুচা (2টি)।' ),
 			],
 			[
 				'sku' => 'D9119', 'slug' => 'chicken-lollipop', 'cat' => 'sides', 'image' => 'chicken-lollipop', 'original' => '', 'spice' => 2, 'price' => 880, 'tags' => [], 'ingredients' => [ 'chicken' ], 'allergens' => null, 'branches' => $all,

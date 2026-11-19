@@ -5,7 +5,9 @@ namespace Momos\Branch\Service;
 
 use Momos\Branch\Domain\OperatingStatus;
 use Momos\Branch\Repository\BranchRepository;
+use Momos\Kernel\I18n\Lang;
 use Momos\Kernel\I18n\Locale;
+use Momos\Kernel\I18n\Translations;
 use Momos\Kernel\I18n\Url;
 
 /**
@@ -27,6 +29,22 @@ final class BranchVisibility {
 		add_filter( 'rest_pre_dispatch', [ self::class, 'rest_pre_dispatch' ], 10, 3 );
 		add_filter( 'rest_momo_branch_query', [ self::class, 'rest_query' ], 10, 2 );
 		add_filter( 'rest_prepare_momo_branch', [ self::class, 'rest_prepare' ], 10, 3 );
+		add_filter( 'oembed_request_post_id', [ self::class, 'oembed_post_id' ], 10, 1 );
+	}
+
+	/**
+	 * oEmbed never describes a TEST, permanently closed or unpublished branch (also when the URL
+	 * is `?p=ID`, which core resolves without a query) — QA-009, FR-RES-026.
+	 *
+	 * @param int|false $post_id
+	 * @return int|false
+	 */
+	public static function oembed_post_id( $post_id ) {
+		$id = (int) $post_id;
+		if ( $id > 0 && 'momo_branch' === get_post_type( $id ) && ! self::is_public( $id, Lang::SOURCE ) ) {
+			return 0;
+		}
+		return $post_id;
 	}
 
 	public static function is_public( int $branch_id, ?string $lang = null ): bool {
@@ -61,8 +79,9 @@ final class BranchVisibility {
 	/** Front-end queries: never TEST or permanently closed branches; never offers/notices singles. */
 	public static function pre_get_posts( \WP_Query $q ): void {
 		// get_posts() (suppress_filters) is used by the module's own repositories, which apply
-		// their own rules; REST has its own filter.
-		if ( is_admin() || wp_doing_cron() || $q->get( 'suppress_filters' ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		// their own rules. REST requests are filtered too: core wp/v2/search and the oEmbed URL
+		// lookup query branches through WP_Query (QA-009, spec §4.9).
+		if ( is_admin() || wp_doing_cron() || $q->get( 'suppress_filters' ) ) {
 			return;
 		}
 		$pt = (array) $q->get( 'post_type' );
@@ -114,6 +133,16 @@ final class BranchVisibility {
 			}
 			add_filter( 'wp_robots', 'wp_robots_no_robots' );
 			header( 'X-Robots-Tag: noindex, nofollow' );
+			return;
+		}
+		// Untranslated in the current language → 404 (screens §3.5, BR-I18N-02, DEC-027);
+		// editors keep a noindex preview like other singular content.
+		if ( ! Translations::post_visible( $id, $lang ) ) {
+			if ( ! current_user_can( 'edit_post', $id ) ) {
+				self::not_found();
+				return;
+			}
+			add_filter( 'wp_robots', 'wp_robots_no_robots' );
 		}
 	}
 

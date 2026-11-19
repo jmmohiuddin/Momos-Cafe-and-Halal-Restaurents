@@ -103,14 +103,19 @@ final class SessionPolicy {
 	// ----------------------------------------------------------------- idle timeout + 2FA gate
 
 	/**
-	 * Check the current cookie session: idle timeout and the second-factor flag. Returns an error
-	 * code ('idle'|'2fa') when the session must end, else null (and refreshes last activity).
+	 * Check the current cookie session: account still active (not disabled, access window
+	 * `momo_access_expires_at` not passed — TC-ADM-008, spec §5.1 step 2 / §5.6), idle timeout and the
+	 * second-factor flag. Returns an error code ('inactive'|'idle'|'2fa') when the session must end,
+	 * else null (and refreshes last activity).
 	 */
 	public static function check_current(): ?string {
 		$user_id = get_current_user_id();
 		$token   = wp_get_session_token();
 		if ( ! $user_id || '' === $token ) {
 			return null;
+		}
+		if ( \Momos\Access\AccountStatus::is_inactive( $user_id ) ) {
+			return 'inactive'; // Does not wait for momos_job_access_expiry.
 		}
 		$manager = \WP_Session_Tokens::get_instance( $user_id );
 		$session = $manager->get( $token );
@@ -132,7 +137,10 @@ final class SessionPolicy {
 		return null;
 	}
 
-	private static function end_current_session(): void {
+	private static function end_current_session( string $reason = '' ): void {
+		if ( 'inactive' === $reason ) {
+			self::destroy_all( get_current_user_id() ); // Disabled/expired: every session ends (§5.5).
+		}
 		wp_destroy_current_session();
 		wp_clear_auth_cookie();
 		wp_set_current_user( 0 );
@@ -143,7 +151,7 @@ final class SessionPolicy {
 		if ( null === $reason ) {
 			return;
 		}
-		self::end_current_session();
+		self::end_current_session( $reason );
 		if ( wp_doing_ajax() ) {
 			wp_die( '-1', '', [ 'response' => 401 ] );
 		}
@@ -157,8 +165,9 @@ final class SessionPolicy {
 		if ( null !== $result || ! is_user_logged_in() ) {
 			return $result;
 		}
-		if ( null !== self::check_current() ) {
-			self::end_current_session();
+		$reason = self::check_current();
+		if ( null !== $reason ) {
+			self::end_current_session( $reason );
 			return new \WP_Error( 'rest_forbidden', __( 'Your session has ended. Please log in again.', 'momos-core' ), [ 'status' => 401 ] );
 		}
 		return $result;

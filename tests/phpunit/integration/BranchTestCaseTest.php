@@ -25,11 +25,8 @@ abstract class BranchTestCaseTest extends TestCase {
 
 	public function set_up(): void {
 		parent::set_up();
-		global $wpdb;
 		_delete_all_data();
-		foreach ( [ Tables::hours(), Tables::closures(), Tables::reservations(), Tables::events(), Tables::user_branches(), Tables::menu_items(), Tables::audit() ] as $t ) {
-			$wpdb->query( "DELETE FROM {$t}" ); // phpcs:ignore
-		}
+		$this->reset_branch_tables();
 		delete_option( \Momos\Branch\Query\OfferQuery::STATE_OPTION );
 		wp_cache_flush();
 		ScheduleService::flush();
@@ -44,6 +41,17 @@ abstract class BranchTestCaseTest extends TestCase {
 			add_action( $hook, function ( ...$args ) use ( $hook ): void {
 				$this->events[] = array_merge( [ $hook ], $args );
 			}, 10, 3 );
+		}
+	}
+
+	/**
+	 * Empty the module tables. Child rows first: notifications and reservation events reference
+	 * reservations with ON DELETE RESTRICT (M0002), so deleting reservations first fails (DEF-006).
+	 */
+	protected function reset_branch_tables(): void {
+		global $wpdb;
+		foreach ( [ Tables::notifications(), Tables::events(), Tables::reservations(), Tables::hours(), Tables::closures(), Tables::user_branches(), Tables::menu_items(), Tables::audit() ] as $t ) {
+			$wpdb->query( "DELETE FROM {$t}" ); // phpcs:ignore
 		}
 	}
 

@@ -119,11 +119,19 @@ $momos_cats = class_exists( \Momos\Presentation\View\MenuView::class ) ? \Momos\
 	</section>
 <?php endif; ?>
 
+<?php
+// Halal summary band only when the statement renders (screens.md §2 "sections without data are not rendered").
+ob_start();
+momos_component( 'claim-statement', [ 'context' => 'brand', 'h' => 2, 'link' => true ] );
+$momos_claim_html = trim( (string) ob_get_clean() );
+if ( '' !== $momos_claim_html ) :
+	?>
 <div class="momo-section momo-section--raised">
 	<div class="momo-container momo-reading-center">
-		<?php momos_component( 'claim-statement', [ 'context' => 'brand', 'h' => 2, 'link' => true ] ); ?>
+		<?php echo $momos_claim_html; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped by the component. ?>
 	</div>
 </div>
+<?php endif; ?>
 
 <section class="momo-section" aria-labelledby="momo-home-how">
 	<div class="momo-container">

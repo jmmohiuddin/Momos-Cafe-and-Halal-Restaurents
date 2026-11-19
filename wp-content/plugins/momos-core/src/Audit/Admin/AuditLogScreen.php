@@ -78,6 +78,26 @@ final class AuditLogScreen {
 		return $out;
 	}
 
+	/** Viewer's admin language for catalog strings (ja/en, DEC-037). */
+	public static function admin_lang(): string {
+		return str_starts_with( (string) get_user_locale(), 'ja' ) ? 'ja' : 'en';
+	}
+
+	/** SCR-A16 Role column: display name of the stored role slug (e.g. 本部管理者), slug when unknown. */
+	public static function role_label( string $slug ): string {
+		if ( '' === $slug ) {
+			return '—';
+		}
+		return \Momos\Access\Roles\RoleInstaller::role_label( $slug );
+	}
+
+	/** SCR-A16 Action column label (catalog `admin.audit.action.<key>`); '' when the action has no label. */
+	public static function action_label( string $action ): string {
+		$key   = 'admin.audit.action.' . $action;
+		$label = momos_t( $key, [], self::admin_lang() );
+		return $label === $key ? '' : $label;
+	}
+
 	public static function actor_label( ?int $id ): string {
 		if ( ! $id ) {
 			return __( 'System', 'momos-core' );

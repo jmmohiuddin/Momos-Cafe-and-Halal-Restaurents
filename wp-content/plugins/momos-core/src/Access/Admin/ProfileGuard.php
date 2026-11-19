@@ -10,7 +10,10 @@ use Momos\Access\TwoFactor\TwoFactor;
  *  - users cannot change their own role, branches, disabled flag, expiry, vendor flag or CAP-DCA:
  *    crafted fields on the own profile are ignored and audited `access.denied`;
  *  - users without `manage_options` cannot create or promote an administrator (403 + audit);
- *  - the only self-service access setting is the voluntary 2FA opt-in.
+ *  - the only self-service access setting is the voluntary 2FA opt-in;
+ *  - opening/saving user-edit.php for a user one may not edit (M9, e.g. HO → Super Administrator)
+ *    answers 403 with a generic localised message and an `access.denied` row (FR-ADM-003,
+ *    TC-ACL-013) instead of core's wp_die() without status (HTTP 500).
  */
 final class ProfileGuard {
 	/** POST fields that only a manager may set on someone else's account. */
@@ -23,6 +26,22 @@ final class ProfileGuard {
 	public static function register(): void {
 		add_action( 'personal_options_update', [ self::class, 'own_profile' ], 1 );
 		add_action( 'check_admin_referer', [ self::class, 'guard_role_assignment' ], 10, 2 );
+		add_action( 'load-user-edit.php', [ self::class, 'guard_user_edit' ], 1 );
+	}
+
+	/** Target user of user-edit.php, or 0 (own profile / none). */
+	public static function edit_target(): int {
+		$raw = $_REQUEST['user_id'] ?? 0; // phpcs:ignore WordPress.Security.NonceVerification
+		return is_scalar( $raw ) ? absint( $raw ) : 0;
+	}
+
+	public static function guard_user_edit(): void {
+		$target = self::edit_target();
+		if ( $target <= 0 || get_current_user_id() === $target || current_user_can( 'edit_user', $target ) ) {
+			return;
+		}
+		momos_audit( 'access.denied', 'user', $target, null, [ 'cap' => 'edit_user', 'channel' => 'admin', 'route' => 'user-edit' ] );
+		wp_die( esc_html( momos_t( 'admin.err.forbidden', [], \Momos\Kernel\I18n\Locale::admin() ) ), '', [ 'response' => 403 ] );
 	}
 
 	/** Own profile save: strip protected fields (audited), handle the 2FA opt-in. */

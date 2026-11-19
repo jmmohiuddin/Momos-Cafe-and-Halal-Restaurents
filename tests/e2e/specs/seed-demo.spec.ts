@@ -20,6 +20,9 @@ test.describe('demo seed content', () => {
       await expect(page.locator('main .momo-branch-card')).toHaveCount(3);
       expect(await page.locator('main .momo-dish-card').count()).toBeGreaterThanOrEqual(4);
       await expect(page.locator('main')).not.toContainText(/TST|test-branch/);
+      // QA-006: the seed approves the neutral G2 templates, so the brand halal summary is never empty.
+      await expect(page.locator('main .momo-halal')).toHaveCount(1);
+      await expect(page.locator('main .momo-halal')).not.toHaveText(/^\s*$/);
 
       const branches = await page.goto(`${BASE}${prefix(lang)}/branches/`);
       expect(branches?.status()).toBe(200);
@@ -51,5 +54,14 @@ test.describe('demo seed content', () => {
     // One "No statement" per demo branch (3) plus the legend entry; no certified/ingredients statement row.
     const text = await main.innerText();
     expect((text.match(/No statement/g) || []).length).toBeGreaterThanOrEqual(4);
+    // QA-006: each public demo branch shows the approved neutral no_claim template; no claim template is approved.
+    expect((text.match(/Please ask our staff at this branch about ingredients and preparation\./g) || []).length).toBeGreaterThanOrEqual(3);
+    // Claim template sentences (Doc 11 §8.1) never appear; the explainer legend may still describe the terms.
+    await expect(main).not.toContainText(/This branch is halal-certified by|Dishes marked on our menu are halal-certified|are covered by halal certification from|as recorded in our halal register/);
+  });
+
+  test('WordPress default content is unpublished by the seed (QA-030)', async ({ request }) => {
+    expect((await request.get(`${BASE}/sample-page/`)).status()).toBe(404);
+    expect((await request.get(`${BASE}/news/hello-world/`)).status()).toBe(404);
   });
 });

@@ -80,6 +80,9 @@ $momos_price   = static function ( string $key, string $price_html, string $bran
 		<?php endif; ?>
 
 		<div class="momo-card momo-dish-price">
+			<?php if ( class_exists( \Momos\Presentation\View\Samples::class ) && \Momos\Presentation\View\Samples::is_marked( $momos_id ) ) : ?>
+				<span class="momo-sample"><?php echo esc_html( momos_s( 'demo.sample_badge' ) ); ?></span>
+			<?php endif; ?>
 			<?php if ( 'branch' === $momos_d['price_mode'] ) : ?>
 				<p class="momo-dish-price__line"><?php echo $momos_price( 'menu.price_at_branch', (string) $momos_card['price_html'], (string) $momos_ctx['name'] ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
 				<?php momos_component( 'dish-labels', [ 'card' => [ 'availability' => $momos_card['availability'] ?? null ] ] ); ?>

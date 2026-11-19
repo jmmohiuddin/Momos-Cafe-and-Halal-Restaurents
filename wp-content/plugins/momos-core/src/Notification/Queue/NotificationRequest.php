@@ -14,7 +14,7 @@ final class NotificationRequest {
 
 	/**
 	 * @param list<array{type:string,email:string,lang:string,user_id:?int}> $explicit_recipients
-	 * @param list<int>                                                      $extra_user_ids e.g. `handled_by` for E08 sla_reminder
+	 * @param list<int>                                                      $extra_user_ids e.g. `handled_by` for E08 sla_reminder; only users still assigned to the branch are added (SEC-012)
 	 */
 	public function __construct(
 		public readonly string $template_key,

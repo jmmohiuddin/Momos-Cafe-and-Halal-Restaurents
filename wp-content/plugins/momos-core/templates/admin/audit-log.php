@@ -58,7 +58,7 @@ $base = [
 					<optgroup label="<?php echo esc_attr( $prefix ); ?>">
 						<option value="<?php echo esc_attr( $prefix . '.*' ); ?>" <?php selected( $prefix . '.*', $filters['action'] ); ?>><?php echo esc_html( $prefix . '.*' ); ?></option>
 						<?php foreach ( $actions as $a ) : ?>
-							<option value="<?php echo esc_attr( $a ); ?>" <?php selected( $a, $filters['action'] ); ?>><?php echo esc_html( $a ); ?></option>
+							<option value="<?php echo esc_attr( $a ); ?>" <?php selected( $a, $filters['action'] ); ?>><?php echo esc_html( '' !== AuditLogScreen::action_label( $a ) ? AuditLogScreen::action_label( $a ) . ' (' . $a . ')' : $a ); ?></option>
 						<?php endforeach; ?>
 					</optgroup>
 				<?php endforeach; ?>
@@ -117,8 +117,14 @@ $base = [
 			<tr>
 				<td><?php echo esc_html( AuditLogScreen::time_jst( (string) $r['occurred_at'] ) ); ?></td>
 				<td><?php echo esc_html( 'system' === $r['actor_type'] ? __( 'System', 'momos-core' ) : AuditLogScreen::actor_label( null !== $r['actor_id'] ? (int) $r['actor_id'] : null ) ); ?></td>
-				<td><?php echo esc_html( (string) $r['actor_role'] ); ?></td>
-				<td><code><?php echo esc_html( (string) $r['action'] ); ?></code></td>
+				<td><?php echo esc_html( AuditLogScreen::role_label( (string) $r['actor_role'] ) ); ?></td>
+				<td>
+					<?php $momos_action_label = AuditLogScreen::action_label( (string) $r['action'] ); ?>
+					<?php if ( '' !== $momos_action_label ) : ?>
+						<?php echo esc_html( $momos_action_label ); ?><br />
+					<?php endif; ?>
+					<code><?php echo esc_html( (string) $r['action'] ); ?></code>
+				</td>
 				<td><?php echo $link ? '<a href="' . esc_url( $link ) . '">' . esc_html( $obj ) . '</a>' : esc_html( $obj ); ?></td>
 				<td><?php echo esc_html( AuditLogScreen::branch_code( null !== $r['branch_id'] ? (int) $r['branch_id'] : null ) ); ?></td>
 				<td>

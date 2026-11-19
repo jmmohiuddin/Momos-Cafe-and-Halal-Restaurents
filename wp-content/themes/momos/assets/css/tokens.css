@@ -61,8 +61,9 @@
   --momo-allergen-contains:#BA1A1A; --momo-allergen-may:#97651F; --momo-allergen-not:#1E3D34; --momo-allergen-unverified:#6E625D;
 
   /* ---- Typography: families (Latin default = en) ---- */
-  --momo-font-heading-latin:"Epilogue","Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;
-  --momo-font-text-latin:"Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;
+  /* "Momo … Fallback" = metric-adjusted local faces (fonts-en.css): no re-wrap/shift when the web font swaps in (CLS, NFR-PERF-01). */
+  --momo-font-heading-latin:"Epilogue","Momo Epilogue Fallback","Plus Jakarta Sans","Noto Sans",system-ui,sans-serif;
+  --momo-font-text-latin:"Plus Jakarta Sans","Momo Jakarta Fallback","Noto Sans",system-ui,sans-serif;
   --momo-font-heading:var(--momo-font-heading-latin);
   --momo-font-text:var(--momo-font-text-latin);
   --momo-font-price:var(--momo-font-heading);           /* Epilogue in en; script text family elsewhere */

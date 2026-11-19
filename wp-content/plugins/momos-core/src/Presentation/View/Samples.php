@@ -8,11 +8,20 @@ use Momos\Presentation\Format\PriceFormatter;
 use Momos\Presentation\Helpers\Bdi;
 
 /**
- * SAMPLE data for the living style guide (staff-only, noindex; DEC-047/UI-CHG-012). Never used on
- * customer templates. Kept in momos-core so the theme template scan (no prices/phones/times/claims in
+ * SAMPLE data for the living style guide (staff-only, noindex; DEC-047/UI-CHG-012). The data is never used on
+ * customer templates (only `is_marked()`, the D5 SAMPLE badge rule, is). Kept in momos-core so the theme template scan (no prices/phones/times/claims in
  * theme files, Doc 09 §2.9.4) stays clean. Names are neutral placeholders, not client data.
  */
 final class Samples {
+	/**
+	 * Non-production SAMPLE marking (content-strings §10.1 D5, DEF-011): true for a demo item (`momo_is_sample`)
+	 * outside production, where the card and its price carry `demo.sample_badge`. Production never shows sample
+	 * items at all (Menu module query + publish guard), so the badge never appears there.
+	 */
+	public static function is_marked( int $post_id ): bool {
+		return $post_id > 0 && ! \Momos\Kernel\Env::is_production() && '1' === (string) get_post_meta( $post_id, 'momo_is_sample', true );
+	}
+
 	private const TEXT = [
 		'dish'          => [ 'ja' => 'チキン・ビリヤニ', 'en' => 'Chicken biryani', 'ar' => 'برياني الدجاج', 'ur' => 'چکن بریانی', 'hi' => 'चिकन बिरयानी', 'bn' => 'চিকেন বিরিয়ানি' ],
 		'dish_desc'     => [ 'ja' => 'スパイスで炊き上げたバスマティライスと鶏肉。サンプルの説明文です。', 'en' => 'Basmati rice slow-cooked with spiced chicken. Sample description text.', 'ar' => 'أرز بسمتي مطهو ببطء مع الدجاج المتبل. نص وصف تجريبي.', 'ur' => 'مصالحے دار چکن کے ساتھ آہستہ پکے باسمتی چاول۔ نمونہ متن۔', 'hi' => 'मसालेदार चिकन के साथ धीमी आँच पर पके बासमती चावल। नमूना विवरण।', 'bn' => 'মসলাদার মুরগির সাথে ধীরে রান্না বাসমতি চাল। নমুনা বিবরণ।' ],

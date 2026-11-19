@@ -34,8 +34,22 @@ $momos_ja   = 'ja' === momos_theme_lang();
 	<?php if ( ! empty( $momos_b['area'] ) ) : ?>
 		<p class="momo-muted momo-small"><?php echo esc_html( (string) $momos_b['area'] ); ?></p>
 	<?php endif; ?>
-	<?php momos_component( 'open-status', [ 'status' => $momos_b['open'] ?? null ] ); ?>
+	<?php momos_component( 'open-status', [ 'status' => $momos_b['open'] ?? null, 'branch_id' => (int) $momos_b['id'] ] ); ?>
 	<?php
+	// Today's effective periods + last order (screens.md §3.4 #3, TC-BR-002, FR-BR-001).
+	$momos_td = $momos_b['today'] ?? null;
+	if ( is_array( $momos_td ) ) {
+		echo '<p class="momo-branch-card__today momo-small">' . momos_icon( 'clock', 'momo-icon--sm' ) . '<span>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		if ( ! empty( $momos_td['closed'] ) ) {
+			echo wp_kses( (string) $momos_td['closed_html'], [] );
+		} else {
+			echo '<span class="momo-visually-hidden">' . esc_html( momos_s( 'branch.today' ) ) . ' </span>' . wp_kses( (string) $momos_td['hours_html'], [ 'bdi' => [ 'dir' => true ] ] );
+			if ( '' !== (string) $momos_td['lo_html'] ) {
+				echo ' <span class="momo-muted">(' . wp_kses( strtr( esc_html( momos_s( 'branch.lo_short' ) ), [ '{time}' => (string) $momos_td['lo_html'] ] ), [ 'bdi' => [ 'dir' => true ] ] ) . ')</span>';
+			}
+		}
+		echo '</span></p>';
+	}
 	if ( ! empty( $args['notices'] ) && class_exists( \Momos\Branch\Query\NoticeQuery::class ) ) {
 		try {
 			$momos_n = \Momos\Branch\Query\NoticeQuery::for_branch( (int) $momos_b['id'], momos_theme_lang() );

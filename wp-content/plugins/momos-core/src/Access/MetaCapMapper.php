@@ -94,7 +94,9 @@ final class MetaCapMapper {
 				if ( null === $row || ! BranchScope::assigned( $user_id, (int) $row['branch_id'] ) ) {
 					return [ 'do_not_allow' ];
 				}
-				return [ 'momo_view_reservation' === $cap ? 'momo_view_reservations' : 'momo_process_reservations' ];
+				// Acting on a reservation always exposes it (API-12/16 return the record, A09 redirects
+				// to it): processing requires the view primitive too (TC-ACL-022, PRV-028).
+				return 'momo_view_reservation' === $cap ? [ 'momo_view_reservations' ] : [ 'momo_view_reservations', 'momo_process_reservations' ];
 
 			case 'momo_download_evidence': // M11
 				return self::is_post_type( (int) ( $args[0] ?? 0 ), 'momo_certificate' ) ? [ 'momo_manage_certificates', 'momo_edit_dietary_claims' ] : [ 'do_not_allow' ];
@@ -138,7 +140,28 @@ final class MetaCapMapper {
 		if ( $t && in_array( 'administrator', $t->roles, true ) && $target !== $actor && ! user_can( $actor, 'manage_options' ) ) {
 			return [ 'do_not_allow' ];
 		}
+		// SEC-008/DEC-035: a vendor account may not take over (e-mail, password, role) a non-vendor
+		// account that holds customer PII or staff management — only break-glass lifts its denies.
+		if ( $t && $target !== $actor && AccountStatus::is_vendor( $actor ) && ! AccountStatus::is_vendor( $target ) && self::holds_privileged( $t ) ) {
+			return [ 'do_not_allow' ];
+		}
 		return $caps;
+	}
+
+	/** Capabilities a vendor account may never hand out to a non-vendor account (QA-064). @return list<string> */
+	public static function vendor_withheld_caps(): array {
+		return array_values( array_unique( array_merge( \Momos\Access\Roles\RoleInstaller::config()['vendor_denies'], [ 'momo_manage_staff' ] ) ) );
+	}
+
+	/** Does a role capability set or a user hold a vendor-withheld capability? @param \WP_User|array<string,mixed> $subject */
+	private static function holds_privileged( $subject ): bool {
+		$caps = $subject instanceof \WP_User ? $subject->allcaps : (array) $subject;
+		foreach ( self::vendor_withheld_caps() as $cap ) {
+			if ( ! empty( $caps[ $cap ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -216,6 +239,16 @@ final class MetaCapMapper {
 		$roles = (array) $roles;
 		if ( ! current_user_can( 'manage_options' ) ) {
 			unset( $roles['administrator'] );
+		}
+		// SEC-008/DEC-035 (QA-064): a vendor account cannot create or promote accounts into roles
+		// that hold customer PII or staff management (its own denies would otherwise be bypassed).
+		if ( AccountStatus::is_vendor( get_current_user_id() ) ) {
+			foreach ( $roles as $slug => $role ) {
+				$role_caps = is_array( $role ) && isset( $role['capabilities'] ) ? (array) $role['capabilities'] : (array) ( get_role( (string) $slug )->capabilities ?? [] );
+				if ( self::holds_privileged( $role_caps ) ) {
+					unset( $roles[ $slug ] );
+				}
+			}
 		}
 		foreach ( \Momos\Access\Roles\RoleInstaller::REMOVED_CORE_ROLES as $r ) {
 			unset( $roles[ $r ] );

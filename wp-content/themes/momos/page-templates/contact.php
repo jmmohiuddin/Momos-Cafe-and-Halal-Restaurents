@@ -48,7 +48,7 @@ get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_
 			<?php endif; ?>
 		</div>
 
-		<form class="momo-card momo-form" id="contact-form" method="post" action="<?php echo esc_url( $momos_cf::action_url() ); ?>" data-momo-busy-form>
+		<form class="momo-card momo-form" id="contact-form" method="post" action="<?php echo esc_url( $momos_cf::action_url() ); ?>" novalidate data-momo-busy-form>
 			<h2><?php echo esc_html( momos_s( 'contact.form.title' ) ); ?></h2>
 			<div id="contact-errors">
 				<?php momos_component( 'error-summary', [ 'title' => momos_s( 'contact.err.summary' ), 'errors' => $momos_msgs ] ); ?>
@@ -77,6 +77,14 @@ get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_
 				? strtr( esc_html( momos_s( 'consent.contact.link' ) ), [ '{link}' => '<a href="' . esc_url( $momos_pp ) . '" target="_blank" rel="noopener">' . esc_html( momos_s( 'ftr.privacy' ) ) . '<span class="momo-visually-hidden"> ' . esc_html( momos_s( 'a11y.new_tab' ) ) . '</span></a>' ] )
 				: esc_html( momos_s( 'consent.contact' ) );
 			momos_component( 'choice', [ 'id' => 'contact-consent', 'name' => 'consent', 'label_html' => $momos_consent, 'required' => true, 'error' => $momos_err( 'consent' ) ] );
+			// Turnstile (managed, WCAG 3.3.8) — FR-SEC-006; test mode posts a test token and loads nothing.
+			$momos_cap = $momos_cf::captcha();
+			if ( is_array( $momos_cap ) ) {
+				echo '<div class="cf-turnstile" data-sitekey="' . esc_attr( $momos_cap['site_key'] ) . '" data-action="' . esc_attr( $momos_cap['action'] ) . '" data-language="' . esc_attr( $momos_lang ) . '" data-appearance="interaction-only"></div>';
+				if ( 'test' === $momos_cap['mode'] ) {
+					echo '<input type="hidden" name="' . esc_attr( $momos_cap['field'] ) . '" value="test-pass">';
+				}
+			}
 			momos_component( 'button', [ 'label' => momos_s( 'contact.submit' ), 'busy_label' => momos_s( 'contact.submit.busy' ), 'type' => 'submit', 'variant' => 'primary', 'size' => 'lg', 'icon' => 'send', 'attrs' => [ 'data-busy-label' => momos_s( 'contact.submit.busy' ) ] ] );
 			?>
 		</form>

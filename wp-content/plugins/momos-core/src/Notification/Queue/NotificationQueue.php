@@ -109,7 +109,7 @@ final class NotificationQueue {
 				$branch = $req->branch_id ?? (int) ( $reservation['branch_id'] ?? 0 );
 				$out    = $branch ? RecipientResolver::branch( $branch ) : [];
 				foreach ( $req->extra_user_ids as $uid ) {
-					$u = RecipientResolver::user( (int) $uid );
+					$u = $branch ? RecipientResolver::branch_user( (int) $uid, (int) $branch ) : null;
 					if ( $u && ! in_array( $u['email'], array_column( $out, 'email' ), true ) ) {
 						$out[] = $u;
 					}

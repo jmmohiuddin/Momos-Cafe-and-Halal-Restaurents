@@ -28,6 +28,8 @@ final class AccessModule implements ModuleInterface {
 		Admin\UsersList::register();
 		TwoFactor\LoginFlow::register();
 		Login\LoginThrottle::register();
+		Login\LoginCaptcha::register();
+		Login\LoginLanguage::register();
 		Login\PasswordPolicy::register();
 		Session\SessionPolicy::register();
 		Job\AccessExpiryJob::register();

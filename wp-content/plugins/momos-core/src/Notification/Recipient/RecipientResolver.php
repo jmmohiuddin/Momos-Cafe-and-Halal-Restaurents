@@ -115,6 +115,20 @@ final class RecipientResolver {
 	}
 
 	/**
+	 * A WP user (e.g. `handled_by`) as a recipient of one branch's mail: active AND still assigned
+	 * to that branch (or holding all-branch access). A former handler moved to another branch never
+	 * receives the branch's guest data (SEC-012, BR-RES-02, PRV-008).
+	 *
+	 * @return array{type:string,email:string,lang:string,user_id:?int}|null
+	 */
+	public static function branch_user( int $user_id, int $branch_id ): ?array {
+		if ( $user_id <= 0 || $branch_id <= 0 || ! momos_user_can_branch( $branch_id, $user_id ) ) {
+			return null;
+		}
+		return self::user( $user_id );
+	}
+
+	/**
 	 * Staff recipient with the locale rule of FR-I18N-010(d).
 	 *
 	 * @return array{type:string,email:string,lang:string,user_id:?int}

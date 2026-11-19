@@ -80,7 +80,10 @@ final class UsersList {
 				esc_html( 'enable' === $do ? __( 'Enable', 'momos-core' ) : __( 'Disable', 'momos-core' ) )
 			);
 		}
-		if ( TwoFactor::is_enrolled( $uid ) ) {
+		// SCR-A10 (spec §13.1): Reset two-factor is offered on every manageable row, enrolled or not (a
+		// half-finished enrolment or a pending challenge is cleared too; sessions end; audited). Not for
+		// targets the actor may not edit (HO → ROLE-01 vendor rows, spec §5.2 "Lost device").
+		if ( current_user_can( 'edit_user', $uid ) ) {
 			$actions['momos_2fa'] = sprintf(
 				'<a href="%s" onclick="return confirm(this.dataset.confirm)" data-confirm="%s">%s</a>',
 				esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=momos_user_2fa_reset&user=' . $uid ), 'momos_user_2fa_reset_' . $uid ) ),

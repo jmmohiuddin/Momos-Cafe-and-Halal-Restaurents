@@ -47,21 +47,65 @@ final class BranchView {
 			$ranges = [];
 			$los    = [];
 			foreach ( $periods as $p ) {
-				$ranges[] = DateFormatter::time( (string) $p['opens_at'] ) . '–' . DateFormatter::time( (string) $p['closes_at'] );
+				$ranges[] = self::range_html( $p, $lang );
 				if ( ! empty( $p['last_order_at'] ) ) {
-					$los[] = DateFormatter::time( (string) $p['last_order_at'] );
+					$los[] = Bdi::ltr( DateFormatter::time( (string) $p['last_order_at'] ) );
 				}
 			}
 			$rows[] = [
 				'weekday'    => (int) $wd,
 				'day'        => momos_t( 'branch.weekday_long.' . (int) $wd, [], $lang ),
-				'hours_html' => $ranges ? self::joined( $ranges ) : esc_html( momos_t( 'branch.closed_day', [], $lang ) ),
-				'lo_html'    => $los ? self::joined( $los ) : '',
+				'hours_html' => $ranges ? implode( ' · ', $ranges ) : esc_html( momos_t( 'branch.closed_day', [], $lang ) ),
+				'lo_html'    => $los ? implode( ' · ', $los ) : '',
 				'today'      => (int) $wd === $today,
 				'closed'     => ! $ranges,
 			];
 		}
 		return $rows;
+	}
+
+	/**
+	 * Today's effective opening periods (JST business date) for the summary panel and directory cards:
+	 * closures and special hours apply (ScheduleService::periods_on — FR-BR-007, BR-BR-05, TC-BR-010),
+	 * never the plain weekly row. Null when the schedule service is absent or fails (line omitted).
+	 *
+	 * @return array{closed:bool,hours_html:string,lo_html:string,closed_html:string}|null
+	 */
+	public static function today( int $branch_id, ?string $lang = null ): ?array {
+		$lang = $lang ?? Locale::current();
+		if ( ! class_exists( \Momos\Branch\Service\ScheduleService::class ) ) {
+			return null;
+		}
+		$date = Clock::jst()->format( 'Y-m-d' );
+		try {
+			$periods = \Momos\Branch\Service\ScheduleService::periods_on( $branch_id, $date );
+			$closure = [] === $periods ? \Momos\Branch\Service\ScheduleService::closure_on( $branch_id, $date ) : null;
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+		if ( [] === $periods ) {
+			$reason = is_array( $closure ) && '' !== (string) $closure['public_reason'] ? momos_t( 'closure_reason.' . $closure['public_reason'], [], $lang ) : '';
+			return [
+				'closed'      => true,
+				'hours_html'  => '',
+				'lo_html'     => '',
+				'closed_html' => esc_html( '' !== $reason ? momos_t( 'branch.closed_today_reason', [ 'reason' => $reason ], $lang ) : momos_t( 'branch.closed_today', [], $lang ) ),
+			];
+		}
+		$ranges = [];
+		$los    = [];
+		foreach ( $periods as $p ) {
+			$ranges[] = self::range_html( $p, $lang );
+			if ( ! empty( $p['last_order_at'] ) ) {
+				$los[] = Bdi::ltr( DateFormatter::time( (string) $p['last_order_at'] ) );
+			}
+		}
+		return [
+			'closed'      => false,
+			'hours_html'  => implode( ' · ', $ranges ),
+			'lo_html'     => implode( ' · ', $los ),
+			'closed_html' => '',
+		];
 	}
 
 	/**
@@ -92,8 +136,8 @@ final class BranchView {
 			if ( 'closed_all_day' === $c['closure_type'] ) {
 				$text = esc_html( momos_t( 'branch.closed_day', [], $lang ) );
 			} else {
-				$ranges = array_map( static fn( $p ) => DateFormatter::time( (string) $p['opens_at'] ) . '–' . DateFormatter::time( (string) $p['closes_at'] ), $c['periods'] );
-				$text   = esc_html( momos_t( 'branch.special_hours', [], $lang ) ) . ' ' . self::joined( $ranges );
+				$ranges = array_map( static fn( $p ) => self::range_html( $p, $lang ), $c['periods'] );
+				$text   = esc_html( momos_t( 'branch.special_hours', [], $lang ) ) . ' ' . implode( ' · ', $ranges );
 			}
 			if ( '' !== $reason ) {
 				$text .= ' — ' . esc_html( $reason );
@@ -104,7 +148,7 @@ final class BranchView {
 	}
 
 	/**
-	 * Localised address lines + the Japanese address (always shown, copyable).
+	 * Localised address lines + the Japanese address (always shown, copyable; postal code exactly once).
 	 *
 	 * @return array{local:string,ja:string,postal:string}
 	 */
@@ -122,7 +166,15 @@ final class BranchView {
 			}
 			$local = implode( momos_t( 'diet.list.separator', [], $lang ), $parts );
 		}
-		return [ 'local' => $local, 'ja' => $ja, 'postal' => (string) get_post_meta( $branch_id, 'momo_postal_code', true ) ];
+		// `postal` is the "〒NNN-NNNN" prefix to print before `ja`, and only when `momo_address_ja` does not already
+		// carry the code (seed/editors store "〒540-0000 大阪府…") — the code is printed once (DEF-009, TC-BR-002).
+		$postal = trim( (string) get_post_meta( $branch_id, 'momo_postal_code', true ) );
+		if ( '' !== $postal && str_contains( $ja, $postal ) ) {
+			$postal = '';
+		} elseif ( '' !== $postal ) {
+			$postal = '〒' . ltrim( $postal, '〒' );
+		}
+		return [ 'local' => $local, 'ja' => $ja, 'postal' => $postal ];
 	}
 
 	/**
@@ -218,8 +270,20 @@ final class BranchView {
 		return array_values( array_unique( $ids ) );
 	}
 
-	/** @param list<string> $parts */
-	private static function joined( array $parts ): string {
-		return implode( ' · ', array_map( static fn( $p ) => Bdi::ltr( $p ), $parts ) );
+	/**
+	 * One opening range "17:00–02:00" as isolated LTR HTML; a period closing after midnight
+	 * (`closes_next_day`, or close ≤ open) carries the localised next-day label (AC-BR-04-01, DEF-010).
+	 *
+	 * @param array<string,mixed> $p period (ScheduleService::period shape)
+	 */
+	public static function range_html( array $p, ?string $lang = null ): string {
+		$open  = DateFormatter::time( (string) ( $p['opens_at'] ?? '' ) );
+		$close = DateFormatter::time( (string) ( $p['closes_at'] ?? '' ) );
+		$range = Bdi::ltr( $open . '–' . $close );
+		$next  = ! empty( $p['closes_next_day'] ) || ( '' !== $close && $close <= $open );
+		if ( ! $next ) {
+			return $range;
+		}
+		return strtr( esc_html( momos_t( 'branch.hours.next_day', [], $lang ?? Locale::current() ) ), [ '{range}' => $range ] );
 	}
 }

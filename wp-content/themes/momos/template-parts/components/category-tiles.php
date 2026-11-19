@@ -4,7 +4,7 @@
  * `alt=""`. `chip` variant = small link chips (home hero / category tools row). No dish counts.
  *
  * @package momos
- * @var array{items:list<array{name:string,url:string,image_id:int,current?:bool,intro?:string}>,variant?:string,label:string,h?:int} $args
+ * @var array{items:list<array{name:string,url:string,image_id:int,current?:bool,intro?:string}>,variant?:string,label:string,h?:int,priority?:int} $args
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -14,6 +14,9 @@ if ( ! $momos_items ) {
 	return;
 }
 $momos_chip = 'chip' === ( $args['variant'] ?? 'tile' );
+// `priority` = number of leading tiles above the fold (menu hub LCP): eager + fetchpriority=high, never lazy (NFR-PERF-01).
+$momos_prio = max( 0, (int) ( $args['priority'] ?? 0 ) );
+$momos_n    = 0;
 ?>
 <nav class="<?php echo $momos_chip ? 'momo-catchips' : 'momo-tiles-nav'; ?>" aria-label="<?php echo esc_attr( (string) $args['label'] ); ?>">
 	<ul class="<?php echo $momos_chip ? 'momo-chips momo-chips--scroll' : 'momo-tiles'; ?>">
@@ -23,7 +26,8 @@ $momos_chip = 'chip' === ( $args['variant'] ?? 'tile' );
 					<span class="momo-tile__img" aria-hidden="true">
 						<?php
 						if ( ! empty( $momos_c['image_id'] ) ) {
-							echo wp_get_attachment_image( (int) $momos_c['image_id'], 'momo-thumb', false, [ 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async', 'sizes' => $momos_chip ? '32px' : '120px' ] );
+							$momos_lead = $momos_n++ < $momos_prio;
+							echo wp_get_attachment_image( (int) $momos_c['image_id'], 'momo-thumb', false, [ 'alt' => '', 'loading' => $momos_lead ? 'eager' : 'lazy', 'fetchpriority' => $momos_lead ? 'high' : 'auto', 'decoding' => 'async', 'sizes' => $momos_chip ? '32px' : '120px' ] );
 						} else {
 							echo esc_html( mb_substr( (string) $momos_c['name'], 0, 1 ) );
 						}

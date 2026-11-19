@@ -25,10 +25,14 @@
 .momo-hero__offer{margin-block-start:var(--momo-space-4)}
 .momo-hero__cats{margin-block-start:var(--momo-space-6)}
 .momo-hero__cats-label{font-size:var(--momo-fs-label);font-weight:700;color:var(--momo-color-text-muted);margin-block-end:var(--momo-space-2)}
-.momo-hero__cats .momo-chips{justify-content:center}
+/* Centred chip rows that may scroll: centre with auto margins (they collapse to 0 on overflow, so the first chip stays reachable — justify-content:center would push it past the scroll origin). */
+:is(.momo-hero__cats,.momo-gallery__filter) .momo-chips--scroll>:first-child{margin-inline-start:auto}
+:is(.momo-hero__cats,.momo-gallery__filter) .momo-chips--scroll>:last-child{margin-inline-end:auto}
+:is(.momo-hero__cats,.momo-gallery__filter) .momo-chips:not(.momo-chips--scroll){justify-content:center}
+@media (min-width:768px){:is(.momo-hero__cats,.momo-gallery__filter) .momo-chips--scroll{justify-content:center}:is(.momo-hero__cats,.momo-gallery__filter) .momo-chips--scroll>:is(:first-child,:last-child){margin-inline:0}}
 .momo-hero__placeholder{border-radius:var(--momo-radius-circle);inline-size:100%;block-size:100%}
 .momo-hero__placeholder .momo-icon{inline-size:56px;block-size:56px}
-@media (min-width:1024px){.momo-hero__cats .momo-chips{justify-content:flex-start}}
+@media (min-width:1024px){.momo-hero__cats .momo-chips.momo-chips{justify-content:flex-start}}
 .momo-catchip{gap:var(--momo-space-2);padding-inline-start:var(--momo-space-1)}
 .momo-catchip .momo-tile__img{inline-size:32px;block-size:32px;font-size:var(--momo-fs-body-sm)}
 .momo-home-branches .momo-section-head .momo-muted{color:var(--momo-color-text-on-dark-muted)}
@@ -205,7 +209,6 @@
 .momo-gallery img{inline-size:100%;aspect-ratio:var(--momo-ratio-gallery);object-fit:cover;border-radius:var(--momo-radius-media)}
 .momo-gallery figcaption{font-size:var(--momo-fs-body-sm);color:var(--momo-color-text-muted)}
 .momo-gallery__filter{margin-block-end:var(--momo-space-6)}
-.momo-gallery__filter .momo-chips{justify-content:center}
 .momo-news-card{display:grid;gap:var(--momo-space-2);align-content:start}
 .momo-news-card__media img{inline-size:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--momo-radius-media)}
 
@@ -225,3 +228,15 @@
 .momo-banner+.momo-section,.momo-banner+.momo-container.momo-section{padding-block-start:var(--momo-space-6)}
 .momo-grid--dishes>li>.momo-dish-card{block-size:100%}
 @media (min-width:1024px){.momo-tools .momo-filters{flex:0 1 auto}.momo-tools .momo-filters[open]{flex-basis:100%}}
+/* Short phones (360×640): H1 and "Request a table" above the fold under the sticky bar (screens.md §3.1, AC-CORP-01): the
+   hero image shrinks with the viewport height (never above 240 px) and the CTAs follow the H1 directly. */
+@media (max-width:767px) and (max-height:740px){
+ .momo-hero{padding-block-start:var(--momo-space-4)}
+ .momo-hero__inner{gap:var(--momo-space-5)}
+ .momo-hero__art{inline-size:min(100%,var(--momo-hero-img-mobile-max),max(88px,100vh - 530px))}
+ .momo-hero__copy{display:flex;flex-direction:column;align-items:center}
+ .momo-hero__copy>*{max-inline-size:100%}
+ .momo-hero__copy .momo-lead{order:1;margin-block:var(--momo-space-4) 0}
+ .momo-hero__copy>.momo-hero__offer,.momo-hero__copy>.momo-hero__cats{order:2;align-self:stretch}
+ .momo-hero__copy>.momo-hero__ctas.momo-hero__ctas{align-self:stretch;margin-block-start:var(--momo-space-4)}
+}

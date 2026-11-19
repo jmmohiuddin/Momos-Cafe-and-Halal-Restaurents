@@ -14,10 +14,11 @@ use Momos\Kernel\I18n\Url;
  *  1) current singular object visible in the target → same URL with the target prefix;
  *  2) else target home + `?notice=untranslated`;
  *  3) on 404 → target home without notice.
- * Only the query parameters `branch`, `diet`, `spice` survive.
+ * Only the selection/filter parameters survive: `branch` and the menu filters as the Menu module names them
+ * (`diet[]`, `max_spice`, `exclude[]`; legacy `spice`) — every tracking or unknown parameter is dropped.
  */
 final class LanguageSwitcher {
-	public const KEEP_QUERY = [ 'branch', 'diet', 'spice' ];
+	public const KEEP_QUERY = [ 'branch', 'diet', 'spice', 'max_spice', 'exclude' ];
 
 	/**
 	 * @return list<array{code:string,native:string,dir:string,url:string,current:bool,translated:bool}>
@@ -67,15 +68,31 @@ final class LanguageSwitcher {
 	public static function current_url( string $lang ): string {
 		$url   = Url::to( Url::current_path(), $lang );
 		$query = [];
+		$ok    = static fn( $v ): bool => is_string( $v ) && '' !== $v && (bool) preg_match( '/^[A-Za-z0-9_,-]{1,60}$/', $v );
 		foreach ( self::KEEP_QUERY as $key ) {
-			if ( isset( $_GET[ $key ] ) && is_string( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				$val = sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-				if ( '' !== $val && preg_match( '/^[A-Za-z0-9_,-]{1,60}$/', $val ) ) {
+			if ( ! isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				continue;
+			}
+			$raw = wp_unslash( $_GET[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput
+			if ( is_string( $raw ) ) {
+				$val = sanitize_text_field( $raw );
+				if ( $ok( $val ) ) {
 					$query[ $key ] = $val;
+				}
+			} elseif ( is_array( $raw ) ) {
+				// `diet[]=vegetarian&diet[]=…` (multi-select filters), max 20 values.
+				$vals = array_values( array_filter( array_map( static fn( $v ) => is_string( $v ) ? sanitize_text_field( $v ) : '', array_slice( $raw, 0, 20 ) ), $ok ) );
+				if ( $vals ) {
+					$query[ $key ] = $vals;
 				}
 			}
 		}
-		return $query ? add_query_arg( $query, $url ) : $url;
+		if ( ! $query ) {
+			return $url;
+		}
+		// http_build_query keeps arrays as `diet[0]=…`; normalise to the `diet[]=…` form the filter form submits.
+		$qs = (string) preg_replace( '/%5B\d+%5D=/', '%5B%5D=', http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) );
+		return $url . ( str_contains( $url, '?' ) ? '&' : '?' ) . $qs;
 	}
 
 	/**

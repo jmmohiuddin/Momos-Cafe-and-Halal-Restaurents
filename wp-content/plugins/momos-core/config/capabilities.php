@@ -119,6 +119,10 @@ return [
 	'caps'          => $caps,
 	// Per-user only (never role-granted): CAP-DCA. Grantable only to SA/HO users.
 	'per_user'      => [ 'momo_edit_dietary_claims' ],
-	// Explicit denies for vendor accounts (DEC-035).
-	'vendor_denies' => [ 'momo_view_customer_pii', 'momo_view_reservations', 'momo_export_reservations', 'momo_manage_dsr' ],
+	// Explicit denies for vendor accounts (DEC-035, SEC-008, PRV-028, TC-ACL-022): the four PII caps of
+	// TRD §2.7.2 plus the two caps that act on or expose reservations without `momo_view_reservations`
+	// (processing via API-12/13/16 + A09, and the notification log / resend of customer e-mails). A
+	// vendor that may not view a reservation may not act on it either. Break-glass lifts only
+	// RoleInstaller::BREAKGLASS_LIFTS (PII + view); processing, export and DSR stay denied.
+	'vendor_denies' => [ 'momo_view_customer_pii', 'momo_view_reservations', 'momo_export_reservations', 'momo_manage_dsr', 'momo_process_reservations', 'momo_view_notification_log' ],
 ];

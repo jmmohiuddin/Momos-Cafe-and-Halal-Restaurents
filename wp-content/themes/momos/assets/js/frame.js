@@ -109,43 +109,79 @@
 		if (w.visualViewport) { w.visualViewport.addEventListener('resize', update); }
 	}
 
+	/* ---- Focus not obscured (WCAG 2.4.11): the browser does not scroll an element that is inside the
+	   viewport but under the sticky header or the fixed mobile bar, so move it into the free area ---- */
+	var head = $('[data-momo-header]');
+	d.addEventListener('focusin', function (e) {
+		var el = e.target;
+		if (!el || !el.getBoundingClientRect || el === d.body || (bar && bar.contains(el)) || (head && head.contains(el)) || el.closest('dialog')) { return; }
+		var r = el.getBoundingClientRect(), top = 0, bottom = w.innerHeight, dy = 0;
+		if (head) { var hr = head.getBoundingClientRect(); if (hr.bottom > 0 && hr.top <= 0) { top = hr.bottom; } }
+		if (bar && !bar.classList.contains('is-hidden') && w.getComputedStyle(bar).display !== 'none') { bottom = bar.getBoundingClientRect().top; }
+		if (r.bottom > bottom - 8) { dy = r.bottom - bottom + 16; } else if (r.top < top + 8) { dy = r.top - top - 16; }
+		if (dy) { w.scrollBy({ top: dy, left: 0, behavior: 'instant' }); }
+	});
+
 	/* ---- Language switcher: remember the explicit choice (FR-I18N-002/003) ---- */
 	d.addEventListener('click', function (e) {
 		var a = e.target.closest('a[data-momo-event="select_language"]');
 		if (a) { setCookie('momo_lang_choice', a.getAttribute('data-momo-to')); }
 	});
 
-	/* ---- Language suggestion bar (client-side only, never redirects) ---- */
-	var bar2 = $('[data-momo-langbar]'), data = $('#momo-lang-data');
-	if (bar2 && data && !getCookie('momo_lang_choice')) {
-		var cfg = null;
+	/* ---- Language suggestion bar: revealed before first paint by the inline script (lang-suggestion.php); clicks here ---- */
+	var bar2 = $('[data-momo-langbar]');
+	if (bar2 && !bar2.hidden) {
+		var best = bar2.getAttribute('data-momo-best'), cfg = null, data = $('#momo-lang-data');
 		try { cfg = JSON.parse(data.textContent); } catch (e) { cfg = null; }
-		var langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
-		var best = null;
-		if (cfg) {
-			for (var i = 0; i < langs.length; i++) {
-				var code = String(langs[i] || '').toLowerCase().split('-')[0];
-				if (code === cfg.page) { break; }
-				if (cfg.langs[code]) { best = code; break; }
-			}
-		}
-		if (best) {
-			var L = cfg.langs[best];
-			bar2.setAttribute('lang', best);
-			bar2.setAttribute('dir', L.dir);
-			bar2.setAttribute('aria-label', L.suggest);
-			$('[data-momo-langbar-text]', bar2).textContent = L.suggest;
-			var sw = $('[data-momo-langbar-switch]', bar2);
-			sw.textContent = L['switch'];
-			sw.href = L.url;
-			sw.setAttribute('hreflang', best);
-			sw.addEventListener('click', function () { setCookie('momo_lang_choice', best); });
-			var x = $('[data-momo-langbar-dismiss]', bar2);
-			x.setAttribute('aria-label', L.dismiss);
-			x.addEventListener('click', function () { setCookie('momo_lang_choice', cfg.page); bar2.hidden = true; });
-			bar2.hidden = false;
-		}
+		$('[data-momo-langbar-switch]', bar2).addEventListener('click', function () { setCookie('momo_lang_choice', best); });
+		$('[data-momo-langbar-dismiss]', bar2).addEventListener('click', function () { if (cfg) { setCookie('momo_lang_choice', cfg.page); } bar2.hidden = true; });
 	}
+
+	/* ---- Open-now badge from the embedded JST schedule (cache-safe, Doc 07 §5 C04, BR-BR-05) ---- */
+	$$('[data-momo-open]').forEach(function (el) {
+		var c;
+		try { c = JSON.parse(el.getAttribute('data-momo-open')); } catch (e) { return; }
+		var now = c.now || Date.now(), cur = null, next = null, hm = function (iso) { return String(iso).slice(11, 16); };
+		c.days.forEach(function (dd) {
+			dd.periods.forEach(function (p) {
+				var o = Date.parse(p.o), cl = Date.parse(p.c);
+				if (o <= now && now < cl && !cur) { cur = p; }
+				if (o > now && (!next || o < Date.parse(next.o))) { next = p; }
+			});
+		});
+		var tpl, args, state;
+		if (cur) {
+			var soon = Date.parse(cur.c) - now <= c.soon * 60000 || (cur.l && now >= Date.parse(cur.l));
+			state = soon ? 'closing' : 'open';
+			tpl = soon ? c.t.closing : (cur.l ? c.t.open : c.t.nolo);
+			args = { time: hm(cur.c), lo: cur.l ? hm(cur.l) : '' };
+		} else if (next) {
+			var jst = function (ms) { return new Date(ms + 9 * 3600000).toISOString().slice(0, 10); };
+			var day = next.o.slice(0, 10);
+			state = 'closed';
+			tpl = c.t.closed;
+			args = { time: hm(next.o), day: day === jst(now) ? c.t.today : (day === jst(now + 86400000) ? c.t.tomorrow : (c.dates[day] || day)) };
+		} else {
+			el.hidden = true; // Schedule older than the embedded week: no reliable state, omit it (never stale).
+			return;
+		}
+		var box = d.createElement('span');
+		String(tpl).split(/(\{[a-z]+\})/).forEach(function (part) {
+			var m = /^\{([a-z]+)\}$/.exec(part);
+			if (m && Object.prototype.hasOwnProperty.call(args, m[1])) {
+				if (m[1] === 'day') { box.appendChild(d.createTextNode(args.day)); return; }
+				var b = d.createElement('bdi');
+				b.setAttribute('dir', 'ltr');
+				b.textContent = args[m[1]];
+				box.appendChild(b);
+			} else if (part) {
+				box.appendChild(d.createTextNode(part));
+			}
+		});
+		el.className = el.className.replace(/\bmomo-open--[a-z_]+/, 'momo-open--' + state);
+		while (el.firstChild) { el.removeChild(el.firstChild); }
+		el.appendChild(box);
+	});
 
 	/* ---- Notices: scheduled reveal (cache-safe), dismiss, "More" on mobile ---- */
 	var now = Date.now();
@@ -239,7 +275,12 @@
 
 	/* ---- Focus the error summary when present ---- */
 	var es = $('[data-momo-errsum]');
-	if (es) { es.focus(); }
+	if (es) {
+		es.focus();
+		// A `#fragment` on the redirect (e.g. #contact-errors) is processed after this script and moves focus back to
+		// the document: focus the summary again once loading has finished (TC-A11Y-006).
+		w.addEventListener('load', function () { w.setTimeout(function () { if (!d.activeElement || d.activeElement === d.body) { es.focus(); } }, 0); });
+	}
 
 	root.classList.add('momo-js');
 	if (reduce) { root.classList.add('momo-reduced-motion'); }

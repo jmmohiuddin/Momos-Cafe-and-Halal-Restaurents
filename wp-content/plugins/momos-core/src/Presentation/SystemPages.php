@@ -86,8 +86,9 @@ final class SystemPages {
 	}
 
 	/**
-	 * Language URL of a system page. Must-have roles always return the documented path (the nav never
-	 * loses an item); optional roles return null unless the page is published and visible in $lang.
+	 * Language URL of a system page. Must-have roles return the documented path while the page is missing (the
+	 * nav never loses an item); a published content page (about, optional roles) returns null while it is not
+	 * visible in $lang, so no navigation links to a 404.
 	 */
 	public static function url( string $role, ?string $lang = null ): ?string {
 		$lang = $lang ?? Locale::current();
@@ -101,6 +102,11 @@ final class SystemPages {
 			}
 		}
 		if ( $id && 'publish' === get_post_status( $id ) ) {
+			// A content page without an approved translation is 404 in $lang (TemplateRouter::guard_untranslated):
+			// never link it there (TC-NAV-005, BR-I18N-02). String-driven pages render in every language.
+			if ( ! in_array( $role, Templates\TemplateRouter::STRING_DRIVEN, true ) && ! Translations::post_visible( $id, $lang ) ) {
+				return null;
+			}
 			return Url::localize( (string) get_permalink( $id ), $lang );
 		}
 		$def = self::ROLES[ $role ] ?? null;

@@ -23,8 +23,54 @@ add_action(
 		remove_theme_support( 'block-templates' );
 
 		add_image_size( 'momo-hero', 1600, 0 );
-		add_image_size( 'momo-card', 600, 0 );
+		// Cards are 4:3 (CMP-OfferCard, screens.md §3.17; Doc 08 §2.10 card ≤ 80 KB): hard-cropped 600×450 plus a
+		// 400×300 step so `srcset` offers ≥ 2 same-ratio candidates and never falls back to the full original.
+		add_image_size( 'momo-card', 600, 450, true );
+		add_image_size( 'momo-card-sm', 400, 300, true );
 		add_image_size( 'momo-thumb', 300, 300, true );
+	}
+);
+
+/**
+ * Sub-sizes are written as WebP when the image editor supports it (Doc 08 §2.10, NFR-PERF-03, TC-PERF-003).
+ * The uploaded original keeps its format; it is dropped from `srcset` below whenever WebP candidates exist.
+ */
+add_filter(
+	'image_editor_output_format',
+	static function ( array $formats ): array {
+		if ( function_exists( 'wp_image_editor_supports' ) && wp_image_editor_supports( [ 'mime_type' => 'image/webp' ] ) ) {
+			$formats['image/jpeg'] = 'image/webp';
+			$formats['image/png']  = 'image/webp';
+		}
+		return $formats;
+	}
+);
+
+// WebP sub-size quality: photos stay sharp at 2× while cards fit the 80 KB budget (Doc 08 §2.10).
+add_filter(
+	'wp_editor_set_quality',
+	static function ( $quality, $mime_type = '' ) {
+		return 'image/webp' === $mime_type ? 78 : $quality;
+	},
+	10,
+	2
+);
+
+/**
+ * `srcset`: keep only WebP/AVIF candidates when the attachment has them, so a high-DPR phone never picks the
+ * unoptimised JPEG original (QA-020: 218 KB original chosen for a card).
+ *
+ * @param array<int,array{url:string,descriptor:string,value:int}>|mixed $sources
+ * @return array<int,array{url:string,descriptor:string,value:int}>|mixed
+ */
+add_filter(
+	'wp_calculate_image_srcset',
+	static function ( $sources ) {
+		if ( ! is_array( $sources ) ) {
+			return $sources;
+		}
+		$modern = array_filter( $sources, static fn( $s ) => is_array( $s ) && (bool) preg_match( '/\.(webp|avif)$/i', (string) ( $s['url'] ?? '' ) ) );
+		return count( $modern ) >= 1 && count( $modern ) < count( $sources ) ? $modern : $sources;
 	}
 );
 

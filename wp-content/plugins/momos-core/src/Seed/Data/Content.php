@@ -110,7 +110,7 @@ final class Content {
 					"للمجموعات المكونة من 6 أشخاص أو أكثر.\nيلزم إرسال طلب طاولة مسبقًا.\nمرة واحدة لكل مجموعة.\nعرض تجريبي.",
 					"6 یا زیادہ افراد کے گروپ کے لیے۔\nپیشگی ٹیبل کی درخواست ضروری ہے۔\nہر گروپ کے لیے ایک بار۔\nڈیمو آفر۔",
 					"6 या अधिक लोगों के समूह के लिए।\nपहले से टेबल अनुरोध ज़रूरी है।\nहर समूह के लिए एक बार।\nडेमो ऑफ़र।",
-					"৬ বা তার বেশি জনের দলের জন্য।\nআগে থেকে টেবিল অনুরোধ প্রয়োজন।\nপ্রতি দলে একবার।\nডেমো অফার।"
+					"6 বা তার বেশি জনের দলের জন্য।\nআগে থেকে টেবিল অনুরোধ প্রয়োজন।\nপ্রতি দলে একবার।\nডেমো অফার।"
 				),
 			],
 		];
@@ -283,6 +283,61 @@ final class Content {
 			'res_policy'    => self::t( '予約ポリシー', 'Reservation Policy', 'سياسة الحجز', 'ریزرویشن پالیسی', 'आरक्षण नीति', 'সংরক্ষণ নীতি' ),
 			'ext_trans'     => self::t( '外部送信・Cookieについて', 'External transmission & cookies', 'الإرسال الخارجي وملفات تعريف الارتباط', 'بیرونی ترسیل اور کوکیز', 'बाहरी प्रेषण और कुकीज़', 'বাহ্যিক প্রেরণ ও কুকিজ' ),
 			'accessibility' => self::t( 'アクセシビリティ', 'Accessibility', 'إمكانية الوصول', 'رسائی', 'सुलभता', 'প্রবেশযোগ্যতা' ),
+		];
+	}
+
+	/**
+	 * G2 statement templates the DEMO approves (QA-006, GATE-02 demo): only neutral, non-claim templates —
+	 * `brand.neutral` (home/halal page), `no_claim` (branch), `branch_default` (dish halal basis line) and
+	 * the alcohol lines. Claim templates (`certified.*`, `halal_ingredients`) are never approved by the seed.
+	 * ja/en are the Doc 11 §8.1/§8.7 master texts already stored by M0003 (kept as stored); ar/ur/hi/bn are
+	 * DRAFT translations used only when a row has no translation yet (DEC-027; production approval needs
+	 * native review + CAP-DCA + counsel, BR-DIET-05). Reverted by `--reset`.
+	 *
+	 * @return array<string, array<string,string>> key => lang => text
+	 */
+	public static function statements(): array {
+		return [
+			'brand.neutral'      => self::t(
+				'ハラールに関する情報は店舗ごとに表示しています。',
+				'Halal information is shown for each branch.',
+				'تُعرض معلومات الحلال لكل فرع على حدة.',
+				'حلال سے متعلق معلومات ہر برانچ کے لیے الگ دکھائی جاتی ہیں۔',
+				'हलाल से संबंधित जानकारी हर शाखा के लिए अलग से दिखाई जाती है।',
+				'হালাল সম্পর্কিত তথ্য প্রতিটি শাখার জন্য আলাদাভাবে দেখানো হয়।'
+			),
+			'no_claim'           => self::t(
+				'食材や調理方法については、この店舗のスタッフにお尋ねください。',
+				'Please ask our staff at this branch about ingredients and preparation.',
+				'يُرجى سؤال فريق العمل في هذا الفرع عن المكونات وطريقة التحضير.',
+				'اجزاء اور تیاری کے طریقے کے بارے میں براہ کرم اس برانچ کے عملے سے پوچھیں۔',
+				'सामग्री और बनाने के तरीके के बारे में कृपया इस शाखा के स्टाफ़ से पूछें।',
+				'উপকরণ ও প্রস্তুত প্রণালী সম্পর্কে অনুগ্রহ করে এই শাখার কর্মীদের জিজ্ঞাসা করুন।'
+			),
+			'branch_default'     => self::t(
+				'ハラールに関する情報は店舗ごとに表示しています。この料理を提供している店舗：{branch_links}',
+				'Halal information is shown for each branch. Branches offering this dish: {branch_links}',
+				'تُعرض معلومات الحلال لكل فرع على حدة. الفروع التي تقدّم هذا الطبق: {branch_links}',
+				'حلال سے متعلق معلومات ہر برانچ کے لیے الگ دکھائی جاتی ہیں۔ یہ ڈش پیش کرنے والی برانچیں: {branch_links}',
+				'हलाल से संबंधित जानकारी हर शाखा के लिए अलग से दिखाई जाती है। यह व्यंजन उपलब्ध कराने वाली शाखाएँ: {branch_links}',
+				'হালাল সম্পর্কিত তথ্য প্রতিটি শাখার জন্য আলাদাভাবে দেখানো হয়। যে শাখাগুলোতে এই খাবারটি পাওয়া যায়: {branch_links}'
+			),
+			'alcohol.served.yes' => self::t(
+				'この店舗ではアルコール飲料を提供しています。',
+				'Alcoholic drinks are served at this branch.',
+				'يقدّم هذا الفرع مشروبات كحولية.',
+				'اس برانچ میں الکوحل والے مشروبات پیش کیے جاتے ہیں۔',
+				'इस शाखा में मादक पेय परोसे जाते हैं।',
+				'এই শাখায় অ্যালকোহলযুক্ত পানীয় পরিবেশন করা হয়।'
+			),
+			'alcohol.served.no'  => self::t(
+				'この店舗ではアルコール飲料を提供していません。',
+				'Alcoholic drinks are not served at this branch.',
+				'لا يقدّم هذا الفرع مشروبات كحولية.',
+				'اس برانچ میں الکوحل والے مشروبات پیش نہیں کیے جاتے۔',
+				'इस शाखा में मादक पेय नहीं परोसे जाते।',
+				'এই শাখায় অ্যালকোহলযুক্ত পানীয় পরিবেশন করা হয় না।'
+			),
 		];
 	}
 

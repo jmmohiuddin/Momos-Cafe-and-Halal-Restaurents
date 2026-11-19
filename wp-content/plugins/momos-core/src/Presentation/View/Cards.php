@@ -48,6 +48,7 @@ final class Cards {
 			'directions'  => ActionBar::directions_url( $b ),
 			'temp_closed' => 'temporarily_closed' === $b['operating_status'],
 			'open'        => self::open_status( $branch_id, $lang ),
+			'today'       => 'temporarily_closed' === $b['operating_status'] ? null : BranchView::today( $branch_id, $lang ),
 		];
 	}
 
@@ -100,6 +101,53 @@ final class Cards {
 		}
 	}
 
+	/**
+	 * Client-side CMP-OpenStatus data (Doc 07 §5 C04, screens.md §3.4, BR-BR-05, TC-PERF-006): the JST schedule of
+	 * business dates yesterday … +7 (ScheduleService::schedule_json), the raw state templates and localised short
+	 * dates, so frame.js recomputes the badge at view time and a full-page-cached copy never shows a stale state.
+	 * Null for temporarily closed branches (the server text is date-based and stays) or without the service.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function open_status_client( int $branch_id, ?string $lang = null ): ?array {
+		$lang = $lang ?? momos_lang();
+		if ( ! class_exists( \Momos\Branch\Service\ScheduleService::class ) || ! method_exists( \Momos\Branch\Service\ScheduleService::class, 'schedule_json' ) ) {
+			return null;
+		}
+		try {
+			$j = \Momos\Branch\Service\ScheduleService::schedule_json( $branch_id );
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+		if ( 'open' !== ( $j['status'] ?? '' ) ) {
+			return null;
+		}
+		$days  = [];
+		$dates = [];
+		foreach ( (array) $j['days'] as $d ) {
+			$days[]                       = [
+				'date'    => (string) $d['date'],
+				'periods' => array_map( static fn( $p ) => [ 'o' => (string) $p['open'], 'c' => (string) $p['close'], 'l' => $p['lo'] ], (array) $d['periods'] ),
+			];
+			$dates[ (string) $d['date'] ] = DateFormatter::short( (string) $d['date'], $lang );
+		}
+		return [
+			// Non-production frozen clock (QA, `momos_frozen_now`): the browser evaluates at the server's "now".
+			'now'   => \Momos\Kernel\Clock\Clock::get() instanceof \Momos\Kernel\Clock\FrozenClock ? Clock::utc()->getTimestamp() * 1000 : null,
+			'days'  => $days,
+			'dates' => $dates,
+			'soon'  => \Momos\Branch\Service\ScheduleService::CLOSING_SOON_MINUTES,
+			't'     => [
+				'open'     => momos_t( 'branch.open_now', [], $lang ),
+				'nolo'     => momos_t( 'branch.open_now_nolo', [], $lang ),
+				'closing'  => momos_t( 'branch.closing_soon', [], $lang ),
+				'closed'   => momos_t( 'branch.closed_now', [], $lang ),
+				'today'    => momos_t( 'branch.day.today', [], $lang ),
+				'tomorrow' => momos_t( 'branch.day.tomorrow', [], $lang ),
+			],
+		];
+	}
+
 	/** @return array<string,mixed>|null */
 	public static function offer( int $offer_id, ?string $lang = null ): ?array {
 		$lang = $lang ?? momos_lang();
@@ -126,7 +174,8 @@ final class Cards {
 		$price = get_post_meta( $offer_id, 'momo_offer_price_jpy', true );
 		$valid = '';
 		if ( $start && $end ) {
-			$valid = Bdi::t( 'offers.valid', [ 'start' => DateFormatter::long( $start, $lang ), 'end' => DateFormatter::long( $end, $lang ) ], [ 'start', 'end' ], $lang );
+			// Interval format without weekdays (DEC-062; i18n-seo-analytics §4.4), isolated as one unit.
+			$valid = strtr( esc_html( momos_t( 'offers.valid_range', [], $lang ) ), [ '{range}' => Bdi::auto( DateFormatter::range( $start, $end, $lang ) ) ] );
 		}
 		return [
 			'id'           => $offer_id,

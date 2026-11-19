@@ -23,11 +23,33 @@ final class SecurityHeaders {
 	public const HSTS_STEPS = [ 300, 86400, 31536000 ];
 
 	public static function register(): void {
+		// Every response (front, REST, admin-ajax, admin-post, wp-login): no PHP version token (spec §8).
+		add_action( 'init', [ self::class, 'remove_powered_by' ], 0 );
 		add_filter( 'wp_headers', [ self::class, 'public_headers' ], 20 );
 		add_action( 'login_init', [ self::class, 'send_admin_headers' ] );
 		add_action( 'admin_init', [ self::class, 'send_admin_headers' ] );
 		add_filter( 'rest_post_dispatch', [ self::class, 'rest_headers' ], 20 );
 		add_action( 'rest_api_init', [ CspReport::class, 'register_route' ] );
+	}
+
+	public static function remove_powered_by(): void {
+		if ( function_exists( 'header_remove' ) && ! headers_sent() && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			header_remove( 'X-Powered-By' );
+		}
+	}
+
+	/**
+	 * Public CSP header name and value for the current mode (DEF-007): browsers ignore
+	 * `upgrade-insecure-requests` in a report-only policy and warn in the console, so the directive is
+	 * sent only when the policy is enforced. The canonical string itself is unchanged (PRV-024).
+	 *
+	 * @return array{0:string,1:string}
+	 */
+	public static function public_csp(): array {
+		if ( self::csp_enforced() ) {
+			return [ 'Content-Security-Policy', self::CSP ];
+		}
+		return [ 'Content-Security-Policy-Report-Only', (string) preg_replace( '/\s*upgrade-insecure-requests;/', '', self::CSP ) ];
 	}
 
 	/** @return array<string,string> headers every HTTPS response carries */
@@ -68,7 +90,8 @@ final class SecurityHeaders {
 	public static function public_headers( $headers ): array {
 		$headers                    = array_merge( (array) $headers, self::global_headers() );
 		$headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
-		$headers[ self::csp_enforced() ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only' ] = self::CSP;
+		[ $csp_name, $csp_value ]   = self::public_csp();
+		$headers[ $csp_name ]       = $csp_value;
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '/'; // phpcs:ignore
 		if ( self::is_private_result_page( $uri ) ) {
 			$headers['Referrer-Policy'] = 'no-referrer';
@@ -109,6 +132,7 @@ final class SecurityHeaders {
 
 	/** REST: global headers on every response (momos/v1 no-store/noindex are set by the Api module). */
 	public static function rest_headers( $response ) {
+		self::remove_powered_by();
 		if ( $response instanceof \WP_HTTP_Response ) {
 			foreach ( self::global_headers() as $k => $v ) {
 				$response->header( $k, $v );

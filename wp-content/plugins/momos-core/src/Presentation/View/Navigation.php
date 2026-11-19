@@ -42,7 +42,7 @@ final class Navigation {
 		$items[] = self::item( 'halal', 'nav.halal', SystemPages::url( 'halal', $lang ), $lang );
 		$items[] = self::item( 'about', 'nav.about', SystemPages::url( 'about', $lang ), $lang );
 		$items[] = self::item( 'reservation', 'nav.reservation', SystemPages::url( 'reservation', $lang ), $lang );
-		return $items;
+		return self::linked( $items );
 	}
 
 	/**
@@ -67,7 +67,7 @@ final class Navigation {
 				$items[] = self::item( $role, 'nav.' . $role, $url, $lang );
 			}
 		}
-		return $items;
+		return self::linked( $items );
 	}
 
 	/**
@@ -89,7 +89,7 @@ final class Navigation {
 				$items[] = self::item( $role, 'nav.' . $role, $url, $lang );
 			}
 		}
-		return $items;
+		return self::linked( $items );
 	}
 
 	/**
@@ -111,6 +111,16 @@ final class Navigation {
 			$out[] = [ 'key' => 'analytics', 'label' => momos_t( 'ftr.analytics', [], $lang ), 'url' => $ext . '#analytics-settings' ];
 		}
 		return $out;
+	}
+
+	/**
+	 * Drops items without a URL in this language (page hidden there: no link to a 404, TC-NAV-005).
+	 *
+	 * @param list<array<string,mixed>> $items
+	 * @return list<array<string,mixed>>
+	 */
+	private static function linked( array $items ): array {
+		return array_values( array_filter( $items, static fn( $i ) => '' !== (string) ( $i['url'] ?? '' ) ) );
 	}
 
 	/** @return list<array{label:string,sub:string,url:string}> */

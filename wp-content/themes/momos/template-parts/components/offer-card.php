@@ -5,7 +5,7 @@
  * disclosure), optional price (tax incl.), CTA. No countdown, coupon code or "ends soon".
  *
  * @package momos
- * @var array{offer?:array<string,mixed>,offer_id?:int,h?:int} $args
+ * @var array{offer?:array<string,mixed>,offer_id?:int,h?:int,priority?:bool} $args
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -23,7 +23,18 @@ $momos_lng = momos_theme_lang();
 ?>
 <article class="momo-card momo-offer-card" id="<?php echo esc_attr( $momos_id ); ?>">
 	<?php if ( ! empty( $momos_o['image_id'] ) ) : ?>
-		<div class="momo-offer-card__media"><?php echo wp_get_attachment_image( (int) $momos_o['image_id'], 'momo-card', false, [ 'loading' => 'lazy', 'decoding' => 'async' ] ); ?></div>
+		<?php
+		// Alt in the page language (MediaFields translation; '' = decorative next to the title — never the
+		// Japanese media-library alt on another language, TC-I18N-013/TC-A11Y-008). The first card on the
+		// Offers page is the LCP candidate: eager + fetchpriority=high (NFR-PERF-01), all others lazy.
+		$momos_img_id = (int) $momos_o['image_id'];
+		$momos_alt    = class_exists( \Momos\Presentation\View\MenuView::class ) ? \Momos\Presentation\View\MenuView::alt( $momos_img_id, $momos_lng ) : '';
+		$momos_img_at = ! empty( $args['priority'] )
+			? [ 'loading' => 'eager', 'fetchpriority' => 'high', 'decoding' => 'async', 'alt' => $momos_alt ]
+			: [ 'loading' => 'lazy', 'decoding' => 'async', 'alt' => $momos_alt ];
+		$momos_img_at['sizes'] = '(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw';
+		?>
+		<div class="momo-offer-card__media"><?php echo wp_get_attachment_image( $momos_img_id, 'momo-card', false, $momos_img_at ); ?></div>
 		<?php if ( ! empty( $momos_o['illustrative'] ) ) : ?>
 			<span class="momo-illustration momo-offer-card__caption"><?php echo esc_html( momos_s( 'media.illustration' ) ); ?></span>
 		<?php endif; ?>

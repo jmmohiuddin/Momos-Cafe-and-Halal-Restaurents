@@ -154,7 +154,7 @@ final class LoginFlow {
 			self::back_to_login( 'expired' );
 		}
 		self::complete_login( $user );
-		$requested = '' !== $redirect_to ? $redirect_to : '';
+		$requested = self::is_default_target( $redirect_to ) ? '' : $redirect_to;
 		$target    = (string) apply_filters( 'login_redirect', '' !== $requested ? $requested : admin_url(), $requested, $user );
 		wp_safe_redirect( wp_validate_redirect( $target, admin_url() ) );
 		exit;
@@ -183,13 +183,29 @@ final class LoginFlow {
 	 * others → dashboard; an explicit redirect_to wins.
 	 */
 	public static function login_redirect( $redirect_to, $requested, $user ) {
-		if ( ! $user instanceof \WP_User || '' !== (string) $requested ) {
+		if ( ! $user instanceof \WP_User || ! self::is_default_target( (string) $requested ) ) {
 			return $redirect_to;
 		}
 		if ( array_intersect( [ 'momo_branch_manager', 'momo_reservation_staff' ], $user->roles ) ) {
 			return admin_url( 'admin.php?page=momos-reservations&status=pending' );
 		}
 		return admin_url();
+	}
+
+	/**
+	 * The core login form always posts a hidden `redirect_to` = admin_url() when the URL carried none,
+	 * so that value (or the bare dashboard) is not an explicit target (QA-038, WF-ADM-01).
+	 */
+	public static function is_default_target( string $requested ): bool {
+		if ( '' === $requested ) {
+			return true;
+		}
+		$path = static fn( string $u ): string => rtrim( (string) wp_parse_url( $u, PHP_URL_PATH ), '/' );
+		$req  = $path( $requested );
+		if ( '' !== (string) wp_parse_url( $requested, PHP_URL_QUERY ) ) {
+			return false;
+		}
+		return in_array( $req, [ $path( admin_url() ), $path( admin_url( 'index.php' ) ) ], true );
 	}
 
 	// ----------------------------------------------------------------- rendering

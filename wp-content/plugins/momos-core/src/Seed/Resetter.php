@@ -19,9 +19,15 @@ final class Resetter {
 	/** @var array<string,int> */
 	private array $counts = [];
 
-	/** @return array<string,int> */
-	public function run(): array {
-		DemoSeeder::assert_allowed();
+	/**
+	 * @param bool $allow_production Only `wp momos purge-samples --yes` run by a Super Administrator
+	 *                               passes true (content-strings.md §10.1 D8); --reset is refused in production.
+	 * @return array<string,int>
+	 */
+	public function run( bool $allow_production = false ): array {
+		if ( ! $allow_production ) {
+			DemoSeeder::assert_allowed();
+		}
 		global $wpdb;
 		$previous_user = get_current_user_id();
 		$admin         = DemoSeeder::admin_id();
@@ -178,7 +184,7 @@ final class Resetter {
 			}
 			wp_update_post( wp_slash( [ 'ID' => $id, 'post_title' => $snap['post_title'], 'post_content' => $snap['post_content'], 'post_excerpt' => $snap['post_excerpt'], 'post_status' => $snap['post_status'] ] ) );
 			foreach ( (array) get_post_meta( $id ) as $k => $vals ) {
-				if ( str_starts_with( (string) $k, '_momos_i18n_' ) || in_array( $k, [ 'momo_faq_items', 'momo_legal_version', 'momo_legal_last_updated', Writer::SAMPLE_META ], true ) ) {
+				if ( str_starts_with( (string) $k, '_momos_i18n_' ) || in_array( $k, DemoSeeder::SNAPSHOT_META, true ) ) {
 					delete_post_meta( $id, (string) $k );
 				}
 			}
@@ -219,6 +225,22 @@ final class Resetter {
 				}
 			}
 			$this->counts['reference_translations_removed'] = ( $this->counts['reference_translations_removed'] ?? 0 ) + count( (array) $langs );
+		}
+		if ( ! empty( $m['statements'] ) ) {
+			// G2 templates approved for the demo (QA-006) go back to their pre-seed rows (approval + translations).
+			$raw  = get_option( \Momos\Dietary\Service\StatementRepository::OPTION, [] );
+			$rows = [];
+			foreach ( is_array( $raw ) ? $raw : [] as $r ) {
+				if ( is_array( $r ) && isset( $r['key'] ) ) {
+					$rows[ (string) $r['key'] ] = $r;
+				}
+			}
+			foreach ( (array) $m['statements'] as $key => $before ) {
+				$rows[ (string) $key ] = $before;
+			}
+			ksort( $rows );
+			update_option( \Momos\Dietary\Service\StatementRepository::OPTION, array_values( $rows ), true );
+			$this->counts['statements_restored'] = count( (array) $m['statements'] );
 		}
 		if ( ! empty( $m['consent_keys'] ) ) {
 			$used = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Tables::reservations() . " WHERE consent_version IN ('" . implode( "','", array_map( 'esc_sql', (array) $m['consent_keys'] ) ) . "')" ); // phpcs:ignore

@@ -23,21 +23,89 @@ final class OfferScopeGuard {
 	}
 
 	/**
+	 * Runs for the plugin's field submission (`momos_fields`) and for the core taxonomy path
+	 * (`tax_input[momo_branch_scope]` of post.php editpost, bulk edit or any wp_insert_post call):
+	 * core assigns those terms itself, so they are checked here too (QA-002, TC-ACL-021).
+	 *
 	 * @param array<string,mixed> $data
 	 * @param array<string,mixed> $postarr
 	 * @return array<string,mixed>
 	 */
 	public static function check( array $data, array $postarr ): array {
 		$type = (string) ( $data['post_type'] ?? '' );
-		if ( ! isset( self::TYPES[ $type ] ) || ! is_user_logged_in() || ! isset( $_POST['momos_fields'] ) || ! is_array( $_POST['momos_fields'] ) ) { // phpcs:ignore
+		if ( ! isset( self::TYPES[ $type ] ) || ! is_user_logged_in() ) {
+			return $data;
+		}
+		$has_fields = isset( $_POST['momos_fields'] ) && is_array( $_POST['momos_fields'] ); // phpcs:ignore
+		$has_tax    = isset( $postarr['tax_input'] ) && is_array( $postarr['tax_input'] ) && array_key_exists( BranchScopeTaxonomy::TAX, $postarr['tax_input'] );
+		if ( ! $has_fields && ! $has_tax ) {
 			return $data;
 		}
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
-		$error   = self::error_for_submission( $type, $post_id, wp_unslash( $_POST['momos_fields'] ) ); // phpcs:ignore -- values only compared.
+		$fields  = $has_fields ? (array) wp_unslash( $_POST['momos_fields'] ) : []; // phpcs:ignore -- values only compared.
+		$error   = $has_fields ? self::error_for_submission( $type, $post_id, $fields ) : null;
+		if ( null === $error && $has_tax ) {
+			$error = self::error_for_tax_input( $type, $post_id, $fields, $postarr['tax_input'][ BranchScopeTaxonomy::TAX ] );
+		}
 		if ( null !== $error ) {
 			self::forbid( $type, $post_id, $error['branch_id'] );
 		}
 		return $data;
+	}
+
+	/**
+	 * M3 check of the terms core would assign from `tax_input` (term IDs, names or slugs, as
+	 * wp_set_post_terms() accepts them). A value that is not an existing scope term is refused,
+	 * because core would create a new term for it.
+	 *
+	 * @param array<string,mixed> $fields submitted momos_fields (may be empty)
+	 * @param mixed               $value  tax_input value for the scope taxonomy
+	 * @return array{code:string,branch_id:?int}|null
+	 */
+	public static function error_for_tax_input( string $type, int $post_id, array $fields, $value, ?int $user_id = null ): ?array {
+		if ( null === momos_user_branch_ids( $user_id ) ) {
+			return null;
+		}
+		$term_ids = self::term_ids_of_tax_input( $value );
+		if ( null === $term_ids ) {
+			return [ 'code' => 'forbidden_branch', 'branch_id' => null ];
+		}
+		$fields[ self::TYPES[ $type ][2] ] = $term_ids;
+		return self::error_for_submission( $type, $post_id, $fields, $user_id );
+	}
+
+	/**
+	 * Resolve a tax_input value like wp_set_object_terms() does (ints = IDs, strings = slug or name).
+	 *
+	 * @param mixed $value
+	 * @return list<int>|null null when a value matches no existing scope term
+	 */
+	private static function term_ids_of_tax_input( $value ): ?array {
+		$items = is_array( $value ) ? $value : explode( ',', (string) $value );
+		$ids   = [];
+		foreach ( $items as $item ) {
+			if ( is_int( $item ) ) {
+				$term = get_term( $item, BranchScopeTaxonomy::TAX );
+				if ( ! $term instanceof \WP_Term ) {
+					return null;
+				}
+				$ids[] = (int) $term->term_id;
+				continue;
+			}
+			if ( ! is_scalar( $item ) ) {
+				return null;
+			}
+			$item = trim( (string) $item );
+			if ( '' === $item ) {
+				continue;
+			}
+			$found = term_exists( $item, BranchScopeTaxonomy::TAX );
+			if ( ! $found ) {
+				return null;
+			}
+			$ids[] = (int) ( is_array( $found ) ? $found['term_id'] : $found );
+		}
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

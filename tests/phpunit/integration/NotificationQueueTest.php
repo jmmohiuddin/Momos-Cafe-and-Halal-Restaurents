@@ -121,6 +121,8 @@ final class NotificationQueueTest extends NotificationTestCaseTest {
 	public function test_sla_reminder_adds_handled_by_and_escalation_goes_to_ho_list(): void {
 		$a     = $this->branch( 'QAA', self::recipients( 'qaa@momos.example' ) );
 		$staff = self::factory()->user->create( [ 'role' => 'momo_reservation_staff', 'user_email' => 'staff.a@momos.example' ] );
+		global $wpdb;
+		$wpdb->insert( \Momos\Kernel\Db\Tables::user_branches(), [ 'user_id' => $staff, 'branch_id' => $a, 'assigned_at' => gmdate( 'Y-m-d H:i:s' ) ] ); // handled_by is a user of branch A (SEC-012)
 		$r     = $this->reservation( $a, [ 'handled_by' => $staff ] );
 		update_option( 'momo_ho_escalation_recipients', [ [ 'email' => 'ho@momos.example', 'language' => 'en', 'active' => '1' ] ] );
 		\Momos\Kernel\Settings::set( 'momo_ho_escalation_recipients', [ [ 'email' => 'ho@momos.example', 'language' => 'en', 'active' => '1' ] ] );
@@ -135,6 +137,21 @@ final class NotificationQueueTest extends NotificationTestCaseTest {
 		$this->assertSame( [ 'ho@momos.example' ], array_column( $esc, 'recipient_email' ) );
 		$this->assertSame( 'head_office', $esc[0]['recipient_type'] );
 		$this->assertSame( 'en', $esc[0]['lang'] );
+	}
+
+	/** SEC-012 / BR-RES-02 / PRV-008: `handled_by` gets E08 only while still assigned to the reservation's branch. */
+	public function test_sla_reminder_skips_handled_by_not_assigned_to_the_branch(): void {
+		$a     = $this->branch( 'QAA', self::recipients( 'qaa@momos.example' ) );
+		$b     = $this->branch( 'QAB', self::recipients( 'qab@momos.example' ) );
+		$staff = self::factory()->user->create( [ 'role' => 'momo_reservation_staff', 'user_email' => 'staff.b@momos.example' ] );
+		global $wpdb;
+		$wpdb->insert( \Momos\Kernel\Db\Tables::user_branches(), [ 'user_id' => $staff, 'branch_id' => $b, 'assigned_at' => gmdate( 'Y-m-d H:i:s' ) ] );
+		$r = $this->reservation( $a, [ 'handled_by' => $staff ] );
+		do_action( 'momos/reservation/sla_reminder', $r );
+		$this->assertSame( [ 'qaa@momos.example' ], array_column( $this->rows( 'E08' ), 'recipient_email' ), 'a handler of another branch never receives branch A guest data' );
+		$this->assertNull( RecipientResolver::branch_user( $staff, $a ) );
+		$this->assertSame( 'staff.b@momos.example', RecipientResolver::branch_user( $staff, $b )['email'] ?? null );
+		$this->assertNull( RecipientResolver::branch_user( $staff, 0 ) );
 	}
 
 	public function test_ac_not_02_02_staff_language_from_user_locale_else_row_language(): void {
