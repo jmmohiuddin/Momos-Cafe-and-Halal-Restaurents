@@ -234,4 +234,43 @@ final class AccessLoginTest extends AccessTestCaseTest {
 		$health = \Momos\Access\Hardening::health_file_editing();
 		$this->assertSame( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ? 'good' : 'critical', $health['status'] );
 	}
+
+	/**
+	 * FR-SEC-004 / SEC-040 (spec §9.1): the production wp-config template locks editing, installs and auto-updates,
+	 * forces SSL for admin and hides debug output; Hardening keeps auto-updates off and reports the file-edit/
+	 * file-mods state in Site Health (file mods read through wp_is_file_mod_allowed()).
+	 */
+	public function test_fr_sec_004_production_config_and_site_health(): void {
+		$sample = (string) file_get_contents( dirname( __DIR__, 3 ) . '/config/wp-config.production.sample.php' );
+		$expect = [
+			'DISALLOW_FILE_EDIT'         => 'true',
+			'DISALLOW_FILE_MODS'         => 'true',
+			'AUTOMATIC_UPDATER_DISABLED' => 'true',
+			'FORCE_SSL_ADMIN'            => 'true',
+			'WP_DEBUG_DISPLAY'           => 'false',
+			'WP_DEBUG'                   => 'false',
+		];
+		foreach ( $expect as $const => $value ) {
+			$this->assertMatchesRegularExpression( '/^define\(\s*\'' . $const . '\',\s*' . $value . '\s*\);/m', $sample, $const . ' must be ' . $value . ' in production' );
+			$this->assertSame( 1, preg_match_all( '/define\(\s*\'' . $const . '\'/', $sample ), $const . ' is defined once' );
+		}
+
+		foreach ( [ 'auto_update_core', 'auto_update_plugin', 'auto_update_theme' ] as $hook ) {
+			$this->assertFalse( apply_filters( $hook, true, (object) [] ), $hook ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hooks under test.
+		}
+
+		$tests = apply_filters( 'site_status_tests', [ 'direct' => [], 'async' => [] ] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook under test.
+		$this->assertSame( [ \Momos\Access\Hardening::class, 'health_file_editing' ], $tests['direct']['momos_file_editing']['test'] );
+
+		$edit   = defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT;
+		$health = \Momos\Access\Hardening::health_file_editing();
+		$this->assertStringContainsString( '<code>DISALLOW_FILE_EDIT</code> = ' . ( $edit ? 'true' : 'false' ), $health['description'] );
+		$this->assertStringContainsString( '<code>DISALLOW_FILE_MODS</code> = ' . ( wp_is_file_mod_allowed( 'momos_site_health' ) ? 'false' : 'true' ), $health['description'] );
+
+		add_filter( 'file_mod_allowed', '__return_false' );
+		$locked = \Momos\Access\Hardening::health_file_editing();
+		remove_filter( 'file_mod_allowed', '__return_false' );
+		$this->assertStringContainsString( '<code>DISALLOW_FILE_MODS</code> = true', $locked['description'], 'file mods state comes from wp_is_file_mod_allowed()' );
+		$this->assertSame( $edit ? 'good' : 'critical', $locked['status'] );
+	}
 }

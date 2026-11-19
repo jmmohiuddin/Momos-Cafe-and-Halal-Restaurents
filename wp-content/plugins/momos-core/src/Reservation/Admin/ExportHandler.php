@@ -89,7 +89,17 @@ final class ExportHandler {
 			\Momos\Reservation\Service\ReservationAccess::deny( null, null, 'capability', 'export' );
 			wp_die( esc_html__( 'You do not have permission to export reservations.', 'momos-core' ), 403 );
 		}
-		$scope  = Scope::for_user( get_current_user_id() );
+		$scope = Scope::for_user( get_current_user_id() );
+		// A branch outside the exporter's scope is refused like the inbox/report filter (TC-ACL-003,
+		// access spec §4.3 E2): audited access.denied + 403, not a validation message.
+		foreach ( (array) ( $_POST['branch'] ?? [] ) as $code ) { // phpcs:ignore WordPress.Security.NonceVerification -- nonce checked above.
+			$b = BranchRepository::find_by_code( strtoupper( sanitize_text_field( wp_unslash( (string) $code ) ) ), true );
+			if ( $b && ! $scope->allows( (int) $b['id'] ) ) {
+				\Momos\Reservation\Service\ReservationAccess::deny( null, (int) $b['id'], 'forbidden_branch', 'export' );
+				\Momos\Kernel\I18n\Locale::set( \Momos\Kernel\I18n\Locale::admin() );
+				wp_die( esc_html( momos_t( 'staff.err.forbidden_branch' ) ), esc_html__( 'Export', 'momos-core' ), [ 'response' => 403, 'back_link' => true ] );
+			}
+		}
 		$parsed = self::parse( wp_unslash( $_POST ), $scope ); // phpcs:ignore -- sanitised in parse().
 		if ( is_string( $parsed ) ) {
 			wp_die( esc_html( $parsed ), esc_html__( 'Export', 'momos-core' ), [ 'response' => 400, 'back_link' => true ] );
@@ -161,7 +171,8 @@ final class ExportHandler {
 				++$n;
 			}
 			$offset += 500;
-		} while ( count( $rows ) === 500 );
+			$fetched = count( $rows );
+		} while ( 500 === $fetched );
 		return $n;
 	}
 }

@@ -263,9 +263,7 @@ $momos_period_row = static function ( string $name, array $p, string $err_key ) 
 						<?php
 						$momos_sp = array_values( array_filter( (array) ( $momos_in['periods'] ?? [] ), 'is_array' ) );
 						$momos_sp = array_map( static fn( $p ) => [ 'label' => $p['label'] ?? 'all_day', 'opens_at' => $p['opens'] ?? '', 'closes_at' => $p['closes'] ?? '', 'last_order_at' => $p['last_order'] ?? '' ], $momos_sp );
-						while ( count( $momos_sp ) < 2 ) {
-							$momos_sp[] = [ 'label' => 'all_day', 'opens_at' => '', 'closes_at' => '', 'last_order_at' => '' ];
-						}
+						$momos_sp = array_pad( $momos_sp, 2, [ 'label' => 'all_day', 'opens_at' => '', 'closes_at' => '', 'last_order_at' => '' ] );
 						foreach ( $momos_sp as $momos_i => $momos_p ) {
 							$momos_period_row( 'periods[' . $momos_i . ']', $momos_p, 'sp' . ( $momos_i + 1 ) );
 						}

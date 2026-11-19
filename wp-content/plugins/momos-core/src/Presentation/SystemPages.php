@@ -63,7 +63,48 @@ final class SystemPages {
 		self::$map = null;
 	}
 
+	/**
+	 * Loads every system and legal page (post + meta) with one query pair instead of one get_post() per nav item
+	 * (NFR-PERF-02, TRD §5 ≤ 60 queries per uncached page). Already cached IDs cost nothing.
+	 */
+	public static function prime(): void {
+		$ids = array_merge( array_values( self::map() ), array_values( self::legal_slug_ids() ) );
+		foreach ( self::LEGAL as $def ) {
+			$ids[] = (int) View\Brand::option( $def[0] );
+		}
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
+		if ( $ids ) {
+			_prime_post_caches( $ids, false, true );
+		}
+	}
+
+	/**
+	 * Top-level pages with the documented legal slugs (fallback when the brand option is not set), resolved with
+	 * one query and cached until any post changes (`last_changed` of the posts group).
+	 *
+	 * @return array<string,int> slug => page ID
+	 */
+	private static function legal_slug_ids(): array {
+		$key    = 'legal_slugs:' . wp_cache_get_last_changed( 'posts' );
+		$cached = wp_cache_get( $key, 'momos_system_pages' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+		global $wpdb;
+		$slugs = array_column( self::LEGAL, 1 );
+		$in    = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached above; one query for all legal slugs.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_name FROM {$wpdb->posts} WHERE post_type = 'page' AND post_parent = 0 AND post_name IN ({$in}) ORDER BY ID ASC", $slugs ) ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built from a constant list.
+		$out  = [];
+		foreach ( (array) $rows as $row ) {
+			$out[ (string) $row->post_name ] ??= (int) $row->ID;
+		}
+		wp_cache_set( $key, $out, 'momos_system_pages' );
+		return $out;
+	}
+
 	public static function id( string $role ): int {
+		self::prime();
 		$id = self::map()[ $role ] ?? 0;
 		if ( $id && 'page' === get_post_type( $id ) ) {
 			return $id;
@@ -122,12 +163,12 @@ final class SystemPages {
 		if ( null === $def ) {
 			return 0;
 		}
+		self::prime();
 		$id = (int) View\Brand::option( $def[0] );
 		if ( $id && 'page' === get_post_type( $id ) ) {
 			return $id;
 		}
-		$page = get_page_by_path( $def[1], OBJECT, 'page' );
-		return $page instanceof \WP_Post ? (int) $page->ID : 0;
+		return self::legal_slug_ids()[ $def[1] ] ?? 0;
 	}
 
 	/** Legal page URL in $lang, or null while the page is missing / not visible in $lang (no dead link). */

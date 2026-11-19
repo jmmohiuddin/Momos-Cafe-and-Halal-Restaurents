@@ -26,6 +26,7 @@ $momos_has_offer = false;
 if ( class_exists( \Momos\Branch\Query\OfferQuery::class ) ) {
 	try {
 		$momos_offer_ids = \Momos\Branch\Query\OfferQuery::home_featured( $momos_lang );
+		\Momos\Presentation\View\Cards::prime( $momos_offer_ids, true );
 		$momos_has_offer = [] !== $momos_offer_ids;
 	} catch ( \Throwable $e ) {
 		$momos_offer_ids = [];

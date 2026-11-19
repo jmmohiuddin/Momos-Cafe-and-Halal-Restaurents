@@ -53,7 +53,7 @@ final class NotFoundLog {
 		$segments = [];
 		foreach ( explode( '/', '' === $path ? '/' : $path ) as $seg ) {
 			$dec = rawurldecode( $seg );
-			if ( str_contains( $dec, '@' ) || preg_match( '/\d{7,}/', $dec ) || preg_match( '/^[0-9A-HJKMNP-TV-Z]{8}$/i', $dec ) && preg_match( '/\d/', $dec ) ) {
+			if ( str_contains( $dec, '@' ) || preg_match( '/\d{7,}/', $dec ) || ( preg_match( '/^[0-9A-HJKMNP-TV-Z]{8}$/i', $dec ) && preg_match( '/\d/', $dec ) ) ) {
 				$segments[] = '{redacted}';
 			} else {
 				$segments[] = sanitize_text_field( $seg );

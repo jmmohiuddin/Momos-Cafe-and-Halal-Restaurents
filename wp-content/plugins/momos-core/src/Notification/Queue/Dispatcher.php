@@ -36,16 +36,21 @@ final class Dispatcher {
 		}
 	}
 
-	/** Every-minute runner: due rows oldest first, ≤ 25 per run, ≤ 50 s (spec §4.3 AS settings). */
+	/**
+	 * Every-minute runner: due rows oldest first, ≤ 25 per run, ≤ 50 s (spec §4.3 AS settings,
+	 * NFR-PERF-05). The budget is wall time (a runtime limit, not business time); the filter
+	 * `momos/notification/runner_time_limit` can only lower it (hosts with a shorter max_execution_time).
+	 */
 	public static function run_due(): int {
 		if ( ! NamedLock::acquire( self::RUNNER, 0 ) ) {
 			return 0;
 		}
-		$sent  = 0;
-		$start = microtime( true );
+		$sent   = 0;
+		$start  = microtime( true );
+		$budget = min( (float) self::TIME_LIMIT, max( 0.0, (float) apply_filters( 'momos/notification/runner_time_limit', (float) self::TIME_LIMIT ) ) );
 		try {
 			foreach ( NotificationRepository::due_ids( self::BATCH ) as $id ) {
-				if ( microtime( true ) - $start > self::TIME_LIMIT ) {
+				if ( microtime( true ) - $start > $budget ) {
 					break;
 				}
 				if ( 'sent' === self::send( $id ) ) {

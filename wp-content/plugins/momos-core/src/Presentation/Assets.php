@@ -103,6 +103,10 @@ final class Assets {
 		remove_action( 'wp_enqueue_scripts', 'wp_enqueue_global_styles' );
 		remove_action( 'wp_footer', 'wp_enqueue_global_styles', 1 );
 		remove_action( 'wp_body_open', 'wp_global_styles_render_svg_filters' );
+		// theme.json font faces: the theme has no theme.json; fonts are self-hosted @font-face in fonts-{lang}.css. Saves the
+		// two wp_global_styles queries per uncached page (NFR-PERF-02).
+		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
+		remove_action( 'wp_head', 'wp_print_font_faces_from_style_variations', 50 );
 		add_theme_support( 'editor-color-palette', [] );
 		add_theme_support( 'editor-gradient-presets', [] );
 		add_theme_support( 'disable-custom-colors' );

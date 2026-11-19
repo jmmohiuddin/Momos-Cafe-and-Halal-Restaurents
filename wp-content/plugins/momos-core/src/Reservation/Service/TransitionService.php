@@ -154,7 +154,7 @@ final class TransitionService {
 		}
 		$row  = (array) ReservationRepository::find( $id );
 		$from = ReservationStatus::from( (string) $row['status'] );
-		if ( $from->isTerminal() || ! self::customer_can_cancel( $row ) ) {
+		if ( $from->is_terminal() || ! self::customer_can_cancel( $row ) ) {
 			throw new ReservationError( 'cancel_not_allowed' );
 		}
 		StateMachine::assert( $from, 'cancel', \Momos\Reservation\Domain\ActorType::Customer );

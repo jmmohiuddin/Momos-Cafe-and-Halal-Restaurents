@@ -376,7 +376,7 @@ System URLs: `/sitemap.xml` (index), `/sitemaps/{lang}-{type}.xml` (`type` ∈ `
 
 ### 8.1 URL rules (FR-SEO-001, Doc 06 §1.5)
 
-1. ASCII `[a-z0-9-]` slugs, lowercase, trailing slash, HTTPS. `SlugPolicy` copies the JA slug (shared post/term) and rejects non-ASCII slugs on save (FR-I18N-012).
+1. ASCII `[a-z0-9-]` slugs, lowercase, trailing slash, HTTPS. `SlugPolicy` copies the JA slug (shared post/term) and rejects non-ASCII slugs on save (FR-I18N-012): `Kernel\I18n\SlugPolicy` for dishes, offers, notices, pages and news posts: accents are transliterated (WordPress `remove_accents`); a typed non-Latin slug is rejected with an admin error / REST 400 (previous slug kept, or a first publication saved as draft); a title with no Latin letters gets a neutral unique slug (`dish`, `page-2`, `offer-3` …) plus an admin notice asking for a descriptive one. Categories, branches and FAQ ids keep their module guards.
 2. Normalisation 301 (single hop, combined): uppercase path or missing trailing slash → lowercase + slash, language prefix preserved (`/Branches` → `/branches/`; `/EN/menu` → `/en/menu/`; `/en` → `/en/`). Exempt: files (`*.xml`, `*.txt`, assets), `/wp-json/`, `/wp-admin/`, `wp-login.php`, query strings (never lowercased), and `/reservation/status/{REF}/` (REF is upper-case Crockford; path accepted case-insensitively and normalised client-side — §21 C-8).
 3. Max 3 path segments below the language prefix; every indexable page ≤ 3 clicks from its language home (FR-SEO-009).
 4. Query parameters: allowed `branch`, `diet`, `spice` (+ `notice`); all canonicalised away; never PII (tokens only in `#t=`).
@@ -410,7 +410,7 @@ Resolution in page language L (never another language's text):
 
 | Condition | Directive |
 |---|---|
-| `/reservation/submitted/`, `/reservation/status/*` | `noindex, follow` meta **and** `X-Robots-Tag: noindex`; C11 also `Cache-Control: no-store` |
+| `/reservation/submitted/`, `/reservation/status/*` | `noindex, follow` meta **and** `X-Robots-Tag: noindex, nofollow` (one header; Doc 11 §6.4, SDD §6.11, access-security-privacy §8, IMPL-008); C10 and C11 also `Cache-Control: no-store, private` |
 | Any URL with a query string (`?branch=`, `?diet=`, `?notice=`, UTM …) | `noindex, follow` |
 | TEST branch page (staff only; others 404) | `noindex, nofollow` |
 | `/offers/` with no active offer in L | `noindex, follow` |

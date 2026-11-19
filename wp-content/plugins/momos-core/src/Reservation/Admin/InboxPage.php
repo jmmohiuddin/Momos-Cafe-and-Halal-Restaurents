@@ -127,7 +127,7 @@ final class InboxPage {
 			return;
 		}
 		$scope = Scope::for_user( get_current_user_id() );
-		foreach ( array_filter( array_map( 'trim', explode( ',', $raw ) ), 'strlen' ) as $token ) {
+		foreach ( array_filter( array_map( 'trim', explode( ',', $raw ) ), static fn( string $t ): bool => '' !== $t ) as $token ) {
 			$b = self::branch_by_token( $token );
 			if ( null !== $b && ! $scope->allows( (int) $b['id'] ) ) {
 				ReservationAccess::deny( null, (int) $b['id'], 'forbidden_branch', $route );
@@ -287,7 +287,7 @@ final class InboxPage {
 			};
 			$status = isset( $_GET['momos_status'] ) ? sanitize_key( (string) $_GET['momos_status'] ) : ''; // phpcs:ignore
 			$label  = \Momos\Reservation\Domain\ReservationStatus::tryFrom( $status );
-			$text   = momos_t( $key, [ 'status' => $label ? $label->staffLabel() : $status, 'field' => __( 'Override rules', 'momos-core' ) ] );
+			$text   = momos_t( $key, [ 'status' => $label ? $label->staff_label() : $status, 'field' => __( 'Override rules', 'momos-core' ) ] );
 			if ( isset( $_GET['momos_fields'] ) ) { // phpcs:ignore
 				$text .= ' (' . sanitize_text_field( wp_unslash( (string) $_GET['momos_fields'] ) ) . ')'; // phpcs:ignore
 			}

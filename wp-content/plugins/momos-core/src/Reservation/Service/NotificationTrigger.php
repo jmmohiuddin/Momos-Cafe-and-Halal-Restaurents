@@ -42,11 +42,16 @@ final class NotificationTrigger {
 		return self::queue( $id, $branch_id, $jobs );
 	}
 
-	/** N3: E06 `pending` or `confirmed` (status after the change). */
-	public static function modified( int $id, int $branch_id, string $status, int $version ): void {
-		if ( in_array( $status, [ 'pending', 'confirmed' ], true ) ) {
-			self::queue( $id, $branch_id, [ [ 'E06', 'customer', "res:{$id}:E06:{$version}", $status ] ] );
+	/**
+	 * N3: E06 `pending` or `confirmed` (status after the change).
+	 *
+	 * @return list<string> templates actually queued
+	 */
+	public static function modified( int $id, int $branch_id, string $status, int $version ): array {
+		if ( ! in_array( $status, [ 'pending', 'confirmed' ], true ) ) {
+			return [];
 		}
+		return self::queue( $id, $branch_id, [ [ 'E06', 'customer', "res:{$id}:E06:{$version}", $status ] ] );
 	}
 
 	/**

@@ -120,7 +120,7 @@ final class Hardening {
 	/** @return array<string,mixed> */
 	public static function health_file_editing(): array {
 		$edit  = defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT;
-		$mods  = defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS;
+		$mods  = ! wp_is_file_mod_allowed( 'momos_site_health' );
 		$prod  = Env::is_production();
 		$ok    = $edit && ( ! $prod || $mods );
 		$items = [

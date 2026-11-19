@@ -40,6 +40,11 @@ test.beforeAll(() => {
   fx = JSON.parse(out);
 });
 
+// E2E isolation: remove XEA/XEB, their staff and reservations, and restore the rate limits for later specs.
+test.afterAll(() => {
+  wp(['eval-file', 'tests/e2e/fixtures/reservation-fixture.php', 'teardown']);
+});
+
 /** No serious/critical WCAG 2.x A/AA violations (NFR-ACC-01). */
 async function axe(page: Page, label: string) {
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();

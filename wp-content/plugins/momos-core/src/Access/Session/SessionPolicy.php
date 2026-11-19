@@ -199,7 +199,7 @@ final class SessionPolicy {
 
 	public static function emit_logged_in_cookie( $cookie, $expire, $expiration, $user_id, $scheme = 'logged_in', $token = '' ): void {
 		$secure = is_ssl() && 'https' === wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME );
-		$secure = (bool) apply_filters( 'secure_logged_in_cookie', $secure, (int) $user_id, is_ssl() );
+		$secure = (bool) apply_filters( 'secure_logged_in_cookie', $secure, (int) $user_id, is_ssl() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook (mirrors wp_set_auth_cookie()).
 		self::set( LOGGED_IN_COOKIE, (string) $cookie, (int) $expire, COOKIEPATH, $secure );
 		if ( COOKIEPATH !== SITECOOKIEPATH ) {
 			self::set( LOGGED_IN_COOKIE, (string) $cookie, (int) $expire, SITECOOKIEPATH, $secure );

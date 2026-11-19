@@ -255,6 +255,26 @@ final class QaPerformanceTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Refresh the optimizer statistics of $table as production has them.
+	 *
+	 * WP_UnitTestCase runs every test inside one open transaction. InnoDB recalculates persistent statistics
+	 * in a background thread a few seconds after ≥ 10 % of a table changed, so 10,000 rows inserted by the
+	 * test are still costed as the empty table of the bootstrap: the optimizer then believes a full scan
+	 * reads one page and prefers it to any index, which is not the plan a real 10,000-row table gets (shown on
+	 * MariaDB 10.11: the same queries use idx_start / idx_created once the statistics are current).
+	 * ANALYZE TABLE would commit the test transaction implicitly, so it runs on a second connection: it
+	 * samples the B-tree pages, which already hold the uncommitted rows, while this transaction (and its
+	 * rollback in tear_down) stays untouched.
+	 */
+	private function refresh_statistics( string $table ): void {
+		$other = new \wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
+		$other->query( 'SET SESSION lock_wait_timeout = 10' );
+		$res = (array) $other->get_results( "ANALYZE TABLE {$table}", ARRAY_A ); // phpcs:ignore -- test-only, table name from Tables.
+		$other->close();
+		$this->assertSame( 'OK', (string) ( end( $res )['Msg_text'] ?? '' ), 'ANALYZE TABLE on a second connection: ' . wp_json_encode( $res ) );
+	}
+
 	/** @return array{type:string,key:?string,rows:int} first table row of EXPLAIN */
 	private function explain( string $sql ): array {
 		global $wpdb;
@@ -275,6 +295,7 @@ final class QaPerformanceTest extends TestCase {
 		$this->bulk_reservations( 10000, $branches );
 		$t = Tables::reservations();
 		$this->assertGreaterThanOrEqual( 10000, (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t}" ) ); // phpcs:ignore
+		$this->refresh_statistics( $t );
 
 		$ho    = Scope::for_user( $this->user_with_role( 'momo_head_office' ) );
 		$bm    = Scope::for_user( $this->user_with_role( 'momo_branch_manager', [ $branches[0] ] ) );
@@ -294,27 +315,37 @@ final class QaPerformanceTest extends TestCase {
 			'sort created desc p100' => [ 'statuses' => $all, 'sort' => 'created_at', 'order' => 'desc', 'page' => 100 ],
 		];
 		$slow  = [];
+		$page  = [];
 		$scans = [];
 		foreach ( [ 'HO' => $ho, 'BM' => $bm ] as $who => $scope ) {
 			foreach ( $views as $name => $f ) {
-				$t0  = microtime( true );
-				$res = ReservationRepository::search( $scope, $f + [ 'per_page' => 20 ] );
+				$t0     = microtime( true );
+				$res    = ReservationRepository::search( $scope, $f + [ 'per_page' => 20 ] );
+				$page_ms = ( microtime( true ) - $t0 ) * 1000;
 				ReservationRepository::counts_by_status( $scope );
 				ReservationRepository::pending_light( $scope );
 				$ms = ( microtime( true ) - $t0 ) * 1000;
 				if ( $ms > 2000 ) {
 					$slow[] = sprintf( '%s %s: %.0f ms', $who, $name, $ms );
 				}
+				if ( $page_ms > 300 ) {
+					$page[] = sprintf( '%s %s: %.0f ms', $who, $name, $page_ms );
+				}
 				$this->assertIsArray( $res['rows'] );
 				$where = (string) ReservationRepository::scoped_where( $scope, $f );
 				$sort  = 'created_at' === ( $f['sort'] ?? '' ) ? 'created_at' : 'requested_start_utc';
-				$e     = $this->explain( "SELECT * FROM {$t} WHERE {$where} ORDER BY {$sort} ASC, id ASC LIMIT 20" );
+				$order = 'desc' === ( $f['order'] ?? 'asc' ) ? 'DESC' : 'ASC';
+				// The plan of the first page (LIMIT 20) is checked. A deep page (p100 = OFFSET 1980, ~20 % of the
+				// table) may legitimately be read with one sequential scan + filesort rather than ~2,000 random
+				// index lookups; that page is held to the measured per-page budget above instead.
+				$e = $this->explain( "SELECT * FROM {$t} WHERE {$where} ORDER BY {$sort} {$order}, id {$order} LIMIT 20" );
 				if ( 'ALL' === $e['type'] ) {
 					$scans[] = sprintf( '%s %s: EXPLAIN type=ALL key=NULL rows=%d %s', $who, $name, $e['rows'], $e['extra'] );
 				}
 			}
 		}
 		$this->assertSame( [], $slow, 'Inbox views slower than 2 s: ' . implode( '; ', $slow ) );
+		$this->assertSame( [], $page, 'Inbox list pages slower than 300 ms at 10,000 rows: ' . implode( '; ', $page ) );
 		$this->assertSame( [], $scans, "TC-PERF-005 'indexes used; no full table scans on filters' — full scans:\n" . implode( "\n", $scans ) );
 	}
 

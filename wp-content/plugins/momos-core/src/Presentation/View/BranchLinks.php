@@ -30,7 +30,7 @@ final class BranchLinks {
 			return self::$cache[ $lang ];
 		}
 		$out = [];
-		if ( class_exists( \Momos\Branch\Repository\BranchRepository::class ) && method_exists( \Momos\Branch\Repository\BranchRepository::class, 'public_ids' ) ) {
+		if ( class_exists( \Momos\Branch\Repository\BranchRepository::class ) ) {
 			try {
 				foreach ( \Momos\Branch\Repository\BranchRepository::public_ids( $lang ) as $id ) {
 					$row = self::row( (int) $id, $lang );

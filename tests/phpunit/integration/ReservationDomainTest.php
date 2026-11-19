@@ -52,7 +52,7 @@ final class ReservationDomainTest extends ReservationTestCaseTest {
 				$to = StateMachine::target( $from, $action, $actor );
 				$this->assertSame( $expected[ $from->value ][ $action ] ?? null, $to?->value, $from->value . ' + ' . $action );
 			}
-			$this->assertSame( $from->isTerminal(), ! isset( $expected[ $from->value ] ) );
+			$this->assertSame( $from->is_terminal(), ! isset( $expected[ $from->value ] ) );
 		}
 		// Actor rules: customers may only cancel; only the system expires.
 		$this->assertSame( 'cancelled', StateMachine::target( ReservationStatus::Confirmed, 'cancel', ActorType::Customer )?->value );

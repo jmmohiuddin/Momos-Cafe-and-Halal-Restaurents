@@ -39,7 +39,8 @@ final class AuditRepository {
 		foreach ( [ 'from' => '00:00:00', 'to' => '23:59:59' ] as $key => $time ) {
 			$d = isset( $f[ $key ] ) ? \DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $f[ $key ] . ' ' . $time, $tz ) : false;
 			if ( $d ) {
-				$w[] = $wpdb->prepare( 'occurred_at ' . ( 'from' === $key ? '>=' : '<=' ) . ' %s', $d->setTimezone( $utc )->format( 'Y-m-d H:i:s' ) );
+				$at  = $d->setTimezone( $utc )->format( 'Y-m-d H:i:s' );
+				$w[] = 'from' === $key ? $wpdb->prepare( 'occurred_at >= %s', $at ) : $wpdb->prepare( 'occurred_at <= %s', $at );
 			}
 		}
 		if ( isset( $f['actor'] ) && '' !== (string) $f['actor'] ) {

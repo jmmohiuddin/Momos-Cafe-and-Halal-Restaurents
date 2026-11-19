@@ -61,7 +61,8 @@ final class QrCode {
 		$capacity = self::data_codewords( $version ) * 8;
 		$push( 0, min( 4, $capacity - count( $bits ) ) );
 		$push( 0, ( 8 - count( $bits ) % 8 ) % 8 );
-		for ( $pad = 0xEC; count( $bits ) < $capacity; $pad ^= 0xEC ^ 0x11 ) {
+		$pad_bytes = intdiv( $capacity - count( $bits ), 8 ); // $bits is byte-aligned here.
+		for ( $i = 0, $pad = 0xEC; $i < $pad_bytes; $i++, $pad ^= 0xEC ^ 0x11 ) {
 			$push( $pad, 8 );
 		}
 		$codewords = array_fill( 0, intdiv( count( $bits ), 8 ), 0 );
@@ -181,7 +182,7 @@ final class QrCode {
 		$num  = intdiv( $this->version, 7 ) + 2;
 		$step = (int) ( ceil( ( $this->version * 4 + 4 ) / ( $num * 2 - 2 ) ) * 2 );
 		$out  = [ 6 ];
-		for ( $pos = $this->size - 7; count( $out ) < $num; $pos -= $step ) {
+		for ( $i = 1, $pos = $this->size - 7; $i < $num; $i++, $pos -= $step ) {
 			array_splice( $out, 1, 0, [ $pos ] );
 		}
 		return $out;

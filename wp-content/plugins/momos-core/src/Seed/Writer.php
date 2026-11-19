@@ -58,8 +58,8 @@ final class Writer {
 		$id = self::find_post( $post_type, $key );
 		if ( ! $id ) {
 			$id = wp_insert_post( array_merge( [ 'post_type' => $post_type, 'post_status' => 'draft', 'comment_status' => 'closed', 'ping_status' => 'closed' ], $core ), true );
-			if ( is_wp_error( $id ) || ! $id ) {
-				throw new SeedException( sprintf( 'Could not create %s "%s": %s', $post_type, $key, is_wp_error( $id ) ? $id->get_error_message() : 'unknown error' ) );
+			if ( is_wp_error( $id ) ) {
+				throw new SeedException( sprintf( 'Could not create %s "%s": %s', $post_type, $key, $id->get_error_message() ) );
 			}
 			update_post_meta( (int) $id, self::KEY_META, $key );
 			update_post_meta( (int) $id, self::SAMPLE_META, '1' );
@@ -97,7 +97,8 @@ final class Writer {
 		$GLOBALS['momos_last_field_errors'] = [];
 		wp_update_post( [ 'ID' => $id, 'post_status' => 'publish' ] );
 		clean_post_cache( $id );
-		if ( 'publish' !== get_post_status( $id ) ) {
+		// Re-read the stored status (publish validators may have kept the post a draft).
+		if ( 'publish' !== get_post_field( 'post_status', $id ) ) {
 			throw new SeedException( sprintf( 'Publishing %s %d was refused: %s', get_post_type( $id ), $id, implode( ' | ', FieldRegistry::last_errors() ) ) );
 		}
 		self::clear_notices();

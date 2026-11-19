@@ -17,7 +17,7 @@
 	}
 	function store(key, val) { try { if (val === undefined) { return w.localStorage.getItem(key); } w.localStorage.setItem(key, val); } catch (e) { return null; } return null; }
 
-	/* ---- Toast (CMP-StatusMessage): 4 s, pauses on hover ---- */
+	// Toast
 	var toastEl = $('[data-momo-toast]'), toastTimer = null;
 	function toast(msg) {
 		if (!toastEl) { return; }
@@ -32,7 +32,7 @@
 	}
 	w.momoToast = toast;
 
-	/* ---- Sticky header shadow (IntersectionObserver on a sentinel) ---- */
+	// Sticky header shadow
 	var header = $('[data-momo-header]');
 	if (header && 'IntersectionObserver' in w) {
 		var sentinel = d.createElement('div');
@@ -42,7 +42,7 @@
 		new IntersectionObserver(function (e) { header.classList.toggle('is-scrolled', !e[0].isIntersecting); }).observe(sentinel);
 	}
 
-	/* ---- Disclosures: one open; Esc, outside click, focus leaving close ---- */
+	// Disclosures
 	var discs = $$('details[data-momo-disclosure]');
 	function closeAll(except) { discs.forEach(function (x) { if (x !== except) { x.open = false; } }); }
 	discs.forEach(function (det) {
@@ -56,7 +56,7 @@
 	});
 	d.addEventListener('click', function (e) { discs.forEach(function (x) { if (x.open && !x.contains(e.target)) { x.open = false; } }); });
 
-	/* ---- Dialogs: mobile menu + generic [data-momo-dialog] ---- */
+	// Dialogs
 	function openDialog(dlg, opener) {
 		if (!dlg || typeof dlg.showModal !== 'function') { return false; }
 		dlg._opener = opener || d.activeElement;
@@ -94,7 +94,7 @@
 	});
 	w.addEventListener('resize', function () { if (mmenu && mmenu.open && w.innerWidth >= 1024) { mmenu.close(); } });
 
-	/* ---- Mobile action bar: hidden while a text field has focus or the keyboard is open ---- */
+	// Mobile action bar
 	var bar = $('[data-momo-bar]');
 	if (bar) {
 		var textual = function (el) {
@@ -109,25 +109,28 @@
 		if (w.visualViewport) { w.visualViewport.addEventListener('resize', update); }
 	}
 
-	/* ---- Focus not obscured by the sticky header / mobile bar (WCAG 2.4.11) ---- */
+	// Focus not obscured
+	var ptr;
+	d.addEventListener('pointerdown', function (e) { ptr = e.target.closest('label') || e.target; }, true);
+	d.addEventListener('keydown', function () { ptr = 0; }, true);
 	d.addEventListener('focusin', function (e) {
 		var el = e.target, r, top = 0, bot = w.innerHeight, dy = 0;
-		if (el === d.body || !el.closest || el.closest('dialog,[data-momo-bar],[data-momo-header]')) { return; }
+		if (el === d.body || !el.closest || el.closest('dialog,[data-momo-bar],[data-momo-header]') || (ptr && (el.contains(ptr) || ptr.control === el))) { return; }
 		r = el.getBoundingClientRect();
 		if (header) { top = Math.max(0, header.getBoundingClientRect().bottom); }
 		if (bar && bar.offsetHeight && !bar.classList.contains('is-hidden')) { bot = bar.getBoundingClientRect().top; }
-		if (r.bottom > bot - 8) { dy = r.bottom - bot + 16; } else if (r.top < top + 8) { dy = r.top - top - 16; }
-		if (dy) { w.scrollBy({ top: dy, left: 0, behavior: 'instant' }); }
+		if (r.top < top + 8) { dy = r.top - top - 16; } else if (r.bottom > bot - 8) { dy = r.height < bot - top ? r.bottom - bot + 16 : r.top - top - 16; }
+		if (dy) { w.scrollBy({ top: dy, behavior: 'instant' }); }
 	});
 
-	/* ---- Language choice (switcher, suggestion bar): remember it (FR-I18N-002/003) ---- */
+	// Language choice
 	d.addEventListener('click', function (e) {
 		var a = e.target.closest('[data-momo-to]');
 		if (a) { setCookie('momo_lang_choice', a.getAttribute('data-momo-to')); }
 		if (a && a.hasAttribute('data-momo-langbar-dismiss')) { a.closest('[data-momo-langbar]').hidden = true; }
 	});
 
-	/* ---- Open-now badge from the embedded JST schedule (cache-safe, BR-BR-05) ---- */
+	// Open-now badge from the embedded JST schedule
 	$$('[data-momo-open]').forEach(function (el) {
 		var c, cur, next, now, k, a, day;
 		try { c = JSON.parse(el.getAttribute('data-momo-open')); } catch (e) { return; }
@@ -151,11 +154,10 @@
 			return;
 		}
 		el.className = el.className.replace(/\bmomo-open--\w+/, 'momo-open--' + (k === 'nolo' ? 'open' : k));
-		// Server-built escaped templates; only HH:MM and escaped day labels are substituted.
 		el.firstChild.innerHTML = c.t[k].replace(/\{(\w+)\}/g, function (m, x) { return a[x] || ''; });
 	});
 
-	/* ---- Notices: scheduled reveal (cache-safe), dismiss, "More" on mobile ---- */
+	// Notices
 	var now = Date.now();
 	$$('[data-momo-notice]').forEach(function (n) {
 		var s = parseInt(n.getAttribute('data-start') || '0', 10), en = parseInt(n.getAttribute('data-end') || '0', 10);
@@ -175,7 +177,7 @@
 		}
 	});
 
-	/* ---- Copy buttons (hidden without Clipboard API) ---- */
+	// Copy buttons
 	$$('[data-momo-copy]').forEach(function (b) {
 		if (!navigator.clipboard) { b.hidden = true; return; }
 		b.addEventListener('click', function () {
@@ -189,7 +191,7 @@
 		if (r) { e.preventDefault(); location.reload(); }
 	});
 
-	/* ---- Native-digit normalisation (Kernel Digits mirror) + stepper ---- */
+	// Native-digit normalisation
 	var DIG = [0x660, 0x6F0, 0x966, 0x9E6, 0xFF10];
 	function normDigits(s) {
 		return s.replace(/[٠-٩۰-۹०-९০-৯０-９]/g, function (c) {
@@ -218,7 +220,7 @@
 		inp.addEventListener('change', sync);
 	});
 
-	/* ---- Character counters (shown from 90 % of the limit) ---- */
+	// Character counters
 	$$('[data-momo-counter-for]').forEach(function (c) {
 		var f = d.getElementById(c.getAttribute('data-momo-counter-for')), max = +f.getAttribute('data-momo-counter');
 		var up = function () {
@@ -229,7 +231,7 @@
 		f.addEventListener('input', up); up();
 	});
 
-	/* ---- Allergen relevant-only toggle; conditions clamp ---- */
+	// Allergen relevant-only toggle
 	d.addEventListener('change', function (e) {
 		var t = e.target.getAttribute && e.target.getAttribute('data-momo-allergen-toggle');
 		if (t) { var tb = d.getElementById(t); if (tb) { tb.classList.toggle('is-relevant-only', e.target.checked); } }
@@ -245,11 +247,10 @@
 		}
 	});
 
-	/* ---- Focus the error summary when present ---- */
+	// Focus the error summary when present
 	var es = $('[data-momo-errsum]');
 	if (es) {
 		es.focus();
-		// a #fragment on the redirect moves focus back to <body> after load (TC-A11Y-006)
 		w.addEventListener('load', function () { w.setTimeout(function () { if (!d.activeElement || d.activeElement === d.body) { es.focus(); } }, 0); });
 	}
 

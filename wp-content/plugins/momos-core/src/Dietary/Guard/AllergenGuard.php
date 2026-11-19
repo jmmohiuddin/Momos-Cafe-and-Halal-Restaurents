@@ -38,7 +38,11 @@ final class AllergenGuard {
 	}
 
 	public static function pre_delete( int $term_id, string $taxonomy ): void {
-		if ( Allergens::TAXONOMY === $taxonomy && null !== ( $reason = self::delete_block_reason( $term_id ) ) ) {
+		if ( Allergens::TAXONOMY !== $taxonomy ) {
+			return;
+		}
+		$reason = self::delete_block_reason( $term_id );
+		if ( null !== $reason ) {
 			throw new \RuntimeException( esc_html( $reason ) );
 		}
 	}

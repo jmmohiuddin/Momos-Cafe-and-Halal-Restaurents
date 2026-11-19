@@ -236,6 +236,9 @@ final class DietaryCertificateTest extends TestCase {
 		$this->assertContains( $recipient, array_column( $alerts, 2 ), 'CAP-DCA holders receive E11' );
 		$keys = array_column( $alerts, 3 );
 		$this->assertMatchesRegularExpression( '/^cert:' . $cert . ':0:[0-9a-f]{16}$/', $keys[ array_search( 'cert_expired', $variants, true ) ] );
+		$dca_key = $keys[ array_search( strtolower( $recipient ), array_column( $alerts, 2 ), true ) ];
+		$this->assertStringEndsWith( ':' . substr( \Momos\Kernel\Support\Hash::purpose( 'email', strtolower( trim( $recipient ) ) ), 0, 16 ), $dca_key, 'recipient part = purpose-separated email hash (DEC-059, same as RecipientResolver::hash)' );
+		$this->assertStringNotContainsString( substr( \Momos\Kernel\Support\Hash::hmac( strtolower( $recipient ) ), 0, 16 ), $dca_key, 'not the plain pepper HMAC' );
 
 		$alerts = [];
 		$again  = CertificateExpiryJob::run();

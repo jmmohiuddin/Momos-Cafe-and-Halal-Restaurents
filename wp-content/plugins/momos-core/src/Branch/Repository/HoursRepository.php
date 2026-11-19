@@ -31,6 +31,33 @@ final class HoursRepository {
 	}
 
 	/**
+	 * Rows of several branches (or every branch when $branch_ids is null) in one query, grouped by
+	 * branch in all_rows() order (request cache of ScheduleService, NFR-PERF-02).
+	 *
+	 * @param list<int>|null $branch_ids
+	 * @return array<int, list<array<string,mixed>>> branch ID => rows (branches without rows are absent)
+	 */
+	public static function all_rows_many( ?array $branch_ids ): array {
+		global $wpdb;
+		$t     = Tables::hours();
+		$where = '1=1';
+		if ( null !== $branch_ids ) {
+			$ids = array_values( array_unique( array_filter( array_map( 'intval', $branch_ids ) ) ) );
+			if ( ! $ids ) {
+				return [];
+			}
+			$where = 'branch_id IN (' . implode( ',', $ids ) . ')';
+		}
+		$rows = $wpdb->get_results( "SELECT * FROM {$t} WHERE {$where} ORDER BY branch_id, valid_from IS NULL DESC, valid_from, weekday, period_no", ARRAY_A ); // phpcs:ignore -- integer list only.
+		$out  = [];
+		foreach ( (array) $rows as $r ) {
+			$c                          = self::cast( $r );
+			$out[ $c['branch_id'] ][] = $c;
+		}
+		return $out;
+	}
+
+	/**
 	 * Distinct schedule sets of the branch: default first (if any rows), then dated sets by start.
 	 *
 	 * @return list<array{valid_from:?string,valid_until:?string}>

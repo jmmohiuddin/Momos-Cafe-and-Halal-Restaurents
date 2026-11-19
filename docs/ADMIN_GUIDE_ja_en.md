@@ -22,6 +22,7 @@ paths, and what the role cannot do and why. Each section is Japanese first, then
 3. 「ログイン状態を保存」はありません。ログインは最長 14 時間、操作がない状態が 8 時間続くと自動的に終了します。
 4. パスワードを 15 分間に 10 回間違えると、そのアカウント（または接続元）が 60 分間ロックされます。
    画面に再試行できる時刻が表示されます。待てない場合は本部に連絡してください。
+   同じ接続元から 15 分間に 3 回失敗すると、ログイン画面に確認ウィジェット（Cloudflare Turnstile）が表示されます（CHG-009、オーナー確認待ち）。
 5. 共有 PC では作業後に必ず右上の名前 → 「ログアウト」。
 
 **English**
@@ -31,6 +32,7 @@ paths, and what the role cannot do and why. Each section is Japanese first, then
 3. There is no "Remember me". A login lasts at most 14 hours and ends after 8 hours without activity.
 4. 10 failed attempts within 15 minutes lock the account (or the network address) for 60 minutes; the
    message says when to retry. If you cannot wait, contact Head Office.
+   After 3 failed attempts from the same network address within 15 minutes, the login form also shows a check widget (Cloudflare Turnstile) (CHG-009, pending owner confirmation).
 5. On a shared PC always log out (your name, top right → "Log Out").
 
 ### 1.2 2段階認証（初回設定） / 2-step verification (first time)

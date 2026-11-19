@@ -22,16 +22,16 @@ foreach ( (array) $v['blocks'] as $b ) {
 			if ( ! empty( $b['href'] ) ) {
 				$inner = '<a href="' . esc_url( (string) $b['href'], [ 'tel', 'https', 'http' ] ) . '" style="color:#A03B00;">' . $inner . '</a>';
 			}
-			echo '<p style="' . $p . ( ! empty( $b['strong'] ) ? 'font-weight:700;' : '' ) . '">' . $inner . '</p>'; // phpcs:ignore -- escaped above
+			echo '<p style="' . esc_attr( $p . ( ! empty( $b['strong'] ) ? 'font-weight:700;' : '' ) ) . '">' . $inner . '</p>'; // phpcs:ignore -- escaped above
 			break;
 		case 'message':
-			echo '<div style="' . $p . 'padding:12px 16px;background:#FDF8F3;border-' . $align . ':4px solid #D99B43;">' . Html::user_text( (string) $b['text'] ) . '</div>'; // phpcs:ignore -- escaped in user_text
+			echo '<div style="' . esc_attr( $p . 'padding:12px 16px;background:#FDF8F3;border-' . $align . ':4px solid #D99B43;' ) . '">' . Html::user_text( (string) $b['text'] ) . '</div>'; // phpcs:ignore -- escaped in user_text
 			break;
 		case 'links':
 			if ( ! empty( $b['heading'] ) ) {
-				echo '<p style="' . $p . 'margin-bottom:8px;">' . esc_html( (string) $b['heading'] ) . '</p>';
+				echo '<p style="' . esc_attr( $p . 'margin-bottom:8px;' ) . '">' . esc_html( (string) $b['heading'] ) . '</p>';
 			}
-			echo '<ul style="margin:0 0 16px;padding-' . $align . ':20px;font-size:16px;line-height:1.6;">';
+			echo '<ul style="margin:0 0 16px;padding-' . esc_attr( $align ) . ':20px;font-size:16px;line-height:1.6;">';
 			foreach ( (array) $b['items'] as [ $label, $url ] ) {
 				echo '<li style="margin:0 0 8px;"><a href="' . esc_url( (string) $url ) . '" style="color:#A03B00;"><bdi>' . esc_html( (string) $label ) . '</bdi></a></li>';
 			}
@@ -40,21 +40,21 @@ foreach ( (array) $v['blocks'] as $b ) {
 		case 'rows':
 			echo '<table style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:15px;line-height:1.5;">';
 			foreach ( (array) $b['rows'] as $row ) {
-				echo '<tr><th scope="row" style="text-align:' . $align . ';vertical-align:top;padding:6px 12px 6px 0;color:#6E625D;font-weight:400;width:40%;">' . esc_html( (string) $row[0] ) . '</th><td style="padding:6px 0;color:#221A17;font-weight:700;"><bdi>' . esc_html( (string) $row[1] ) . '</bdi></td></tr>';
+				echo '<tr><th scope="row" style="text-align:' . esc_attr( $align ) . ';vertical-align:top;padding:6px 12px 6px 0;color:#6E625D;font-weight:400;width:40%;">' . esc_html( (string) $row[0] ) . '</th><td style="padding:6px 0;color:#221A17;font-weight:700;"><bdi>' . esc_html( (string) $row[1] ) . '</bdi></td></tr>';
 			}
 			echo '</table>';
 			break;
 		case 'changes':
 			echo '<table style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:15px;line-height:1.5;">';
 			foreach ( (array) $b['rows'] as [ $label, $before, $after ] ) {
-				echo '<tr><th scope="row" style="text-align:' . $align . ';vertical-align:top;padding:6px 12px 6px 0;color:#6E625D;font-weight:400;">' . esc_html( (string) $label ) . '</th><td style="padding:6px 0;color:#221A17;"><s><bdi>' . esc_html( (string) $before ) . '</bdi></s> → <strong><bdi>' . esc_html( (string) $after ) . '</bdi></strong> <span style="color:#A03B00;">' . esc_html( (string) $b['marker'] ) . '</span></td></tr>';
+				echo '<tr><th scope="row" style="text-align:' . esc_attr( $align ) . ';vertical-align:top;padding:6px 12px 6px 0;color:#6E625D;font-weight:400;">' . esc_html( (string) $label ) . '</th><td style="padding:6px 0;color:#221A17;"><s><bdi>' . esc_html( (string) $before ) . '</bdi></s> → <strong><bdi>' . esc_html( (string) $after ) . '</bdi></strong> <span style="color:#A03B00;">' . esc_html( (string) $b['marker'] ) . '</span></td></tr>';
 			}
 			echo '</table>';
 			break;
 		case 'section':
 			echo '<h2 style="margin:20px 0 6px;font-size:16px;line-height:1.4;color:#221A17;">' . esc_html( (string) $b['title'] ) . ' <bdi>(' . esc_html( (string) $b['count'] ) . ')</bdi></h2>';
 			if ( ! empty( $b['items'] ) ) {
-				echo '<ul style="margin:0 0 8px;padding-' . $align . ':20px;font-size:14px;line-height:1.5;">';
+				echo '<ul style="margin:0 0 8px;padding-' . esc_attr( $align ) . ':20px;font-size:14px;line-height:1.5;">';
 				foreach ( (array) $b['items'] as $item ) {
 					echo '<li><bdi>' . esc_html( (string) $item ) . '</bdi></li>';
 				}

@@ -11,7 +11,7 @@ use Momos\Reservation\Support\Options;
 /**
  * Sliding-window rate limiter over two fixed windows (TRD §4.3.6, spec §3.7):
  * estimate = cur + prev × (1 − elapsed/window); a request is rejected when estimate ≥ limit.
- * Keys `momos_rl:{bucket}:{hmac(subject)}:{window_start}` (subject = IP, normalised email or user id,
+ * Keys `momos_rl:{bucket}:{hmac("rl|" . subject)}:{window_start}` (Hash::purpose rl, QA-075; subject = IP, normalised email or user id,
  * never stored in clear) with TTL 2 × window, in the persistent object cache when available, else in
  * transients. Only allowed requests are counted. Read-compare-increment runs under a per-key MySQL named
  * lock so parallel requests cannot all pass on the same count.
@@ -40,7 +40,7 @@ final class RateLimiter {
 		$limit               = max( 1, Options::int( $option ) );
 		$now                 = Clock::utc()->getTimestamp();
 		$start               = intdiv( $now, $window ) * $window;
-		$subject             = Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' );
+		$subject             = Hash::purpose( 'rl', $subject );
 		$cur_key             = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . $start;
 		$prv_key             = 'momos_rl:' . $bucket . ':' . substr( $subject, 0, 32 ) . ':' . ( $start - $window );
 		// Read-compare-increment must be atomic per key, or parallel requests all read the same count
@@ -98,7 +98,7 @@ final class RateLimiter {
 		[ , $window ] = self::BUCKETS[ $bucket ];
 		$now          = Clock::utc()->getTimestamp();
 		$start        = intdiv( $now, $window ) * $window;
-		$subject      = substr( Hash::hmac( $subject, 'MOMOS_HASH_PEPPER' ), 0, 32 );
+		$subject      = substr( Hash::purpose( 'rl', $subject ), 0, 32 );
 		foreach ( [ $start, $start - $window ] as $s ) {
 			$key = 'momos_rl:' . $bucket . ':' . $subject . ':' . $s;
 			wp_cache_delete( $key, 'momos_rl' );

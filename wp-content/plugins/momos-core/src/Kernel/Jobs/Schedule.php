@@ -82,7 +82,8 @@ final class Schedule {
 		update_option( 'momos_heartbeat', $beats, false );
 		$key = 'MOMOS_HEARTBEAT_URL_' . strtoupper( (string) preg_replace( '/^momos_job_/', '', $hook ) );
 		$url = defined( $key ) ? (string) constant( $key ) : ( defined( 'MOMOS_HEARTBEAT_URL' ) ? (string) MOMOS_HEARTBEAT_URL : '' );
-		if ( '' !== $url ) {
+		// G3 setting "Send job heartbeats to the external monitor" (default on) can pause the external pings.
+		if ( '' !== $url && '0' !== (string) \Momos\Kernel\Settings::get( 'momo_heartbeat_enabled', '1' ) ) {
 			wp_remote_get( $url, [ 'timeout' => 2, 'blocking' => false ] );
 		}
 	}

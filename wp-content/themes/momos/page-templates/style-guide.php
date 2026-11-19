@@ -138,25 +138,40 @@ $momos_section(
 	'chips',
 	static function ( string $l ) use ( $momos_label ): void {
 		$momos_label( 'link chips (category tabs; current = aria-current; scroll row on mobile)' );
-		momos_component( 'chip-group', [ 'type' => 'link', 'label' => momos_s( 'nav.menu' ), 'scroll' => true, 'items' => [
+		momos_component(
+			'chip-group',
+			[
+				'type' => 'link', 'label' => momos_s( 'nav.menu' ), 'scroll' => true, 'items' => [
 			[ 'label' => Samples::text( 'category', $l ), 'url' => '#', 'current' => true ],
 			[ 'label' => momos_s( 'nav.menu' ), 'url' => '#' ],
 			[ 'label' => momos_s( 'cta.halal_info' ), 'url' => '#' ],
 			[ 'label' => momos_s( 'nav.offers' ), 'url' => '#' ],
 			[ 'label' => momos_s( 'nav.gallery' ), 'url' => '#' ],
-		] ] );
+				],
+			]
+		);
 		$momos_label( 'choice chips (radio) incl. disabled with reason' );
-		momos_component( 'chip-group', [ 'type' => 'choice', 'name' => 'sg-choice-' . $l, 'label' => momos_s( 'branch.day.today' ), 'items' => [
+		momos_component(
+			'chip-group',
+			[
+				'type' => 'choice', 'name' => 'sg-choice-' . $l, 'label' => momos_s( 'branch.day.today' ), 'items' => [
 			[ 'label' => '18:00', 'value' => '18', 'checked' => true ],
 			[ 'label' => '18:30', 'value' => '1830' ],
 			[ 'label' => '19:00', 'value' => '19', 'disabled' => true, 'reason' => '(' . momos_s( 'branch.closed_day' ) . ')' ],
-		] ] );
+				],
+			]
+		);
 		$momos_label( 'filter chips (checkbox)' );
-		momos_component( 'chip-group', [ 'type' => 'filter', 'name' => 'sg-filter-' . $l, 'label' => momos_s( 'menu.filters.heading' ), 'items' => [
+		momos_component(
+			'chip-group',
+			[
+				'type' => 'filter', 'name' => 'sg-filter-' . $l, 'label' => momos_s( 'menu.filters.heading' ), 'items' => [
 			[ 'label' => momos_s( 'spice.0' ), 'value' => 's0', 'checked' => true ],
 			[ 'label' => momos_s( 'spice.1' ), 'value' => 's1' ],
 			[ 'label' => momos_s( 'spice.2' ), 'value' => 's2' ],
-		] ] );
+				],
+			]
+		);
 		$momos_label( 'tag chips + concept tag' );
 		momos_component( 'chip-group', [ 'type' => 'tag', 'label' => 'tags', 'items' => [ [ 'label' => Samples::text( 'category', $l ) ], [ 'label' => momos_s( 'offers.scope.all' ) ] ] ] );
 	}
@@ -218,7 +233,7 @@ $momos_section(
 $momos_section(
 	'Form fields (CMP-Field, Choice, Stepper, ErrorSummary)',
 	'forms',
-	static function ( string $l ) use ( $momos_label ): void {
+	static function ( string $l ): void {
 		echo '<div class="momo-sg-stack">';
 		momos_component( 'error-summary', [ 'title' => momos_s( 'common.error.title' ), 'errors' => [ 'sg-email-' . $l => Samples::text( 'label_email', $l ) ] ] );
 		momos_component( 'field', [ 'id' => 'sg-name-' . $l, 'label' => Samples::text( 'label_name', $l ), 'required' => true, 'autocomplete' => 'name' ] );

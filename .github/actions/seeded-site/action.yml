@@ -1,0 +1,45 @@
+# Installs, migrates and seeds a throw-away Momo's site and serves it with the PHP built-in server
+# (tests/e2e/fixtures/seed.sh --no-photos + bin/serve.sh). Used by the E2E jobs (ci.yml) and the weekly
+# security scans (security-weekly.yml). The job must set MOMOS_DB_NAME (containing e2e/test/seed/qa),
+# MOMOS_PORT and MOMOS_URL. Fictional demo content and GD placeholder images only (DEC-047, IMPL-005).
+name: Seeded Momo's site
+description: PHP + Composer + MariaDB 10.11, wp momos seed --demo, PHP built-in server on MOMOS_PORT
+inputs:
+  php-version:
+    description: PHP version
+    default: '8.3'
+  php-extensions:
+    description: PHP extensions
+    default: mysqli, intl, mbstring, gd, zip
+runs:
+  using: composite
+  steps:
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.php-extensions }}
+        coverage: none
+    - name: Composer
+      shell: bash
+      run: |
+        composer install --no-interaction --prefer-dist --no-progress
+        composer install --no-interaction --prefer-dist --no-progress -d wp-content/plugins/momos-core
+    - name: MariaDB 10.11 (local socket, as bin/dev-setup.sh expects)
+      shell: bash
+      run: |
+        sudo apt-get update -q && sudo apt-get install -y -q mariadb-server
+        sudo systemctl start mariadb
+        mariadb --version
+    - name: Install, migrate and seed the site
+      shell: bash
+      run: |
+        # seed.sh = bin/dev-setup.sh --no-seed + `wp momos seed --reset --demo`. No private UI-baseline photos: --no-photos.
+        sudo -E env PATH="$PATH" tests/e2e/fixtures/seed.sh --no-photos
+        sudo chown -R "$USER" .wp
+    - name: Start web server
+      shell: bash
+      run: |
+        # Two PHP workers: the built-in server is single-process otherwise (Playwright + admin-ajax polling).
+        (PHP_CLI_SERVER_WORKERS=2 bin/serve.sh > "$RUNNER_TEMP/server.log" 2>&1 &)
+        for i in $(seq 1 30); do curl -fsS -o /dev/null "$MOMOS_URL/wp-login.php" && exit 0; sleep 1; done
+        echo "::error::The site did not answer on $MOMOS_URL"; cat "$RUNNER_TEMP/server.log"; exit 1

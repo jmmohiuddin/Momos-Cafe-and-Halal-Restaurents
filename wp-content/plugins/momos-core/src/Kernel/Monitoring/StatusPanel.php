@@ -10,6 +10,9 @@ use Momos\Kernel\Jobs\Schedule;
  * rendered at the end of the Settings page (SCR-A15) for SA and Head Office.
  */
 final class StatusPanel {
+	/** Plugin cap including the must-use loaded momos-core (FR-FND-006, Doc 11 SEC-060). */
+	public const MAX_PLUGINS = 15;
+
 	public static function register(): void {
 		add_action( 'momos/options_page/after_fields', [ self::class, 'render' ] );
 		add_action( 'admin_notices', [ self::class, 'unregistered_plugin_notice' ] );
@@ -44,7 +47,7 @@ final class StatusPanel {
 			return;
 		}
 		$bad = self::unregistered_plugins();
-		if ( $bad || self::active_count() > 15 ) {
+		if ( $bad || self::active_count() > self::MAX_PLUGINS ) {
 			echo '<div class="notice notice-error"><p>' . esc_html__( 'Unapproved plugin active (not in the plugin register) or more than 15 plugins:', 'momos-core' ) . ' ' . esc_html( implode( ', ', $bad ) ) . '</p></div>';
 		}
 	}

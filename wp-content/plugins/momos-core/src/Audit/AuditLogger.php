@@ -310,12 +310,15 @@ final class AuditLogger {
 		return hash_hmac( 'sha256', 'audit|' . $prev . '|' . self::canonical( $row ), self::key() );
 	}
 
-	/** Pepper: MOMOS_HASH_PEPPER (docs) or the kernel's MOMOS_HMAC_KEY (alias, spec §17.16). */
+	/**
+	 * Pepper: MOMOS_HASH_PEPPER (docs) or the kernel's MOMOS_HMAC_KEY (alias, spec §17.16), resolved by the kernel.
+	 * Fails closed (QA-075, DEC-059): a production install without a pepper throws instead of writing an unkeyed,
+	 * forgeable chain.
+	 *
+	 * @throws \RuntimeException when the pepper is not configured.
+	 */
 	public static function key(): string {
-		if ( ( defined( 'MOMOS_HASH_PEPPER' ) && '' !== (string) MOMOS_HASH_PEPPER ) || getenv( 'MOMOS_HASH_PEPPER' ) ) {
-			return Env::secret( 'MOMOS_HASH_PEPPER' );
-		}
-		return Env::secret( 'MOMOS_HMAC_KEY' );
+		return Hash::key();
 	}
 
 	private static function object_key( string $object_type, ?int $object_id ): string {

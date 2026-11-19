@@ -52,7 +52,7 @@
     "phpcs:security": "phpcs -n -q --sniffs=WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput,WordPress.Security.SafeRedirect,WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders --report-summary"
   },
   "scripts-descriptions": {
-    "lint": "Static CI gates: php -l + PHPCS errors in files you changed (working tree) + PHPStan level 5 with baseline (qa.md §3.7, NFR-MNT-01).",
+    "lint": "Static CI gates: php -l + PHPCS errors in files you changed (working tree) + PHPStan level 5 with baseline (qa.md §3.7, NFR-MNT-01). As root (containers, CI images) Composer refuses to run scripts unless COMPOSER_ALLOW_SUPERUSER=1 is set: COMPOSER_ALLOW_SUPERUSER=1 composer lint (it otherwise aborts with exit 1 and checks nothing).",
     "lint:php": "Syntax-check every PHP file of momos-core, the theme, the mu-plugin and tests.",
     "phpcs": "Full PHPCS report (WordPress-Extra + PHPCompatibilityWP 8.3, phpcs.xml.dist), warnings included.",
     "phpcs:errors": "PHPCS errors only, whole tree (legacy formatting errors included; see composer lint:fix).",

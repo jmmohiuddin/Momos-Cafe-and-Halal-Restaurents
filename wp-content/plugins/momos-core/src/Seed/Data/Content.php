@@ -116,7 +116,11 @@ final class Content {
 		];
 	}
 
-	/** FAQ rows for page meta `momo_faq_items` (groups per Content::FAQ_GROUPS). @return list<array<string,mixed>> */
+	/**
+	 * FAQ rows for page meta `momo_faq_items` (groups per Content::FAQ_GROUPS).
+	 *
+	 * @return list<array{id:string, group:string, order:int, question:array<string,string>, answer:array<string,string>}>
+	 */
 	public static function faq(): array {
 		return [
 			[
@@ -198,7 +202,7 @@ final class Content {
 	 * Copy for existing system pages (role => fields). Pages are restored by `--reset`.
 	 * `publish` = publish an optional (draft) system page in the demo.
 	 *
-	 * @return array<string, array<string,mixed>>
+	 * @return array<string, array{title:array<string,string>, excerpt?:array<string,string>, content?:array<string,string>, publish?:bool, faq?:bool}>
 	 */
 	public static function pages(): array {
 		$sample = self::t( '※ このページの文章はデモ用のサンプルです。', 'SAMPLE TEXT — this page copy is demo content.', 'نص تجريبي — محتوى هذه الصفحة للعرض فقط.', 'نمونہ متن — اس صفحے کا مواد ڈیمو کے لیے ہے۔', 'नमूना पाठ — इस पेज की सामग्री डेमो के लिए है।', 'নমুনা লেখা — এই পৃষ্ঠার বিষয়বস্তু ডেমোর জন্য।' );

@@ -28,13 +28,14 @@ final class SoldOutResetJob {
 			global $wpdb;
 			$t     = Tables::menu_items();
 			$now   = Clock::mysql_utc();
-			$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, branch_id, dish_id, sold_out_until, availability_reason FROM {$t} WHERE availability = 'sold_out' AND sold_out_until <= %s", $now ), ARRAY_A ); // phpcs:ignore
+			$rows  = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, branch_id, dish_id, sold_out_until, availability_reason FROM %i WHERE availability = 'sold_out' AND sold_out_until <= %s", $t, $now ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$reset = 0;
 			foreach ( $rows as $r ) {
 				$done = (int) $wpdb->query( // phpcs:ignore
 					$wpdb->prepare(
-						"UPDATE {$t} SET availability = 'available', sold_out_until = NULL, availability_reason = NULL, version = version + 1, updated_at = %s, updated_by = NULL
-						 WHERE id = %d AND availability = 'sold_out' AND sold_out_until <= %s", // phpcs:ignore
+						"UPDATE %i SET availability = 'available', sold_out_until = NULL, availability_reason = NULL, version = version + 1, updated_at = %s, updated_by = NULL
+						 WHERE id = %d AND availability = 'sold_out' AND sold_out_until <= %s",
+						$t,
 						$now,
 						(int) $r['id'],
 						$now

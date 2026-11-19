@@ -21,6 +21,12 @@ use Momos\Kernel\Clock\Clock;
  *
  * Reads are request-cached and flushed on every write; ClosureImpactService uses an overlay to
  * evaluate a proposed (unsaved) schedule.
+ *
+ * Request cache (NFR-PERF-02, QA-052): the first closure lookup inside the open-now window (JST
+ * yesterday … today + 8) loads the closure rows of every branch for the whole window in one query, and
+ * the first weekly lookup loads the weekly rows of every branch in one query, so a page that lists N
+ * branches costs two schedule queries instead of ~10 × N. A lookup outside the window loads that
+ * branch for 31 days at once. prime() loads an explicit set of branches and dates up front.
  */
 final class ScheduleService {
 	/** Minutes before closing at which the state turns `closing_soon`. */
@@ -32,6 +38,15 @@ final class ScheduleService {
 	/** @var array<string, array<string,mixed>|null> "branch|date" => grouped closure record */
 	private static array $closures = [];
 
+	/** @var array<int, list<array{0:string,1:string}>> branch => date ranges whose closures are loaded */
+	private static array $covered = [];
+
+	/** @var list<array{0:string,1:string}> date ranges whose closures are loaded for every branch */
+	private static array $covered_all = [];
+
+	/** Weekly rows of every branch are loaded (branches absent from $weekly have none). */
+	private static bool $weekly_all = false;
+
 	/** @var array<int, array{valid_from:?string,valid_until:?string,rows:list<array<string,mixed>>}> */
 	private static array $overlay_week = [];
 
@@ -39,8 +54,40 @@ final class ScheduleService {
 	private static array $overlay_closures = [];
 
 	public static function flush(): void {
-		self::$weekly   = [];
-		self::$closures = [];
+		self::$weekly      = [];
+		self::$closures    = [];
+		self::$covered     = [];
+		self::$covered_all = [];
+		self::$weekly_all  = false;
+	}
+
+	/**
+	 * Load the closures/special hours of $branch_ids for the JST dates $from_ymd … $to_ymd (inclusive) and
+	 * their weekly rows into the request cache with one query each (NFR-PERF-02). Later per-day lookups
+	 * (periods_on, closure_on, open_status, schedule_json, intervals …) are served from memory; writes
+	 * through HoursRepository/ClosureRepository flush the cache. Results are identical to unprimed reads.
+	 *
+	 * @param list<int> $branch_ids
+	 */
+	public static function prime( array $branch_ids, string $from_ymd, string $to_ymd ): void {
+		if ( $to_ymd < $from_ymd ) {
+			[ $from_ymd, $to_ymd ] = [ $to_ymd, $from_ymd ];
+		}
+		$ids  = array_values( array_unique( array_filter( array_map( 'intval', $branch_ids ) ) ) );
+		$load = array_values( array_filter( $ids, static fn( $id ) => ! self::range_covered( $id, $from_ymd, $to_ymd ) ) );
+		if ( $load ) {
+			self::store_closures( ClosureRepository::rows_between_many( $load, $from_ymd, $to_ymd ) );
+			foreach ( $load as $id ) {
+				self::$covered[ $id ][] = [ $from_ymd, $to_ymd ];
+			}
+		}
+		$weekly = self::$weekly_all ? [] : array_values( array_filter( $ids, static fn( $id ) => ! isset( self::$weekly[ $id ] ) ) );
+		if ( $weekly ) {
+			$rows = HoursRepository::all_rows_many( $weekly );
+			foreach ( $weekly as $id ) {
+				self::$weekly[ $id ] = $rows[ $id ] ?? [];
+			}
+		}
 	}
 
 	// ------------------------------------------------------------------ contract (docs/CONTRACTS.md)
@@ -259,18 +306,63 @@ final class ScheduleService {
 		}
 		$key = $branch_id . '|' . $date_ymd;
 		if ( ! array_key_exists( $key, self::$closures ) ) {
-			$grouped                = ClosureRepository::group_by_date( ClosureRepository::rows_on( $branch_id, $date_ymd ) );
-			self::$closures[ $key ] = $grouped[ $date_ymd ] ?? null;
+			if ( ! self::range_covered( $branch_id, $date_ymd, $date_ymd ) ) {
+				$today = Clock::jst();
+				$from  = $today->modify( '-1 day' )->format( 'Y-m-d' );
+				$to    = $today->modify( '+8 days' )->format( 'Y-m-d' );
+				if ( $date_ymd >= $from && $date_ymd <= $to ) {
+					// Open-now window of every branch (directory, home, cards): one query per request.
+					self::store_closures( ClosureRepository::rows_between_many( null, $from, $to ) );
+					self::$covered_all[] = [ $from, $to ];
+				} else {
+					self::prime( [ $branch_id ], $date_ymd, ( new \DateTimeImmutable( $date_ymd, Clock::tz() ) )->modify( '+30 days' )->format( 'Y-m-d' ) );
+				}
+			}
+			if ( ! array_key_exists( $key, self::$closures ) ) {
+				self::$closures[ $key ] = null;
+			}
 		}
 		return self::$closures[ $key ];
 	}
 
+	/** Are the closures of $branch_id for every date in $from … $to already loaded? */
+	private static function range_covered( int $branch_id, string $from_ymd, string $to_ymd ): bool {
+		foreach ( array_merge( self::$covered_all, self::$covered[ $branch_id ] ?? [] ) as [ $from, $to ] ) {
+			if ( $from <= $from_ymd && $to_ymd <= $to ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Group loaded closure rows per branch and date into the request cache.
+	 *
+	 * @param list<array<string,mixed>> $rows
+	 */
+	private static function store_closures( array $rows ): void {
+		$by_branch = [];
+		foreach ( $rows as $r ) {
+			$by_branch[ (int) $r['branch_id'] ][] = $r;
+		}
+		foreach ( $by_branch as $branch_id => $list ) {
+			foreach ( ClosureRepository::group_by_date( $list ) as $date => $record ) {
+				$key = $branch_id . '|' . $date;
+				if ( ! array_key_exists( $key, self::$closures ) ) {
+					self::$closures[ $key ] = $record;
+				}
+			}
+		}
+	}
+
 	/** @return list<array<string,mixed>> */
 	private static function weekly_rows( int $branch_id ): array {
-		if ( ! isset( self::$weekly[ $branch_id ] ) ) {
-			self::$weekly[ $branch_id ] = HoursRepository::all_rows( $branch_id );
+		if ( ! isset( self::$weekly[ $branch_id ] ) && ! self::$weekly_all ) {
+			// Every branch's weekly rows in one query (bounded by the branch count, NFR-SCL-01).
+			self::$weekly     = HoursRepository::all_rows_many( null ) + self::$weekly;
+			self::$weekly_all = true;
 		}
-		$rows = self::$weekly[ $branch_id ];
+		$rows = self::$weekly[ $branch_id ] ?? [];
 		if ( isset( self::$overlay_week[ $branch_id ] ) ) {
 			$o    = self::$overlay_week[ $branch_id ];
 			$rows = array_values( array_filter( $rows, static fn( $r ) => ! ( $r['valid_from'] === $o['valid_from'] && $r['valid_until'] === $o['valid_until'] ) ) );

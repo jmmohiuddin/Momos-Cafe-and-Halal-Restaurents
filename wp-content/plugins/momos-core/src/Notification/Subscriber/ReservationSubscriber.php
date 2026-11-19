@@ -6,13 +6,21 @@ namespace Momos\Notification\Subscriber;
 use Momos\Kernel\Log\Logger;
 use Momos\Notification\Queue\NotificationQueue;
 use Momos\Notification\Queue\NotificationRequest;
+use Momos\Notification\Repository\NotificationRepository;
 use Momos\Notification\Support\ReservationReader;
 
 /**
  * Which emails go to whom for each reservation transition (docs/CONTRACTS.md; spec §4.1 trigger
- * table, §4.2 dedupe keys). Subscribes to the Reservation domain hooks (fired after commit). The
- * dedupe keys are the documented ones, so if the Reservation module also enqueues inside its own
- * transaction (reservation spec §3.15) nothing is sent twice.
+ * table, §4.2 dedupe keys). Subscribes to the Reservation domain hooks (fired after commit).
+ *
+ * CHG-011: for T1–T6 and N3 the Reservation module writes the rows INSIDE its transaction
+ * (Reservation\Service\NotificationTrigger, same dedupe keys, TC-RES-001). For those events this
+ * subscriber only fills gaps: it queues nothing when the reservation already has a row of that
+ * template's dedupe family, so it never adds a second row (e.g. if the version it reads after commit
+ * differs from the one the trigger used). It still queues when no row exists (a reservation written
+ * by another path, or a replayed hook). E01/E07/E02/E03/E04/E05/E09 occur at most once per
+ * reservation (state machine: no transition back to pending/confirmed), so the family check is
+ * version-independent; E06 is per version.
  *
  *  T1 created            → E01 (customer) + E07 × each active branch recipient
  *  T2 pending→confirmed  → E02
@@ -42,8 +50,8 @@ final class ReservationSubscriber {
 					return;
 				}
 				$branch = (int) $r['branch_id'];
-				NotificationQueue::enqueue( new NotificationRequest( 'E01', 'customer', 'res:' . $id . ':E01', null, $id, $branch, 'reservation', $id ) );
-				NotificationQueue::enqueue( new NotificationRequest( 'E07', 'branch_recipients', 'res:' . $id . ':E07', null, $id, $branch, 'reservation', $id ) );
+				self::fill_gap( new NotificationRequest( 'E01', 'customer', 'res:' . $id . ':E01', null, $id, $branch, 'reservation', $id ) );
+				self::fill_gap( new NotificationRequest( 'E07', 'branch_recipients', 'res:' . $id . ':E07', null, $id, $branch, 'reservation', $id ) );
 			},
 			'created'
 		);
@@ -59,7 +67,7 @@ final class ReservationSubscriber {
 				}
 				$branch  = (int) $r['branch_id'];
 				$version = (int) $r['version'];
-				$req     = static fn( string $tpl, string $audience, string $key, ?string $variant = null ) => NotificationQueue::enqueue( new NotificationRequest( $tpl, $audience, $key, $variant, $id, $branch, 'reservation', $id ) );
+				$req     = static fn( string $tpl, string $audience, string $key, ?string $variant = null ) => self::fill_gap( new NotificationRequest( $tpl, $audience, $key, $variant, $id, $branch, 'reservation', $id ), "res:{$id}:{$tpl}" );
 				switch ( $to ) {
 					case 'confirmed':
 						if ( 'pending' === $from ) {
@@ -100,7 +108,7 @@ final class ReservationSubscriber {
 					return;
 				}
 				$variant = (string) $r['status'];
-				NotificationQueue::enqueue( new NotificationRequest( 'E06', 'customer', 'res:' . $id . ':E06:' . (int) $r['version'], $variant, $id, (int) $r['branch_id'], 'reservation', $id ) );
+				self::fill_gap( new NotificationRequest( 'E06', 'customer', 'res:' . $id . ':E06:' . (int) $r['version'], $variant, $id, (int) $r['branch_id'], 'reservation', $id ) );
 			},
 			'modified'
 		);
@@ -144,6 +152,20 @@ final class ReservationSubscriber {
 			},
 			'sla_escalated'
 		);
+	}
+
+	/**
+	 * Queue `$req` only when the reservation has no row of the dedupe family `$family` yet (default:
+	 * the request's own dedupe base). Returns the ids of new rows (none when the in-transaction
+	 * NotificationTrigger already queued it, CHG-011).
+	 *
+	 * @return list<int>
+	 */
+	private static function fill_gap( NotificationRequest $req, ?string $family = null ): array {
+		if ( null !== $req->reservation_id && NotificationRepository::has_dedupe_family( $req->reservation_id, $family ?? $req->dedupe_base ) ) {
+			return [];
+		}
+		return NotificationQueue::enqueue( $req );
 	}
 
 	/** An email problem never breaks the reservation flow (NFR-REL-01, FR-NOT-003(d)). */

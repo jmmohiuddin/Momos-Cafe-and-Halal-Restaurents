@@ -367,6 +367,7 @@ final class FieldRegistry {
 		 * @param list<string>        $errors
 		 * @param array<string,mixed> $new_all values after the change
 		 * @param array<string,mixed> $changes
+		 * @param int|string          $object_id post/term ID, or the options-page slug
 		 */
 		$group_errors = (array) apply_filters( 'momos/fields/validate_group/' . $group['key'], [], $new_all, $changes, $object_id );
 		if ( $group_errors ) {

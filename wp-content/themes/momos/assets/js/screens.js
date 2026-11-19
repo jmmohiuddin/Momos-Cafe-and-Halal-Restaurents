@@ -12,7 +12,7 @@
 	};
 	var replaceUrl = function (url) { try { w.history.replaceState(null, '', url.pathname + url.search + url.hash); } catch (e) { /* noop */ } };
 
-	/* ---- Branch selector: submit on change, keep scroll position (CMP-BranchSelector) ---- */
+	// Branch selector
 	try {
 		var y = w.sessionStorage.getItem('momo_scroll');
 		if (y) { w.sessionStorage.removeItem('momo_scroll'); w.scrollTo(0, parseInt(y, 10) || 0); }
@@ -29,7 +29,7 @@
 		});
 	});
 
-	/* ---- Menu filters (C07): AND tags, max spice, conservative allergen exclusion ---- */
+	// Menu filters
 	var form = d.querySelector('[data-momo-filter-form]');
 	var list = d.querySelector('[data-momo-dish-list]');
 	if (form && list) {
@@ -83,7 +83,7 @@
 		}
 	}
 
-	/* ---- FAQ accordion: collapse answers, `#q-{id}` opens its item, multiple open ---- */
+	// FAQ accordion
 	$$('[data-momo-accordion]').forEach(function (acc) {
 		var group = acc.getAttribute('data-group') || '';
 		$$('.momo-accordion__btn', acc).forEach(function (btn) {
@@ -108,7 +108,7 @@
 		if (t && t.getAttribute('aria-expanded') !== 'true') { t.click(); }
 	});
 
-	/* ---- Offers branch chips (C21): client-side, `?branch=` kept, canonical clean ---- */
+	// Offers branch chips
 	var of = d.querySelector('[data-momo-offer-filter]'), ol = d.querySelector('[data-momo-offer-list]');
 	if (of && ol) {
 		var oc = d.querySelector('.momo-offers [data-momo-result-count]');
@@ -133,7 +133,7 @@
 		});
 	}
 
-	/* ---- Gallery filter chips (C22) ---- */
+	// Gallery filter chips
 	var gf = d.querySelector('[data-momo-gallery-filter]'), gl = d.querySelector('[data-momo-gallery]');
 	if (gf && gl) {
 		gf.hidden = false;
@@ -146,7 +146,7 @@
 		});
 	}
 
-	/* ---- Analytics opt-out (C17 #analytics-settings; i18n-seo-analytics.md §12.5) ---- */
+	// Analytics opt-out
 	var oo = d.querySelector('[data-momo-optout]');
 	if (oo) {
 		var btn = oo.querySelector('.momo-switch'), state = oo.querySelector('.momo-switch__text');
@@ -186,7 +186,7 @@
 		});
 	}
 
-	/* ---- Busy state on form submit (contact) ---- */
+	// Busy state on form submit
 	$$('form[data-momo-busy-form]').forEach(function (f) {
 		f.addEventListener('submit', function () {
 			var b = f.querySelector('button[type="submit"]');

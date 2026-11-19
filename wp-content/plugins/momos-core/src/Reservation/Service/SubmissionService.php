@@ -136,8 +136,8 @@ final class SubmissionService {
 				'created_at'             => Clock::mysql_utc( $now ),
 				'updated_at'             => Clock::mysql_utc( $now ),
 				'version'                => 1,
-				'ip_hash'                => null !== $ctx['ip'] && '' !== $ctx['ip'] ? Hash::hmac( (string) $ctx['ip'], 'MOMOS_HASH_PEPPER' ) : null,
-				'user_agent_hash'        => '' !== $ctx['user_agent'] ? Hash::hmac( (string) $ctx['user_agent'], 'MOMOS_HASH_PEPPER' ) : null,
+				'ip_hash'                => null !== $ctx['ip'] && '' !== $ctx['ip'] ? Hash::purpose( 'ip', (string) $ctx['ip'] ) : null,
+				'user_agent_hash'        => '' !== $ctx['user_agent'] ? Hash::purpose( 'ua', (string) $ctx['user_agent'] ) : null,
 			];
 			for ( $attempt = 1; ; $attempt++ ) {
 				try {

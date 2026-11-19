@@ -401,28 +401,36 @@ test('TC-ACL-008 / E9: every staff notification row went only to recipients of t
 // ---------------------------------------------------------------- customer token / enumeration (API-03/04)
 
 test('Reservation spec §3.6/§3.7: API-03 answers do not reveal whether a reference exists, even when rate limited', async ({ request }) => {
-  clearThrottle();
-  const token = 'A'.repeat(43);
-  const real = ids.refs_DNB[0];
-  const problems: string[] = [];
-  const norm = (s: string) => s.replace(/"request_id":"[^"]+"/, '').replace(/"retry_after":\d+/, '');
-  const a = await request.get(`/wp-json/momos/v1/reservations/${real}?lang=en`, { headers: { 'X-Momo-Token': token } });
-  const b = await request.get('/wp-json/momos/v1/reservations/ZZZZZZZZ?lang=en', { headers: { 'X-Momo-Token': token } });
-  if (a.status() !== b.status() || norm(await a.text()) !== norm(await b.text())) problems.push(`wrong token: real ${a.status()} vs unknown ${b.status()}`);
-  const q = await request.get(`/wp-json/momos/v1/reservations/${real}?t=${token}`);
-  if (q.status() !== 400) problems.push(`token in query string → ${q.status()} (expected 400 before lookup)`);
-  let last = 0;
-  for (let i = 0; i < 40 && last !== 429; i++) {
-    last = (await request.get(`/wp-json/momos/v1/reservations/ZZZZZZZ${i % 10}?lang=en`, { headers: { 'X-Momo-Token': token } })).status();
+  // E2E isolation: this test depends on the API-03 per-IP limit, so it sets the documented default (30/h) itself
+  // and restores whatever value the install had afterwards.
+  const prevLimit = wpEval(`echo wp_json_encode( get_option( 'momo_rate_status_ip_per_hour', null ) );`);
+  wpEval(`update_option( 'momo_rate_status_ip_per_hour', 30, false ); echo 'ok';`);
+  try {
+    clearThrottle();
+    const token = 'A'.repeat(43);
+    const real = ids.refs_DNB[0];
+    const problems: string[] = [];
+    const norm = (s: string) => s.replace(/"request_id":"[^"]+"/, '').replace(/"retry_after":\d+/, '');
+    const a = await request.get(`/wp-json/momos/v1/reservations/${real}?lang=en`, { headers: { 'X-Momo-Token': token } });
+    const b = await request.get('/wp-json/momos/v1/reservations/ZZZZZZZZ?lang=en', { headers: { 'X-Momo-Token': token } });
+    if (a.status() !== b.status() || norm(await a.text()) !== norm(await b.text())) problems.push(`wrong token: real ${a.status()} vs unknown ${b.status()}`);
+    const q = await request.get(`/wp-json/momos/v1/reservations/${real}?t=${token}`);
+    if (q.status() !== 400) problems.push(`token in query string → ${q.status()} (expected 400 before lookup)`);
+    let last = 0;
+    for (let i = 0; i < 40 && last !== 429; i++) {
+      last = (await request.get(`/wp-json/momos/v1/reservations/ZZZZZZZ${i % 10}?lang=en`, { headers: { 'X-Momo-Token': token } })).status();
+    }
+    expect(last, 'status_ip limit reached').toBe(429);
+    const ra = await request.get(`/wp-json/momos/v1/reservations/${real}?lang=en`, { headers: { 'X-Momo-Token': token } });
+    const rb = await request.get('/wp-json/momos/v1/reservations/YYYYYYYY?lang=en', { headers: { 'X-Momo-Token': token } });
+    const ta = norm(await ra.text());
+    const tb = norm(await rb.text());
+    if (ta !== tb) problems.push(`429 body differs for an existing reference:\n  real:    ${ta}\n  unknown: ${tb}`);
+    expect(problems, problems.join('\n')).toEqual([]);
+  } finally {
+    clearThrottle();
+    wpEval(`$v = json_decode( ${JSON.stringify(prevLimit)}, true ); null === $v ? delete_option( 'momo_rate_status_ip_per_hour' ) : update_option( 'momo_rate_status_ip_per_hour', $v, false ); echo 'ok';`);
   }
-  expect(last, 'status_ip limit reached').toBe(429);
-  const ra = await request.get(`/wp-json/momos/v1/reservations/${real}?lang=en`, { headers: { 'X-Momo-Token': token } });
-  const rb = await request.get('/wp-json/momos/v1/reservations/YYYYYYYY?lang=en', { headers: { 'X-Momo-Token': token } });
-  const ta = norm(await ra.text());
-  const tb = norm(await rb.text());
-  if (ta !== tb) problems.push(`429 body differs for an existing reference:\n  real:    ${ta}\n  unknown: ${tb}`);
-  clearThrottle();
-  expect(problems, problems.join('\n')).toEqual([]);
 });
 
 // ---------------------------------------------------------------- core wp/v2 surface

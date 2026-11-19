@@ -105,7 +105,7 @@ final class CertificateExpiryJob {
 	private static function alert( int $cert_id, string $variant, string $days ): int {
 		$sent = 0;
 		foreach ( self::recipients() as $r ) {
-			$dedupe  = 'cert:' . $cert_id . ':' . $days . ':' . substr( Hash::hmac( $r['email'] ), 0, 16 );
+			$dedupe  = 'cert:' . $cert_id . ':' . $days . ':' . substr( Hash::purpose( 'email', strtolower( trim( $r['email'] ) ) ), 0, 16 ); // Same purpose-separated hash as the Notification recipient_hash (DEC-059, QA-075).
 			$context = [
 				'certificate_id' => $cert_id,
 				'variant'        => $variant,

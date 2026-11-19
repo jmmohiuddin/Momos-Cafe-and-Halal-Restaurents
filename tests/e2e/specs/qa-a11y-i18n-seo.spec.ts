@@ -298,11 +298,16 @@ test.describe('prohibited terms on rendered pages (qa.md §7.7, TC-RES-021, TC-D
 test.describe('analytics privacy with a GTM container configured (TC-ANL-004/005/007/010, DEC-066)', () => {
 	test.describe.configure({ mode: 'serial' });
 	test.skip(!HAS_WP, 'needs MOMOS_DB_NAME to configure a GTM container ID');
+	let fixture = false;
 	test.beforeAll(() => {
 		wp('eval', '\\Momos\\Kernel\\Settings::set("momo_gtm_container_id","GTM-QA11Y01");');
-		try { wp('eval-file', 'tests/e2e/fixtures/reservation-fixture.php'); } catch { /* rate limits stay as they are */ }
+		try { wp('eval-file', 'tests/e2e/fixtures/reservation-fixture.php'); fixture = true; } catch { /* rate limits stay as they are */ }
 	});
-	test.afterAll(() => { wp('eval', '\\Momos\\Kernel\\Settings::set("momo_gtm_container_id","");'); });
+	test.afterAll(() => {
+		wp('eval', '\\Momos\\Kernel\\Settings::set("momo_gtm_container_id","");');
+		// E2E isolation: remove XEA/XEB, their staff and reservations, and restore the rate limits for later specs.
+		if (fixture) wp('eval-file', 'tests/e2e/fixtures/reservation-fixture.php', 'teardown');
+	});
 
 	async function spy(page: Page): Promise<string[]> {
 		const hits: string[] = [];

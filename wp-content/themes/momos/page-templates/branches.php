@@ -12,6 +12,9 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 $momos_branches = class_exists( \Momos\Presentation\View\BranchLinks::class ) ? \Momos\Presentation\View\BranchLinks::all() : [];
+if ( $momos_branches ) {
+	\Momos\Presentation\View\Cards::prime( array_column( $momos_branches, 'id' ) );
+}
 get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => momos_s( 'nav.branches' ), 'lead' => momos_s( 'branch.dir.intro' ) ] );
 ?>
 <section class="momo-container momo-section" aria-label="<?php echo esc_attr( momos_s( 'nav.branches' ) ); ?>">

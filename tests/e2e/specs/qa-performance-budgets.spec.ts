@@ -3,8 +3,9 @@
  *
  * Sources: Doc 04/09 NFR-PERF-01..04; Doc 12 TC-PERF-001 (lab CWV), TC-PERF-002 (TTFB, local proxy), TC-PERF-003
  * (page weight), TC-PERF-005 (inbox with 10,000 rows), TC-PERF-006 (cache correctness), TC-I18N-004 (fonts);
- * Doc 09 §1.9 U1 (momos-ui.css ≤ 30 KB minified) and §5 supporting budgets (momos JS ≤ 10 KB gzip on public pages,
- * ≤ 40 KB on the reservation page); Doc 08 §2.3.4 / i18n-seo-analytics §4.3 (per-language font budgets),
+ * Doc 09 §1.9 U1 (momos-ui.css ≤ 50 KB minified / 10 KB gzip — CHG-006, was 30 KB) and §5 supporting budgets (momos JS ≤ 10 KB gzip on public pages,
+ * ≤ 40 KB on the reservation page); Doc 08 §2.3.4 / i18n-seo-analytics §4.3 (per-language font budgets; ja ≤ 650 KB
+ * per page — CHG-008),
  * Doc 08 §2.10 + ui-design-system §10 (hero ≤ 200 KB, cards ≤ 80 KB, WebP/AVIF, explicit width/height,
  * hero fetchpriority=high, others lazy), gaps.md §4.1 (Cache-Control per response type), SEC-032.
  *
@@ -47,7 +48,9 @@ const TEMPLATES: Record<string, string> = {
 /** Allowed font families per page language (i18n-seo-analytics §4.3, TC-I18N-004). */
 const FONT_RULES: Record<Lang, { families: string[]; scriptBudget: number; latinBudget: number; maxFiles: number | null }> = {
 	en: { families: ['epilogue', 'plus-jakarta-sans'], scriptBudget: 0, latinBudget: 140 * KB, maxFiles: 6 },
-	ja: { families: ['noto-sans-jp'], scriptBudget: 300 * KB, latinBudget: 0, maxFiles: null /* §21 C-9: unicode-range slices */ },
+	// CHG-008 (CTO interim approval, QA-054): Japanese ≤ 650 KB per page (Noto Sans JP 400 + 700 in unicode-range
+	// slices) instead of the provisional 300 KB; the other languages keep their Doc 08 §2.3.4 budgets.
+	ja: { families: ['noto-sans-jp'], scriptBudget: 650 * KB, latinBudget: 0, maxFiles: null /* §21 C-9: unicode-range slices */ },
 	ar: { families: ['noto-naskh-arabic', 'plus-jakarta-sans'], scriptBudget: 120 * KB, latinBudget: 70 * KB, maxFiles: 6 },
 	ur: { families: ['noto-nastaliq-urdu', 'plus-jakarta-sans'], scriptBudget: 450 * KB, latinBudget: 70 * KB, maxFiles: 6 },
 	hi: { families: ['noto-sans-devanagari', 'plus-jakarta-sans'], scriptBudget: 160 * KB, latinBudget: 70 * KB, maxFiles: 6 },
@@ -197,13 +200,16 @@ test.describe('TC-PERF-003 / TC-I18N-004 — page weight, fonts and images per l
 
 // ------------------------------------------------------------------------------------------------------------
 test.describe('Doc 09 U1 and §5 — CSS and JS budgets', () => {
-	test('U1: momos-ui.css ≤ 30 KB minified', async ({ request }) => {
+	// CHG-006 (CTO approved, QA-056): budget raised from 30 KB to 50 KB minified / 10 KB gzip.
+	test('U1: momos-ui.css ≤ 50 KB minified / 10 KB gzip (CHG-006)', async ({ request }) => {
 		const html = await (await request.get(`${BASE}/`)).text();
 		const href = (html.match(/href='([^']*momos-ui\.css[^']*)'/) || [])[1];
 		expect(href, 'momos-ui.css enqueued').toBeTruthy();
 		const css = await (await request.get(href)).text();
 		const min = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{};:,>])\s*/g, '$1').replace(/;}/g, '}').trim();
-		expect(Buffer.byteLength(min), `momos-ui.css minified ${(Buffer.byteLength(min) / KB).toFixed(1)} KB (raw ${(Buffer.byteLength(css) / KB).toFixed(1)} KB)`).toBeLessThanOrEqual(30 * KB);
+		expect(Buffer.byteLength(min), `momos-ui.css minified ${(Buffer.byteLength(min) / KB).toFixed(1)} KB (raw ${(Buffer.byteLength(css) / KB).toFixed(1)} KB)`).toBeLessThanOrEqual(50 * KB);
+		const gz = zlib.gzipSync(Buffer.from(min), { level: 9 }).length;
+		expect(gz, `momos-ui.css minified + gzip ${(gz / KB).toFixed(1)} KB`).toBeLessThanOrEqual(10 * KB);
 	});
 
 	test('render-blocking font CSS stays small (fonts-{lang}.css ≤ 14 KB gzip) — every language', async ({ request }) => {
@@ -495,6 +501,14 @@ echo (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t}" );`;
 		const f = path.join(os.tmpdir(), `qa-perf-gen-${process.pid}.php`);
 		fs.writeFileSync(f, php);
 		try { wp('eval-file', f); } finally { fs.unlinkSync(f); }
+	});
+
+	// E2E isolation: remove the generated rows (external_ref QAPERF) again, so later specs do not find thousands of
+	// synthetic reservations (e.g. qa-staff-daily-tasks: a closure day would turn into the "affected reservations" step).
+	test.afterAll(() => {
+		wp('eval', `global $wpdb; $r = \\Momos\\Kernel\\Db\\Tables::reservations(); $ids = "SELECT id FROM {$r} WHERE external_ref = 'QAPERF'";
+			foreach ( [ \\Momos\\Kernel\\Db\\Tables::notifications(), \\Momos\\Kernel\\Db\\Tables::events() ] as $t ) { $wpdb->query( "DELETE FROM {$t} WHERE reservation_id IN ( SELECT id FROM ( {$ids} ) x )" ); }
+			echo (int) $wpdb->query( "DELETE FROM {$r} WHERE external_ref = 'QAPERF'" );`);
 	});
 
 	for (const who of ['demo_ho', 'demo_bm_kitahama']) {

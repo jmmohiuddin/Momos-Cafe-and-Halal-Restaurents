@@ -12,7 +12,7 @@ use Momos\Menu\Service\MenuQueryService;
 /**
  * Menu URLs (spec §3.1): `/menu/{category}/` and `/menu/{category}/{dish}/` after the language prefix.
  * A dish requested under a non-primary category → 301 to the canonical URL; retired dish → 301 to its
- * primary category in the same language; unpublished / untranslated → 404; old slugs → 301.
+ * primary category in the same language; unpublished / untranslated / sample in production → 404; old slugs → 301.
  * Rules are flushed only by migrations (Kernel Runner).
  */
 final class MenuRewrite {
@@ -98,7 +98,8 @@ final class MenuRewrite {
 		if ( ! $dish ) {
 			$ids  = get_posts( [ 'post_type' => ContentTypes::DISH, 'post_status' => 'publish', 'meta_key' => '_wp_old_slug', 'meta_value' => $slug, 'posts_per_page' => 1, 'fields' => 'ids' ] ); // phpcs:ignore
 			$dish = $ids ? get_post( (int) $ids[0] ) : null;
-			if ( $dish && MenuQueryService::is_displayable( $dish, $lang ) && null !== ( $path = self::dish_path( $dish ) ) ) {
+			$path = $dish && MenuQueryService::is_displayable( $dish, $lang ) ? self::dish_path( $dish ) : null;
+			if ( null !== $path ) {
 				self::redirect( Url::to( $path, $lang ) );
 			}
 			self::not_found();
@@ -122,8 +123,8 @@ final class MenuRewrite {
 			self::not_found();
 			return;
 		}
-		if ( ! \Momos\Kernel\I18n\Translations::term_visible( $term, $lang ) ) {
-			self::not_found();
+		if ( ! MenuQueryService::is_category_public( $term, $lang ) ) {
+			self::not_found(); // Untranslated, or a sample category on the live site (BR-CORP-03).
 			return;
 		}
 		$branch = MenuQueryService::branch_context( isset( $_GET['branch'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['branch'] ) ) : null ); // phpcs:ignore

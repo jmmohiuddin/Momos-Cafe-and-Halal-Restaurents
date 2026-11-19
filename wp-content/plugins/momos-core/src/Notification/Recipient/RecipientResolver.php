@@ -19,9 +19,13 @@ use Momos\Kernel\Support\Hash;
  * user with that address → their admin locale; else the row's language; else ja (FR-I18N-010(d)).
  */
 final class RecipientResolver {
-	/** Keyed hash of a normalised address (DEC-059); kept until row deletion. */
+	/**
+	 * Keyed hash of a normalised address (DEC-059); kept until row deletion. Purpose-separated
+	 * (`email|…`, access-security-privacy §9.1, QA-075) so it never equals an ip/ua/rl/audit hash.
+	 * The single helper for `recipient_hash`: DSR lookups and other modules' dedupe keys use it too.
+	 */
 	public static function hash( string $email ): string {
-		return Hash::hmac( self::normalize( $email ), 'MOMOS_HASH_PEPPER' );
+		return Hash::purpose( 'email', self::normalize( $email ) );
 	}
 
 	public static function normalize( string $email ): string {

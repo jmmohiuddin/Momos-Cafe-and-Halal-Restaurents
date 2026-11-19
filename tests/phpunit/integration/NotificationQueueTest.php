@@ -107,6 +107,59 @@ final class NotificationQueueTest extends NotificationTestCaseTest {
 		$this->assertCount( $before, $this->rows() );
 	}
 
+	/**
+	 * CHG-011: the Reservation module queues the rows inside its transaction; the after-commit
+	 * subscriber only fills gaps and never adds a second row, even when the version it reads after
+	 * commit differs from the one the in-transaction trigger used.
+	 */
+	public function test_chg_011_subscriber_only_fills_gaps_after_the_in_transaction_trigger(): void {
+		$a = $this->branch( 'QAA', self::recipients( 'qaa-1@momos.example', 'qaa-2@momos.example' ) );
+
+		// T1: trigger rows exist → the hook adds nothing.
+		$r = $this->reservation( $a );
+		\Momos\Reservation\Service\NotificationTrigger::created( $r, $a );
+		$this->assertCount( 1, $this->rows( 'E01' ) );
+		$this->assertCount( 2, $this->rows( 'E07' ) );
+		do_action( 'momos/reservation/created', $r );
+		$this->assertCount( 1, $this->rows( 'E01' ), 'no second E01' );
+		$this->assertCount( 2, $this->rows( 'E07' ), 'no second E07 set' );
+
+		// T2 queued by the trigger at version 2; the row now reads version 3 → still one E02.
+		$c = $this->reservation( $a, [ 'status' => 'confirmed', 'version' => 3 ] );
+		\Momos\Reservation\Service\NotificationTrigger::status_changed( $c, $a, 'pending', 'confirmed', 2, 'staff', null );
+		do_action( 'momos/reservation/status_changed', $c, 'pending', 'confirmed', [ 'type' => 'staff', 'id' => 1 ] );
+		$this->assertSame( [ 'res:' . $c . ':E02:2' ], array_column( $this->rows( 'E02' ), 'dedupe_key' ) );
+
+		// T4a customer cancel: E04 + E09 from the trigger at version 2, hook reads version 4.
+		$x = $this->reservation( $a, [ 'status' => 'cancelled', 'cancelled_by' => 'customer', 'version' => 4 ] );
+		\Momos\Reservation\Service\NotificationTrigger::status_changed( $x, $a, 'pending', 'cancelled', 2, 'customer', null );
+		do_action( 'momos/reservation/status_changed', $x, 'pending', 'cancelled', [ 'type' => 'customer' ] );
+		$this->assertCount( 1, $this->rows( 'E04' ) );
+		$this->assertCount( 2, $this->rows( 'E09' ), 'one E09 per active branch recipient, once' );
+
+		// N3: E06 per version — the trigger's row is found, a later version still gets its own row.
+		$m = $this->reservation( $a, [ 'status' => 'pending', 'version' => 5 ] );
+		\Momos\Reservation\Service\NotificationTrigger::modified( $m, $a, 'pending', 5 );
+		do_action( 'momos/reservation/modified', $m, [], [], [ 'type' => 'staff' ] );
+		$this->assertSame( [ 'res:' . $m . ':E06:5' ], array_column( $this->rows( 'E06' ), 'dedupe_key' ) );
+		$this->update_reservation( $m, [ 'version' => 6 ] );
+		do_action( 'momos/reservation/modified', $m, [], [], [ 'type' => 'staff' ] );
+		$this->assertCount( 2, $this->rows( 'E06' ), 'a new modification (gap) is still filled' );
+
+		// Gap: no trigger row (other write path) → the hook queues it.
+		$g = $this->reservation( $a, [ 'status' => 'expired', 'version' => 2 ] );
+		do_action( 'momos/reservation/status_changed', $g, 'pending', 'expired', [ 'type' => 'system' ] );
+		$this->assertCount( 1, $this->rows( 'E05' ) );
+	}
+
+	/** QA-075: recipient_hash is the `email` purpose HMAC (never equal to the bare pepper HMAC). */
+	public function test_qa_075_recipient_hash_uses_the_email_purpose(): void {
+		$hash = RecipientResolver::hash( '  Aisha.Guest@Example.TEST ' );
+		$this->assertSame( \Momos\Kernel\Support\Hash::purpose( 'email', 'aisha.guest@example.test' ), $hash );
+		$this->assertNotSame( \Momos\Kernel\Support\Hash::hmac( 'aisha.guest@example.test' ), $hash );
+		$this->assertSame( substr( $hash, 0, 32 ), NotificationQueue::hash_suffix( 'aisha.guest@example.test' ) );
+	}
+
 	public function test_n3_modified_sends_e06_variant_by_status(): void {
 		$a = $this->branch( 'QAA', self::recipients( 'qaa@momos.example' ) );
 		$r = $this->reservation( $a, [ 'status' => 'confirmed', 'version' => 3 ] );

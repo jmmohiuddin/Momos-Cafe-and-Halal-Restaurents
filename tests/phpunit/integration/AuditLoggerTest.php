@@ -10,6 +10,7 @@ use Momos\Audit\AuditLogger;
 use Momos\Audit\AuditRepository;
 use Momos\Audit\Job\AuditRetentionJob;
 use Momos\Kernel\Db\Tables;
+use Momos\Kernel\Support\Hash;
 
 /**
  * Audit log (FR-ADM-004, SEC-080…084, DEC-034/059; TC-ADM-002/011, TC-ACL-018, TC-PRV-008/017,
@@ -77,6 +78,38 @@ final class AuditLoggerTest extends AccessTestCaseTest {
 		$this->assertSame( [], AuditRepository::verify( $first )['failed'] );
 		$wpdb->delete( Tables::audit(), [ 'id' => $rows[2]['id'] ] );
 		$this->assertContains( (int) $rows[3]['id'], AuditRepository::verify( $first )['failed'], 'deleted row breaks the chain' );
+	}
+
+	/** QA-075: the chain key is the kernel pepper (purpose `audit`, spec §6 item 4), so existing chains keep verifying. */
+	public function test_chain_key_is_the_kernel_pepper_qa_075(): void {
+		$this->assertSame( Hash::key(), AuditLogger::key() );
+		$row  = [ 'occurred_at' => '2026-11-18 01:02:03', 'actor_type' => 'system', 'action' => 'retention.run', 'object_type' => 'audit' ];
+		$prev = str_repeat( 'a', 64 );
+		$mac  = AuditLogger::hmac( $prev, $row );
+		$this->assertSame( Hash::purpose( 'audit', $prev . '|' . AuditLogger::canonical( $row ) ), $mac );
+		$this->assertNotSame( hash_hmac( 'sha256', 'audit|' . $prev . '|' . AuditLogger::canonical( $row ), '' ), $mac, 'never an unkeyed chain' );
+	}
+
+	/**
+	 * QA-075: a production install without MOMOS_HASH_PEPPER / MOMOS_HMAC_KEY must not compute an unkeyed (forgeable)
+	 * chain. The test bootstrap fixes MOMOS_ENV=development and defines the key, so the production path runs in a
+	 * child PHP process with only the plugin autoloader and minimal WordPress stubs.
+	 */
+	public function test_chain_key_fails_closed_in_production_without_pepper_qa_075(): void {
+		$autoload = dirname( __DIR__, 3 ) . '/wp-content/plugins/momos-core/vendor/autoload.php';
+		$code     = 'define( "MOMOS_ENV", "production" ); define( "MOMOS_LOG_FILE", "/dev/null" );'
+			. 'function do_action( ...$a ) {} function wp_generate_uuid4() { return "00000000-0000-4000-8000-000000000000"; }'
+			. 'function wp_json_encode( $v, $f = 0 ) { return json_encode( $v, $f ); }'
+			. 'require ' . var_export( $autoload, true ) . ';'
+			. 'foreach ( [ "key" => fn() => \Momos\Audit\AuditLogger::key(), "hmac" => fn() => \Momos\Audit\AuditLogger::hmac( "", [ "action" => "x" ] ) ] as $k => $f ) {'
+			. ' try { $f(); echo $k, "=open\n"; } catch ( \RuntimeException $e ) { echo $k, "=closed\n"; } }';
+		$env      = array_diff_key( getenv(), array_flip( [ 'MOMOS_HASH_PEPPER', 'MOMOS_HMAC_KEY' ] ) );
+		$proc     = proc_open( [ PHP_BINARY, '-n', '-r', $code ], [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes, null, $env );
+		$this->assertIsResource( $proc );
+		$out = (string) stream_get_contents( $pipes[1] );
+		$err = (string) stream_get_contents( $pipes[2] );
+		proc_close( $proc );
+		$this->assertSame( "key=closed\nhmac=closed\n", $out, $err );
 	}
 
 	public function test_access_denied_deduplicated_per_request(): void {

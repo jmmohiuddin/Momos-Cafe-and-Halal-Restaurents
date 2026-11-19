@@ -53,7 +53,8 @@ define( 'MOMOS_SMTP_PORT', (int) ( getenv( 'MOMOS_SMTP_PORT' ) ?: 587 ) );
 define( 'MOMOS_SMTP_SECURE', 'tls' );
 define( 'MOMOS_SMTP_USER', getenv( 'MOMOS_SMTP_USER' ) );
 define( 'MOMOS_SMTP_PASS', getenv( 'MOMOS_SMTP_PASS' ) );
-define( 'MOMOS_SMTP_FROM', getenv( 'MOMOS_SMTP_FROM' ) );       // e.g. no-reply@momoscafehalal.com (SPF/DKIM/DMARC aligned)
+define( 'MOMOS_MAIL_FROM', getenv( 'MOMOS_MAIL_FROM' ) );       // From address on the brand domain, e.g. reservations@example.com (SPF/DKIM/DMARC aligned)
+// Optional: define( 'MOMOS_MAIL_BOUNCE', getenv( 'MOMOS_MAIL_BOUNCE' ) ); define( 'MOMOS_MAIL_DOMAIN', getenv( 'MOMOS_MAIL_DOMAIN' ) );
 
 // Private evidence store outside the web root (FR-DIET-001, SA-001 F098) — include in backups.
 define( 'MOMOS_EVIDENCE_DIR', getenv( 'MOMOS_EVIDENCE_DIR' ) ?: dirname( __DIR__ ) . '/momos-private/evidence' );

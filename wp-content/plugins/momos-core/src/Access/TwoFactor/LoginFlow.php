@@ -155,7 +155,7 @@ final class LoginFlow {
 		}
 		self::complete_login( $user );
 		$requested = self::is_default_target( $redirect_to ) ? '' : $redirect_to;
-		$target    = (string) apply_filters( 'login_redirect', '' !== $requested ? $requested : admin_url(), $requested, $user );
+		$target    = (string) apply_filters( 'login_redirect', '' !== $requested ? $requested : admin_url(), $requested, $user ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook (completes the core login).
 		wp_safe_redirect( wp_validate_redirect( $target, admin_url() ) );
 		exit;
 	}
@@ -170,7 +170,7 @@ final class LoginFlow {
 			self::$passing = false;
 		}
 		wp_set_current_user( (int) $user->ID );
-		do_action( 'wp_login', $user->user_login, $user );
+		do_action( 'wp_login', $user->user_login, $user ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook (completes the core login).
 	}
 
 	private static function back_to_login( string $reason ): never {

@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $momos_items = $args['items'] ?? null;
-if ( null === $momos_items && class_exists( '\Momos\Seo\Breadcrumbs' ) && method_exists( '\Momos\Seo\Breadcrumbs', 'items' ) ) {
+if ( null === $momos_items && class_exists( '\Momos\Seo\Breadcrumbs' ) ) {
 	$momos_items = \Momos\Seo\Breadcrumbs::items();
 }
 if ( null === $momos_items ) {

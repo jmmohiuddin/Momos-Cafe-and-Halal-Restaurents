@@ -240,7 +240,7 @@ final class DietaryFields {
 		return in_array( $n, array_map( static fn( $x ) => mb_strtolower( trim( (string) $x ) ), [ $u->display_name, $u->user_login, trim( $u->first_name . ' ' . $u->last_name ) ] ), true );
 	}
 
-	/** @param array<string,mixed> $all */
+	/** @param mixed $rows repeater rows (list of `term_id` arrays) */
 	public static function validate_custom_allergens( mixed $rows ): ?string {
 		$seen = [];
 		foreach ( (array) $rows as $row ) {

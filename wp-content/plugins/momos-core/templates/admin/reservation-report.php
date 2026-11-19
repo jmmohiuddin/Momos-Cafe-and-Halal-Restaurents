@@ -26,7 +26,7 @@ $table = static function ( string $caption, string $col, array $groups ) use ( $
 			<?php
 			foreach ( ReservationStatus::cases() as $s ) :
 				?>
-				<th scope="col"><?php echo esc_html( $s->staffLabel() ); ?></th><?php endforeach; ?>
+				<th scope="col"><?php echo esc_html( $s->staff_label() ); ?></th><?php endforeach; ?>
 			<th scope="col"><?php esc_html_e( 'Acceptance rate', 'momos-core' ); ?></th>
 			<th scope="col"><?php esc_html_e( 'Expiry rate', 'momos-core' ); ?></th>
 			<th scope="col"><?php esc_html_e( 'No-show rate', 'momos-core' ); ?></th>

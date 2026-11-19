@@ -187,6 +187,35 @@ final class ReservationApiQaFixesTest extends ReservationTestCaseTest {
 		$this->assertContains( 'access.denied', array_column( $this->audits, 0 ) );
 	}
 
+	public function test_export_with_a_branch_outside_the_scope_is_refused_with_403_and_audited(): void {
+		$this->make_branch( 'QRB' );
+		$user = $this->staff( 'momo_branch_manager', [ $this->a ] );
+		( new \WP_User( $user ) )->add_cap( 'momo_export_reservations' ); // a scoped exporter (defence in depth)
+		wp_set_current_user( $user );
+		$status = null;
+		$handler = static function () use ( &$status ) {
+			return static function ( $message, $title, $args ) use ( &$status ) {
+				$status = (int) ( is_array( $args ) ? ( $args['response'] ?? 0 ) : $args );
+				throw new \WPDieException( (string) $message );
+			};
+		};
+		add_filter( 'wp_die_handler', $handler, 99 );
+		$_POST = [ 'branch' => [ 'QRB' ], 'reason' => 'Monthly review', 'date_from' => '2026-12-01', 'date_to' => '2026-12-31' ];
+		$_REQUEST['_wpnonce'] = wp_create_nonce( \Momos\Reservation\Admin\ExportHandler::ACTION );
+		try {
+			\Momos\Reservation\Admin\ExportHandler::handle();
+			$this->fail( 'foreign branch export must be refused' );
+		} catch ( \WPDieException $e ) {
+			unset( $e );
+		} finally {
+			remove_filter( 'wp_die_handler', $handler, 99 );
+			$_POST    = [];
+			$_REQUEST = [];
+		}
+		$this->assertSame( 403, $status );
+		$this->assertContains( 'access.denied', array_column( $this->audits, 0 ) );
+	}
+
 	// ------------------------------------------------------------------ QA-043 TEST banner
 
 	public function test_test_banner_is_rendered_only_for_viewers_offered_the_test_branch(): void {
@@ -203,6 +232,59 @@ final class ReservationApiQaFixesTest extends ReservationTestCaseTest {
 		wp_set_current_user( $this->staff( 'momo_head_office' ) );
 		$this->assertStringContainsString( 'data-res-test-banner', $render(), 'assigned staff keep the banner' );
 		wp_set_current_user( 0 );
+	}
+
+	public function test_test_banner_is_visible_only_while_the_test_branch_is_selected(): void {
+		$this->make_branch( 'QRT', [ 'momo_is_test_branch' => '1' ] );
+		$render = static function (): string {
+			ob_start();
+			get_template_part( 'template-parts/reservation/form', null, CustomerPages::form_view( 'ja' ) );
+			return (string) ob_get_clean();
+		};
+		wp_set_current_user( $this->staff( 'momo_head_office' ) );
+		$_GET['branch'] = 'QRA';
+		$this->assertMatchesRegularExpression( '#data-res-test-banner hidden>#', $render(), 'another branch selected: present for the script, hidden' );
+		$_GET['branch'] = 'QRT';
+		$html = $render();
+		$this->assertMatchesRegularExpression( '#data-res-test-banner>#', $html, 'TEST selected: visible at first paint' );
+		$this->assertStringContainsString( esc_html( momos_t( 'res.test_banner', [], 'ja' ) ), $html );
+		wp_set_current_user( 0 );
+		$this->assertStringNotContainsString( 'data-res-test-banner', $render(), 'anonymous ?branch=QRT: no trace (TEST not offered)' );
+	}
+
+	// ------------------------------------------------------------------ CHG-010 / M8 process implies view
+
+	public function test_process_meta_cap_requires_the_view_primitive_and_the_branch(): void {
+		$id = $this->submitted( [ 'email' => 'm8@example.org' ] );
+		$rs = $this->staff( 'momo_reservation_staff', [ $this->a ] );
+		$this->assertSame( [ 'momo_view_reservations', 'momo_process_reservations' ], map_meta_cap( 'momo_process_reservation', $rs, $id ) );
+		$this->assertSame( [ 'momo_view_reservations' ], map_meta_cap( 'momo_view_reservation', $rs, $id ) );
+		$this->assertTrue( user_can( $rs, 'momo_process_reservation', $id ) );
+		$foreign = $this->staff( 'momo_reservation_staff', [ $this->make_branch( 'QRF' ) ] );
+		$this->assertSame( [ 'do_not_allow' ], map_meta_cap( 'momo_process_reservation', $foreign, $id ), 'branch scope kept' );
+		$user = new \WP_User( $rs );
+		$user->add_cap( 'momo_view_reservations', false ); // per-user deny of view only (vendor-style)
+		$this->assertTrue( user_can( $rs, 'momo_process_reservations' ) );
+		$this->assertFalse( user_can( $rs, 'momo_process_reservation', $id ), 'processing exposes the record: needs view too' );
+		$this->assertFalse( \Momos\Reservation\Service\ReservationAccess::can_process( $this->row( $id ), $rs ) );
+	}
+
+	// ------------------------------------------------------------------ QA-075 purpose-separated hashes
+
+	public function test_abuse_hashes_and_rate_limit_keys_use_separate_hmac_purposes(): void {
+		$prev                       = $_SERVER['REMOTE_ADDR'] ?? null;
+		$_SERVER['REMOTE_ADDR']     = '198.51.100.44';
+		$_SERVER['HTTP_USER_AGENT'] = 'QA-075 agent';
+		try {
+			$row = $this->row( $this->submitted( [ 'email' => 'hash@example.org' ] ) );
+		} finally {
+			unset( $_SERVER['HTTP_USER_AGENT'] );
+			$_SERVER['REMOTE_ADDR'] = $prev;
+		}
+		$this->assertSame( Hash::purpose( 'ip', '198.51.100.44' ), $row['ip_hash'] );
+		$this->assertSame( Hash::purpose( 'ua', 'QA-075 agent' ), $row['user_agent_hash'] );
+		$this->assertNotSame( Hash::hmac( '198.51.100.44' ), $row['ip_hash'], 'not the bare pepper HMAC' );
+		$this->assertNotSame( substr( (string) $row['ip_hash'], 0, 32 ), substr( Hash::purpose( 'rl', '198.51.100.44' ), 0, 32 ), 'rate-limit subject differs from ip_hash' );
 	}
 
 	// ------------------------------------------------------------------ QA-015 / QA-017 / QA-047 form markup
@@ -233,8 +315,8 @@ final class ReservationApiQaFixesTest extends ReservationTestCaseTest {
 		$ip     = '198.51.100.7';
 		$window = 3600;
 		$start  = intdiv( Clock::utc()->getTimestamp(), $window ) * $window;
-		$key    = 'momos_rl:res_ip:' . substr( Hash::hmac( $ip, 'MOMOS_HASH_PEPPER' ), 0, 32 ) . ':' . $start;
-		$lock   = 'momos_' . substr( hash( 'sha256', 'rl:' . $key ), 0, 40 );
+		$key    = 'momos_rl:res_ip:' . substr( Hash::purpose( 'rl', $ip ), 0, 32 ) . ':' . $start;
+		$lock   = \Momos\Kernel\Db\NamedLock::key( 'rl:' . $key ); // Server-wide lock name (scoped to this database).
 		$other  = new \wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
 		$this->assertSame( '1', (string) $other->get_var( $other->prepare( 'SELECT GET_LOCK(%s, 0)', $lock ) ) );
 		$held = RateLimiter::hit( 'res_ip', $ip );
@@ -255,6 +337,8 @@ final class ReservationApiQaFixesTest extends ReservationTestCaseTest {
 		$this->assertStringContainsString( "status IN ('pending','confirmed')", $some );
 		$t = Tables::reservations();
 		$this->assertNotNull( $wpdb->get_var( "SHOW INDEX FROM {$t} WHERE Key_name = 'idx_start'" ) ); // phpcs:ignore
+		$cols = (array) $wpdb->get_col( "SELECT Column_name FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{$t}' AND INDEX_NAME = 'idx_handled_start' ORDER BY SEQ_IN_INDEX" ); // phpcs:ignore
+		$this->assertSame( [ 'handled_by', 'requested_start_utc' ], $cols, 'M0031: unclaimed / mine views read in sort order' );
 	}
 
 	// ------------------------------------------------------------------ QA-060 CORS

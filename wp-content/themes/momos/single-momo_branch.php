@@ -48,6 +48,7 @@ $momos_notices = [];
 if ( class_exists( \Momos\Branch\Query\OfferQuery::class ) ) {
 	try {
 		$momos_offers  = \Momos\Branch\Query\OfferQuery::for_branch( $momos_id, $momos_lang );
+		\Momos\Presentation\View\Cards::prime( $momos_offers, true );
 		$momos_notices = \Momos\Branch\Query\NoticeQuery::for_branch( $momos_id, $momos_lang, 24, null, true );
 	} catch ( \Throwable $e ) {
 		$momos_offers = [];
@@ -101,11 +102,16 @@ $momos_trail    = [
 		<div class="momo-card momo-branch-summary">
 			<?php momos_component( 'open-status', [ 'status' => $momos_b['open'] ?? null, 'branch_id' => $momos_id ] ); ?>
 			<?php if ( is_array( $momos_today ) && empty( $momos_b['temp_closed'] ) ) : ?>
-				<p class="momo-branch-summary__today"><?php momos_the_icon( 'clock', 'momo-icon--sm' ); ?><span><?php if ( $momos_today['closed'] ) : ?><?php echo esc_html( wp_strip_all_tags( (string) $momos_today['closed_html'] ) ); ?><?php else : ?><span class="momo-branch-summary__label"><?php echo esc_html( momos_s( 'branch.today' ) ); ?></span> <?php echo wp_kses( (string) $momos_today['hours_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?><?php endif; ?>
-				<?php
-				if ( '' !== $momos_today['lo_html'] ) :
-					?>
-					<span class="momo-muted">(<?php echo esc_html( momos_s( 'branch.hours.last_order' ) ); ?> <?php echo wp_kses( (string) $momos_today['lo_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>)</span><?php endif; ?></span></p>
+				<p class="momo-branch-summary__today"><?php momos_the_icon( 'clock', 'momo-icon--sm' ); ?><span>
+					<?php if ( $momos_today['closed'] ) : ?>
+						<?php echo esc_html( wp_strip_all_tags( (string) $momos_today['closed_html'] ) ); ?>
+					<?php else : ?>
+						<span class="momo-branch-summary__label"><?php echo esc_html( momos_s( 'branch.today' ) ); ?></span> <?php echo wp_kses( (string) $momos_today['hours_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>
+					<?php endif; ?>
+					<?php if ( '' !== $momos_today['lo_html'] ) : ?>
+						<span class="momo-muted">(<?php echo esc_html( momos_s( 'branch.hours.last_order' ) ); ?> <?php echo wp_kses( (string) $momos_today['lo_html'], [ 'bdi' => [ 'dir' => true ] ] ); ?>)</span>
+					<?php endif; ?>
+				</span></p>
 			<?php endif; ?>
 			<div class="momo-branch-summary__actions">
 				<?php

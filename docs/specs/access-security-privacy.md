@@ -251,7 +251,15 @@ Legend: Y granted · Y(b) granted, object checks limited to assigned branches ·
 | [IMPL] `momo_view_notification_log` | Y | Y | — | — | — | — | — |
 
 \* `DISALLOW_UNFILTERED_HTML` removes `unfiltered_html` from every role in production (SEC-040).
-Vendor accounts (`momo_vendor = 1`) always carry per-user `false` for the four PII caps (SEC-008). CI dumps the effective
+Vendor accounts (`momo_vendor = 1`) always carry per-user `false` for six capabilities (`vendor_denies` in
+`config/capabilities.php`, SEC-008, CHG-010/QA-001): the four PII caps `momo_view_customer_pii`, `momo_view_reservations`,
+`momo_export_reservations`, `momo_manage_dsr`, plus `momo_process_reservations` and `momo_view_notification_log` (so a
+vendor cannot modify, decide, annotate or resend reservations or read the notification log). Break-glass (§5.6) lifts
+only `momo_view_customer_pii` and `momo_view_reservations` (`RoleInstaller::BREAKGLASS_LIFTS`); the other four stay denied.
+A vendor also cannot hand these capabilities to someone else (QA-064): `editable_roles` drops every role whose capability
+set holds a vendor-withheld cap (the six above + `momo_manage_staff`, `MetaCapMapper::vendor_withheld_caps()`), so a vendor
+can neither create nor promote an account into such a role, and `edit_user`/`promote_user` on a non-vendor account that
+holds one of them maps to `do_not_allow`. CI dumps the effective
 capability set of a seeded user per role and compares it with this table (SEC-007, SEC-100, TC-ACL-001).
 Doc 05 §1.12 differs in three cells (BM `momo_view_audit_log`, MM/CE `momo_translate`, `momo_manage_certificates` as "DCA");
 this TRD table wins (CON-019; §17).
@@ -377,7 +385,7 @@ Alert when one user produces > ⟦10⟧ denials in an hour (SEC-013). Unauthenti
 | Disable | `momo_account_disabled = 1`; sessions destroyed; rows kept (inactive); login refused generically; open reservations show "(disabled user)" as handler; warn if the user's email is in any branch `notification_recipients` or HO list | `user.disabled` |
 | Enable | Clear flag; HO reviews kept branch rows before saving | `user.enabled` |
 | Delete | Not offered for anyone (row action removed, M9 `do_not_allow`); WP-CLI only outside production | — |
-| Vendor account | `momo_vendor = 1` set by ROLE-01 (Momo's); created/kept **disabled**; per-user denies on the four PII caps applied by `RoleInstaller::sync()` and `ProfileGuard` | `user.updated` [IMPL] |
+| Vendor account | `momo_vendor = 1` set by ROLE-01 (Momo's); created/kept **disabled**; per-user denies on the six `vendor_denies` caps (§3, CHG-010) applied by `RoleInstaller::sync()` and `ProfileGuard` | `user.updated` [IMPL] |
 | Vendor access window | Action "Enable vendor access" (cap `momo_manage_staff`, allowed on vendor-flagged users even when ROLE-01 — narrow exception to M9): sets `momo_access_expires_at` ≤ now + ⟦72 h⟧ and enables. Enforced in `authenticate`; `momos_job_access_expiry` (hourly + single action at expiry) re-disables and destroys sessions. Denies stay in force | `user.access_window_set` {expires_at} |
 | Break-glass | ROLE-01 non-vendor only, Owner approval reference required, duration ≤ ⟦8 h⟧ (9 h refused, TK-11-14); removes the denies for `momo_view_customer_pii` and `momo_view_reservations` only — **export and DSR stay denied** (TC-ACL-022); single scheduled action + hourly job restore them | `vendor.breakglass_granted` {until, ref} / `vendor.breakglass_revoked` |
 | Leaver | Disabled the same working day (HO procedure) | `user.disabled` |

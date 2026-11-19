@@ -39,10 +39,13 @@ final class PrivacyRetentionTest extends PrivacyTestCaseTest {
 		$id = $this->rich_reservation( $b, '2025-10-01' );
 		global $wpdb;
 		$status_counts_before = $wpdb->get_results( 'SELECT branch_id, status, requested_date, party_size, COUNT(*) n FROM ' . Tables::reservations() . ' GROUP BY branch_id, status, requested_date, party_size', ARRAY_A ); // phpcs:ignore
-		$hooks = [];
-		add_action( 'momos/reservation/anonymized', static function ( $rid ) use ( &$hooks ): void {
-			$hooks[] = $rid;
-		} );
+		$hooks                = [];
+		add_action(
+			'momos/reservation/anonymized',
+			static function ( $rid ) use ( &$hooks ): void {
+				$hooks[] = $rid;
+			}
+		);
 
 		RetentionJob::run();
 
@@ -135,8 +138,8 @@ final class PrivacyRetentionTest extends PrivacyTestCaseTest {
 
 	public function test_audit_rows_purged_through_audit_repository(): void {
 		global $wpdb;
-		$t      = Tables::audit();
-		$insert = static function ( string $action, string $when ) use ( $wpdb, $t ): int {
+		$t            = Tables::audit();
+		$insert       = static function ( string $action, string $when ) use ( $wpdb, $t ): int {
 			$wpdb->insert( $t, [ 'occurred_at' => $when, 'actor_type' => 'system', 'action' => $action, 'object_type' => 'settings' ] );
 			return (int) $wpdb->insert_id;
 		};
@@ -165,7 +168,7 @@ final class PrivacyRetentionTest extends PrivacyTestCaseTest {
 
 	public function test_lock_held_elsewhere_skips_run(): void {
 		$other = new \wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
-		$key   = 'momos_' . substr( hash( 'sha256', RetentionJob::LOCK ), 0, 40 );
+		$key   = \Momos\Kernel\Db\NamedLock::key( RetentionJob::LOCK ); // Server-wide lock name (scoped to this database).
 		$this->assertSame( '1', (string) $other->get_var( $other->prepare( 'SELECT GET_LOCK(%s, 0)', $key ) ) );
 		try {
 			$this->assertNull( RetentionJob::run() );
@@ -188,9 +191,12 @@ final class PrivacyRetentionTest extends PrivacyTestCaseTest {
 		global $wpdb;
 		$suppress = $wpdb->suppress_errors( true );
 		$alerts   = [];
-		add_action( 'momos/monitoring/alert', static function ( $type ) use ( &$alerts ): void {
-			$alerts[] = $type;
-		} );
+		add_action(
+			'momos/monitoring/alert',
+			static function ( $type ) use ( &$alerts ): void {
+				$alerts[] = $type;
+			}
+		);
 		$out = RetentionJob::run();
 		remove_filter( 'query', $fail );
 		$wpdb->suppress_errors( $suppress );
@@ -251,9 +257,12 @@ final class PrivacyRetentionTest extends PrivacyTestCaseTest {
 
 	public function test_watchdog_alerts_after_26_hours_without_success(): void {
 		$alerts = [];
-		add_action( 'momos/monitoring/alert', static function ( $type ) use ( &$alerts ): void {
-			$alerts[] = $type;
-		} );
+		add_action(
+			'momos/monitoring/alert',
+			static function ( $type ) use ( &$alerts ): void {
+				$alerts[] = $type;
+			}
+		);
 		update_option( RetentionJob::LAST_OPTION, [ 'last_ok_at' => '2026-11-18 00:30:00' ] ); // 24.5 h
 		RetentionJob::watch();
 		$this->assertSame( [], $alerts );

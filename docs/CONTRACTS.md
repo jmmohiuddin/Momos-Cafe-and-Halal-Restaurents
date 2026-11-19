@@ -72,6 +72,16 @@ Notification subscribes to the reservation hooks above (it owns *which* emails a
 per docs/specs/notifications.md) and fires `momos/notification/failed (int $notification_id, ?int $reservation_id)`;
 Reservation listens to set `needs_action_flag`.
 
+**CHG-011 (in-transaction notification rows).** For reservation transitions T1–T6 and the N3 modification, the
+notification rows are **not** created by the after-commit hooks: `Reservation\Service\NotificationTrigger` enqueues them
+through `Notification\Queue\NotificationQueue::enqueue()` **inside** the reservation's `Transaction::run()`, with the
+dedupe keys of notifications.md §4.2 (E01 + E07 per active branch recipient on create, the status/modification emails on
+the others). A failed insert rolls the transition back (`service_unavailable`, 503), so a reservation never commits
+without its rows (TC-RES-001, NFR-REL-01). The hooks above still fire after commit; Notification's
+`ReservationSubscriber` only fills gaps — it queues nothing when the reservation already has a row of that template's
+dedupe family — and keeps sole ownership of the events Reservation does not queue itself (SLA reminder/escalation and
+token re-issue E06 `new_link`).
+
 ## Access / Audit — owner: Access team
 - `momos_audit()` / `momos/audit/log` action (see src/functions.php) → Audit module writes `momo_audit_log`.
 - `momos_user_branch_ids()`, `momos_user_can_branch()` (src/functions.php; Access may short-circuit via filter `momos/access/user_branch_ids`).

@@ -57,7 +57,11 @@ final class ClaimResolver {
 	public static function brand_claim( ?string $lang = null ): array {
 		$lang = $lang ?? Locale::current();
 		foreach ( StatementRepository::all() as $key => $row ) {
-			if ( str_starts_with( $key, 'brand.' ) && 'brand.neutral' !== $key && null !== ( $text = StatementRepository::text( $key, $lang ) ) ) {
+			if ( ! str_starts_with( $key, 'brand.' ) || 'brand.neutral' === $key ) {
+				continue;
+			}
+			$text = StatementRepository::text( $key, $lang );
+			if ( null !== $text ) {
 				return [ 'template_key' => $key, 'statement' => $text, 'statement_available' => true ];
 			}
 		}
@@ -148,16 +152,23 @@ final class ClaimResolver {
 		$cooking                    = self::alcohol_value( (string) get_post_meta( $branch_id, 'momo_alcohol_in_cooking', true ) );
 		$view['alcohol_served']     = $served;
 		$view['alcohol_in_cooking'] = $cooking;
-		$lines                      = [];
-		if ( 'unknown' !== $served && null !== ( $t = StatementRepository::text( 'alcohol.served.' . $served, $lang ) ) ) {
-			$lines[] = $t;
+		$keys                       = [];
+		if ( 'unknown' !== $served ) {
+			$keys[] = 'alcohol.served.' . $served;
 		}
-		if ( 'unknown' !== $cooking && null !== ( $t = StatementRepository::text( 'alcohol.cooking.' . $cooking, $lang ) ) ) {
-			$lines[] = $t;
+		if ( 'unknown' !== $cooking ) {
+			$keys[] = 'alcohol.cooking.' . $cooking;
 		}
 		$note = (string) get_post_meta( $branch_id, 'momo_alcohol_note_key', true );
-		if ( '' !== $note && null !== ( $t = StatementRepository::text( $note, $lang ) ) ) {
-			$lines[] = $t;
+		if ( '' !== $note ) {
+			$keys[] = $note;
+		}
+		$lines = [];
+		foreach ( $keys as $key ) {
+			$t = StatementRepository::text( $key, $lang );
+			if ( null !== $t ) {
+				$lines[] = $t;
+			}
 		}
 		$view['alcohol_lines'] = $lines;
 		return $view;
@@ -210,7 +221,8 @@ final class ClaimResolver {
 		if ( 'no_claim' !== $view['type'] ) {
 			$verified = max( $verified, (string) get_post_meta( $record, 'momo_cert_verified_at', true ) );
 		}
-		if ( '' !== $verified && ( $dt = Clock::from_mysql_utc( $verified ) ) ) {
+		$dt = '' !== $verified ? Clock::from_mysql_utc( $verified ) : null;
+		if ( $dt ) {
 			$view['verified_at']   = $dt->setTimezone( Clock::tz() )->format( 'Y-m-d' );
 			$view['last_verified'] = momos_t( 'last_verified', [ 'date' => self::format_date( $view['verified_at'], $lang ) ], $lang );
 		}

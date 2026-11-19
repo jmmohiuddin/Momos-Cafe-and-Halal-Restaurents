@@ -80,10 +80,12 @@ final class SlotGenerator {
 	}
 
 	/**
-	 * Picker data for API-01: today … today + booking window (JST), lead time applied.
+	 * Picker data for API-01: today … today + booking window (JST), lead time applied. `periods` is a
+	 * \stdClass whose properties are 'H:i' => period label, so it serialises as a JSON object even when
+	 * the day has no slots (`{}` rather than `[]`).
 	 *
 	 * @param array<string,mixed> $settings
-	 * @return list<array{date:string,slots:list<string>,periods:array<string,string>,closed_reason:?string,closed_label:?string}>
+	 * @return list<array{date:string,slots:list<string>,periods:\stdClass,closed_reason:?string,closed_label:?string}>
 	 */
 	public static function days( int $branch_id, array $settings, ?\DateTimeImmutable $now = null, ?string $lang = null ): array {
 		$now      = ( $now ?? Clock::utc() )->setTimezone( Clock::tz() );

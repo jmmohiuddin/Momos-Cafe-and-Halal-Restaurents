@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Found usage of constant DISALLOW_FILE_MODS\. Use wp_is_file_mod_allowed\(\) instead\.$#'
-			identifier: phpstanWP.wpConstant.fetch
-			count: 1
-			path: wp-content/plugins/momos-core/src/Access/Hardening.php
-
-		-
 			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(string\)\: bool\)\|null, ''strlen'' given\.$#'
 			identifier: argument.type
 			count: 1
@@ -19,40 +13,16 @@ parameters:
 			path: wp-content/plugins/momos-core/src/Admin/Content/MediaFields.php
 
 		-
-			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(string\)\: bool\)\|null, ''strlen'' given\.$#'
-			identifier: argument.type
-			count: 1
-			path: wp-content/plugins/momos-core/src/Api/Controller/StaffReservationController.php
-
-		-
-			message: '#^Offset ''\*'' on array\{''\*''\: ''res\.err\.consent…''\}\|array\{''\*''\: ''res\.err\.note\.length''\}\|array\{''\*''\: ''res\.err\.phone\.format''\}\|array\{required\: ''res\.err\.branch…'', ''\*''\: ''res\.err\.branch\.not…''\}\|array\{required\: ''res\.err\.date…'', ''\*''\: ''res\.err\.date…''\}\|array\{required\: ''res\.err\.email…'', ''\*''\: ''res\.err\.email\.format''\}\|array\{required\: ''res\.err\.name…'', too_long\: ''res\.err\.name\.length'', ''\*''\: ''res\.err\.name…''\}\|array\{required\: ''res\.err\.party…'', ''\*''\: ''res\.err\.party…''\}\|array\{required\: ''res\.err\.time…'', ''\*''\: ''res\.err\.time…''\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: wp-content/plugins/momos-core/src/Api/Http/ErrorResponder.php
-
-		-
 			message: '#^Parameter \#1 \$args of function get_terms expects array\{taxonomy\?\: array\<string\>\|string, object_ids\?\: array\<int\>\|int, orderby\?\: string, order\?\: string, hide_empty\?\: bool\|int, include\?\: array\<int\>\|string, exclude\?\: array\<int\>\|string, exclude_tree\?\: array\<int\>\|string, \.\.\.\}, array\{taxonomy\: ''momo_branch_scope'', hide_empty\: false, meta_key\: ''momo_branch_id'', meta_value\: int, number\: 1\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: wp-content/plugins/momos-core/src/Branch/PostType/BranchScopeTaxonomy.php
 
 		-
-			message: '#^Method Momos\\Branch\\Repository\\BranchRepository\:\:not_test_clause\(\) should return array\<string, mixed\> but returns array\<int\|string, array\<string, string\>\|string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: wp-content/plugins/momos-core/src/Branch/Repository/BranchRepository.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between ''0'' and non\-falsy\-string will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
 			path: wp-content/plugins/momos-core/src/Branch/Repository/BranchSettingsRepository.php
-
-		-
-			message: '#^Static property Momos\\Branch\\Service\\BranchGuard\:\:\$old_titles is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: wp-content/plugins/momos-core/src/Branch/Service/BranchGuard.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between ''0'' and non\-falsy\-string will always evaluate to true\.$#'
@@ -65,18 +35,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 2
 			path: wp-content/plugins/momos-core/src/Branch/Service/SettingsValidator.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$all$#'
-			identifier: parameter.notFound
-			count: 1
-			path: wp-content/plugins/momos-core/src/Dietary/Fields/DietaryFields.php
-
-		-
-			message: '#^Expected 4 @param tags, found 3\.$#'
-			identifier: paramTag.count
-			count: 1
-			path: wp-content/plugins/momos-core/src/Kernel/Fields/FieldRegistry.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between ''0'' and mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) will always evaluate to true\.$#'
@@ -97,12 +55,6 @@ parameters:
 			path: wp-content/plugins/momos-core/src/Kernel/I18n/Translations.php
 
 		-
-			message: '#^Method Momos\\Menu\\Domain\\SpiceLevel\:\:choices\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: wp-content/plugins/momos-core/src/Menu/Domain/SpiceLevel.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between ''0'' and non\-falsy\-string will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
@@ -115,91 +67,13 @@ parameters:
 			path: wp-content/plugins/momos-core/src/Notification/Support/Brand.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''Momos\\\\Branch\\\\Repository\\\\BranchRepository'' and ''public_ids'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: wp-content/plugins/momos-core/src/Presentation/View/BranchLinks.php
-
-		-
 			message: '#^Variable \$row might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: wp-content/plugins/momos-core/src/Privacy/Cli/PrivacyCommand.php
 
 		-
-			message: '#^Variable \$n might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: wp-content/plugins/momos-core/src/Reservation/Cli/TokenCommand.php
-
-		-
-			message: '#^PHPDoc tag @phpstan\-type Fields has invalid value\: Unexpected token "field", expected TOKEN_PHPDOC_EOL at offset 278 on line 6$#'
-			identifier: phpDoc.parseError
-			count: 1
-			path: wp-content/plugins/momos-core/src/Reservation/Domain/ReservationError.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between null and mixed will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 3
-			path: wp-content/plugins/momos-core/src/Reservation/Repository/ReservationRepository.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between null and mixed will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 3
-			path: wp-content/plugins/momos-core/src/Reservation/Service/ModificationService.php
-
-		-
-			message: '#^Method Momos\\Reservation\\Service\\SlotGenerator\:\:days\(\) should return list\<array\{date\: string, slots\: list\<string\>, periods\: array\<string, string\>, closed_reason\: string\|null, closed_label\: string\|null\}\> but returns list\<array\{date\: non\-falsy\-string, slots\: list\<non\-falsy\-string\>, periods\: stdClass, closed_reason\: string\|null, closed_label\: string\|null\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: wp-content/plugins/momos-core/src/Reservation/Service/SlotGenerator.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''Momos\\\\Admin\\\\Content\\\\FaqEditor'' and ''save_items'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: wp-content/plugins/momos-core/src/Seed/DemoSeeder.php
-
-		-
-			message: '#^Parameter \#2 \$fields of method Momos\\Seed\\DemoSeeder\:\:translate_post\(\) expects array\<string, array\<string, string\>\>, array\<string, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: wp-content/plugins/momos-core/src/Seed/DemoSeeder.php
-
-		-
-			message: '#^Call to function is_wp_error\(\) with WP_Error will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: wp-content/plugins/momos-core/src/Seed/Writer.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''publish'' and mixed~''publish'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: wp-content/plugins/momos-core/src/Seed/Writer.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: wp-content/plugins/momos-core/src/Seed/Writer.php
-
-		-
 			message: '#^Parameter \#1 \$array \(non\-empty\-list\<array\{name\: string, url\: string\}\>\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1
 			path: wp-content/plugins/momos-core/src/Seo/Schema/JsonLd.php
-
-		-
-			message: '#^Anonymous function has an unused use \$momos_label\.$#'
-			identifier: closure.unusedUse
-			count: 1
-			path: wp-content/themes/momos/page-templates/style-guide.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''\\\\Momos\\\\Seo…'' and ''items'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: wp-content/themes/momos/template-parts/frame/breadcrumbs.php

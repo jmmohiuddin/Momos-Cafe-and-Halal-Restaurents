@@ -132,26 +132,39 @@ test('TC-ACL-017: RS sets a dish sold out on the own branch grid; a crafted pric
 test('BM daily task: add a closure day for the own branch (audited); the same form replayed for Namba is refused', async ({ browser }) => {
   const kita = branchId('DKH');
   const namba = branchId('DNB');
-  const date = '2027-01-14';
-  wpEval(`global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->prefix}momo_branch_closures WHERE closure_date = '${date}'" ); echo 'ok';`);
+  // E2E isolation: use a date on which neither branch has a closure or any reservation left by earlier specs, so the
+  // save is not turned into the "affected reservations" confirmation step and no foreign closure is touched.
+  const date = wpEval(`
+    global $wpdb;
+    $d = new DateTimeImmutable( '2027-01-14' );
+    for ( $i = 0; $i < 365; $i++, $d = $d->modify( '+1 day' ) ) {
+      $day = $d->format( 'Y-m-d' );
+      $busy = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}momo_branch_closures WHERE closure_date = %s AND branch_id IN (${kita}, ${namba})", $day ) )
+        + (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}momo_reservations WHERE requested_date = %s AND branch_id IN (${kita}, ${namba})", $day ) );
+      if ( 0 === $busy ) { echo $day; break; }
+    }`);
+  expect(date, 'a free date for the closure').toMatch(/^\d{4}-\d{2}-\d{2}$/);
   const page = await login(browser, 'demo_bm_kitahama');
-  await page.goto(`${BASE}/wp-admin/edit.php?post_type=momo_branch&page=momos-hours&branch=${kita}&tab=closures`);
-  const sel = 'form:has(input[name="date_from"])';
-  const before = audit('branch.closure_created', `branch_id = ${kita}`);
-  const data = await formData(page, sel);
-  const post = { ...data, date_from: date, date_to: date, type: 'closed_all_day', public_reason: 'maintenance', internal_note: '' };
-  // Remove empty special-hours periods (closed all day).
-  for (const k of Object.keys(post)) if (k.startsWith('periods[')) delete (post as Record<string, string>)[k];
-  let res = await page.request.post(`${BASE}/wp-admin/admin-post.php`, { form: post, maxRedirects: 0 });
-  expect(res.status()).toBe(302);
-  expect(parseInt(wpEval(`global $wpdb; echo (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}momo_branch_closures WHERE branch_id = ${kita} AND closure_date = '${date}'" );`), 10)).toBe(1);
-  expect(audit('branch.closure_created', `branch_id = ${kita}`)).toBeGreaterThan(before);
-  // Replay for Namba with the Kitahama nonce → 403, nothing stored (TC-ACL-009).
-  res = await page.request.post(`${BASE}/wp-admin/admin-post.php`, { form: { ...post, branch_id: String(namba) }, maxRedirects: 0 });
-  expect(res.status()).toBe(403);
-  expect(parseInt(wpEval(`global $wpdb; echo (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}momo_branch_closures WHERE branch_id = ${namba} AND closure_date = '${date}'" );`), 10)).toBe(0);
-  wpEval(`global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->prefix}momo_branch_closures WHERE closure_date = '${date}'" ); echo 'ok';`);
-  await page.context().close();
+  try {
+    await page.goto(`${BASE}/wp-admin/edit.php?post_type=momo_branch&page=momos-hours&branch=${kita}&tab=closures`);
+    const sel = 'form:has(input[name="date_from"])';
+    const before = audit('branch.closure_created', `branch_id = ${kita}`);
+    const data = await formData(page, sel);
+    const post = { ...data, date_from: date, date_to: date, type: 'closed_all_day', public_reason: 'maintenance', internal_note: '' };
+    // Remove empty special-hours periods (closed all day).
+    for (const k of Object.keys(post)) if (k.startsWith('periods[')) delete (post as Record<string, string>)[k];
+    let res = await page.request.post(`${BASE}/wp-admin/admin-post.php`, { form: post, maxRedirects: 0 });
+    expect(res.status()).toBe(302);
+    expect(parseInt(wpEval(`global $wpdb; echo (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}momo_branch_closures WHERE branch_id = ${kita} AND closure_date = '${date}'" );`), 10)).toBe(1);
+    expect(audit('branch.closure_created', `branch_id = ${kita}`)).toBeGreaterThan(before);
+    // Replay for Namba with the Kitahama nonce → 403, nothing stored (TC-ACL-009).
+    res = await page.request.post(`${BASE}/wp-admin/admin-post.php`, { form: { ...post, branch_id: String(namba) }, maxRedirects: 0 });
+    expect(res.status()).toBe(403);
+    expect(parseInt(wpEval(`global $wpdb; echo (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}momo_branch_closures WHERE branch_id = ${namba} AND closure_date = '${date}'" );`), 10)).toBe(0);
+  } finally {
+    wpEval(`global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->prefix}momo_branch_closures WHERE closure_date = '${date}' AND branch_id IN (${kita}, ${namba})" ); echo 'ok';`);
+    await page.context().close();
+  }
 });
 
 // ------------------------------------------------------------------ Head Office: users

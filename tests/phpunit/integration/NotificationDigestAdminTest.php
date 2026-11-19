@@ -30,7 +30,7 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 		$this->reservation( $a, [ 'status' => 'confirmed', 'requested_date' => '2026-11-30', 'requested_time' => '19:00:00' ] );
 		$f = $this->reservation( $a );
 		do_action( 'momos/reservation/created', $f );
-		$e01 = (int) $this->rows( 'E01' )[0]['id'];
+		$e01              = (int) $this->rows( 'E01' )[0]['id'];
 		$this->fail_queue = [ [ 'smtp_rejected_recipient', '550 unknown' ] ];
 		Dispatcher::send( $e01 );
 
@@ -72,11 +72,11 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 	}
 
 	public function test_resend_rules_scope_and_audit(): void {
-		$a  = $this->branch( 'QAA', self::recipients( 'qaa@momos.example' ) );
-		$b  = $this->branch( 'QAB', self::recipients( 'qab@momos.example' ) );
-		$r  = $this->reservation( $a );
+		$a = $this->branch( 'QAA', self::recipients( 'qaa@momos.example' ) );
+		$b = $this->branch( 'QAB', self::recipients( 'qab@momos.example' ) );
+		$r = $this->reservation( $a );
 		do_action( 'momos/reservation/created', $r );
-		$id = (int) $this->rows( 'E01' )[0]['id'];
+		$id               = (int) $this->rows( 'E01' )[0]['id'];
 		$this->fail_queue = [ [ 'smtp_rejected_recipient', '550' ] ];
 		Dispatcher::send( $id );
 
@@ -102,7 +102,7 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 		// Template must still match the current status; staff rows are never resendable.
 		$r2 = $this->reservation( $a );
 		do_action( 'momos/reservation/created', $r2 );
-		$e01 = (int) array_values( array_filter( $this->rows( 'E01' ), static fn( $x ) => (int) $x['reservation_id'] === $r2 ) )[0]['id'];
+		$e01              = (int) array_values( array_filter( $this->rows( 'E01' ), static fn( $x ) => (int) $x['reservation_id'] === $r2 ) )[0]['id'];
 		$this->fail_queue = [ [ 'smtp_rejected_recipient', '550' ] ];
 		Dispatcher::send( $e01 );
 		$this->update_reservation( $r2, [ 'status' => 'confirmed' ] );
@@ -112,9 +112,14 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 
 		// Resent row sent → hook for the Reservation flag reset.
 		$fired = [];
-		add_action( 'momos/notification/resend_sent', function ( $nid, $rid ) use ( &$fired ): void {
-			$fired[] = [ $nid, $rid ];
-		}, 10, 2 );
+		add_action(
+			'momos/notification/resend_sent',
+			function ( $nid, $rid ) use ( &$fired ): void {
+				$fired[] = [ $nid, $rid ];
+			},
+			10,
+			2
+		);
 		Dispatcher::send( (int) $out['id'] );
 		$this->assertSame( [ [ (int) $out['id'], $r ] ], $fired );
 	}
@@ -124,10 +129,10 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 		$b = $this->branch( 'QAB', [] );
 		$r = $this->reservation( $a );
 		do_action( 'momos/reservation/created', $r );
-		$id = (int) $this->rows( 'E01' )[0]['id'];
+		$id               = (int) $this->rows( 'E01' )[0]['id'];
 		$this->fail_queue = [ [ 'smtp_rejected_recipient', '550' ] ];
 		Dispatcher::send( $id );
-		do_action( 'rest_api_init' );
+		do_action( 'rest_api_init' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook
 		$req = new \WP_REST_Request( 'POST', '/momos/v1/staff/reservations/' . $r . '/notifications/' . $id . '/resend' );
 		$req->set_header( 'Content-Type', 'application/json' );
 		$req->set_body( '{}' );
@@ -147,6 +152,48 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 		$this->assertTrue( class_exists( ResendController::class ) );
 	}
 
+	/**
+	 * CHG-010: resend additionally needs `momo_view_reservations` and the RESERVATION's branch in
+	 * scope (not only the notification row's branch_id), in the service, REST route and admin-post gate.
+	 */
+	public function test_resend_requires_view_reservations_and_the_reservation_branch_scope(): void {
+		$a = $this->branch( 'QAA', [] );
+		$b = $this->branch( 'QAB', [] );
+		$r = $this->reservation( $a );
+		do_action( 'momos/reservation/created', $r );
+		$id               = (int) $this->rows( 'E01' )[0]['id'];
+		$this->fail_queue = [ [ 'smtp_rejected_recipient', '550' ] ];
+		Dispatcher::send( $id );
+
+		// Process cap without the view primitive (per-user deny, as for vendor accounts) → refused.
+		$rs_a = $this->user_with_role( 'momo_reservation_staff', [ $a ] );
+		( new \WP_User( $rs_a ) )->add_cap( 'momo_view_reservations', false );
+		$this->assertFalse( user_can( $rs_a, 'momo_view_reservations' ) );
+		$this->assertTrue( user_can( $rs_a, 'momo_process_reservations' ) );
+		$this->assertSame( 'forbidden_branch', ResendService::resend( $id, $rs_a, $r )['code'] );
+		$this->assertFalse( ResendService::is_latest_resendable( NotificationRepository::find( $id ), $rs_a ) );
+		do_action( 'rest_api_init' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook
+		$req = new \WP_REST_Request( 'POST', '/momos/v1/staff/reservations/' . $r . '/notifications/' . $id . '/resend' );
+		$req->set_header( 'Content-Type', 'application/json' );
+		$req->set_body( '{}' );
+		wp_set_current_user( $rs_a );
+		$this->assertSame( 403, rest_do_request( $req )->get_status() );
+
+		// The row claims branch B but the reservation is in A: a B user is refused, and so is an A
+		// user (the row does not belong to the reservation's branch).
+		global $wpdb;
+		$wpdb->update( \Momos\Kernel\Db\Tables::notifications(), [ 'branch_id' => $b ], [ 'id' => $id ] );
+		$rs_b = $this->user_with_role( 'momo_reservation_staff', [ $b ] );
+		$this->assertFalse( ResendService::user_can( NotificationRepository::find( $id ), $rs_b ), 'B staff never resend an A reservation' );
+		$rs_a2 = $this->user_with_role( 'momo_reservation_staff', [ $a ] );
+		$this->assertFalse( ResendService::user_can( NotificationRepository::find( $id ), $rs_a2 ) );
+		$wpdb->update( \Momos\Kernel\Db\Tables::notifications(), [ 'branch_id' => $a ], [ 'id' => $id ] );
+		$this->assertTrue( ResendService::user_can( NotificationRepository::find( $id ), $rs_a2 ) );
+		$this->assertFalse( ResendService::user_can( NotificationRepository::find( $id ), $rs_b ) );
+		$this->assertTrue( ResendService::user_can( NotificationRepository::find( $id ), $this->user_with_role( 'momo_head_office' ) ) );
+		wp_set_current_user( 0 );
+	}
+
 	public function test_log_screen_requires_cap_and_shows_masked_recipients_only(): void {
 		$a = $this->branch( 'QAA', self::recipients( 'qaa@momos.example' ) );
 		$r = $this->reservation( $a );
@@ -156,9 +203,12 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 
 		wp_set_current_user( $this->user_with_role( 'momo_branch_manager', [ $a ] ) );
 		$this->assertFalse( current_user_can( NotificationLogScreen::CAP ) );
-		add_filter( 'wp_die_handler', static fn() => static function (): void {
+		add_filter(
+			'wp_die_handler',
+			static fn() => static function (): void {
 			throw new \RuntimeException( 'wp_die' );
-		} );
+			}
+		);
 		try {
 			NotificationLogScreen::render();
 			$this->fail( 'BM must not see the global log' );
@@ -217,7 +267,7 @@ final class NotificationDigestAdminTest extends NotificationTestCaseTest {
 		$names = array_column( $out['data'][0]['data'], 'name' );
 		$this->assertContains( 'Template', $names );
 		$this->assertStringNotContainsString( 'qaa@', (string) wp_json_encode( $out ) );
-		$exporters = apply_filters( 'wp_privacy_personal_data_exporters', [] );
+		$exporters = apply_filters( 'wp_privacy_personal_data_exporters', [] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook
 		$this->assertArrayHasKey( 'momos-notifications', $exporters );
 	}
 

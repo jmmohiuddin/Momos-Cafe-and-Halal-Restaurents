@@ -220,7 +220,7 @@ final class ReservationRepository {
 	 */
 	public static function scoped_where( Scope $scope, array $f ): ?string {
 		global $wpdb;
-		$branch_ids = $scope->restrict( isset( $f['branch_ids'] ) && null !== $f['branch_ids'] ? array_map( 'intval', (array) $f['branch_ids'] ) : null );
+		$branch_ids = $scope->restrict( isset( $f['branch_ids'] ) ? array_map( 'intval', (array) $f['branch_ids'] ) : null );
 		if ( null !== $branch_ids && ! $branch_ids ) {
 			return null;
 		}
@@ -269,7 +269,7 @@ final class ReservationRepository {
 				default        => '1=1',
 			};
 		}
-		if ( isset( $f['has_special_request'] ) && null !== $f['has_special_request'] ) {
+		if ( isset( $f['has_special_request'] ) ) {
 			$w[] = $f['has_special_request'] ? "(special_request IS NOT NULL AND special_request <> '')" : "(special_request IS NULL OR special_request = '')";
 		}
 		if ( 'none' === ( $f['handled_by'] ?? null ) ) {
@@ -280,7 +280,7 @@ final class ReservationRepository {
 		if ( ! empty( $f['since'] ) ) {
 			$w[] = $wpdb->prepare( '(created_at >= %s OR updated_at >= %s)', $f['since'], $f['since'] );
 		}
-		if ( isset( $f['ids'] ) && null !== $f['ids'] ) {
+		if ( isset( $f['ids'] ) ) {
 			$ids = array_map( 'intval', (array) $f['ids'] );
 			$w[] = $ids ? 'id IN (' . implode( ',', $ids ) . ')' : '1=0';
 		}

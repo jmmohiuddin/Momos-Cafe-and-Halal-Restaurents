@@ -18,6 +18,26 @@ use Momos\Presentation\SystemPages;
  * (the component then renders nothing — documented empty state).
  */
 final class Cards {
+	/**
+	 * Loads the posts (+ meta) of a card list, and their featured images when $images, with one query pair each
+	 * instead of one get_post()/get_post_meta() per card (NFR-PERF-02: no queries inside template loops).
+	 *
+	 * @param array<int|string,mixed> $ids
+	 */
+	public static function prime( array $ids, bool $images = false ): void {
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
+		if ( ! $ids ) {
+			return;
+		}
+		_prime_post_caches( $ids, false, true );
+		if ( $images ) {
+			$thumbs = array_filter( array_map( static fn( int $id ): int => (int) get_post_thumbnail_id( $id ), $ids ) );
+			if ( $thumbs ) {
+				_prime_post_caches( array_values( array_unique( $thumbs ) ), false, true );
+			}
+		}
+	}
+
 	/** @return array<string,mixed>|null */
 	public static function branch( int $branch_id, ?string $lang = null ): ?array {
 		$lang = $lang ?? momos_lang();
@@ -111,7 +131,7 @@ final class Cards {
 	 */
 	public static function open_status_client( int $branch_id, ?string $lang = null ): ?array {
 		$lang = $lang ?? momos_lang();
-		if ( ! class_exists( \Momos\Branch\Service\ScheduleService::class ) || ! method_exists( \Momos\Branch\Service\ScheduleService::class, 'schedule_json' ) ) {
+		if ( ! class_exists( \Momos\Branch\Service\ScheduleService::class ) ) {
 			return null;
 		}
 		try {

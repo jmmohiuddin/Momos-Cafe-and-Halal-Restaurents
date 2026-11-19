@@ -17,6 +17,18 @@ final class Tables {
 		return $wpdb->prefix . 'momo_' . $short;
 	}
 
+	/** @return list<string> short names of custom tables that do not exist in the database. */
+	public static function missing(): array {
+		global $wpdb;
+		$out = [];
+		foreach ( self::ALL as $short ) {
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( self::name( $short ) ) ) ) !== self::name( $short ) ) {
+				$out[] = $short;
+			}
+		}
+		return $out;
+	}
+
 	public static function hours(): string {
 		return self::name( 'branch_hours' ); }
 	public static function closures(): string {

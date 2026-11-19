@@ -29,6 +29,7 @@ final class ReservationModule implements ModuleInterface {
 			'momos/migrations',
 			static function ( array $list ): array {
 				$list[] = new Migration\M0030_InboxIndexes();
+				$list[] = new Migration\M0031_HandledByIndex();
 				return $list;
 			}
 		);

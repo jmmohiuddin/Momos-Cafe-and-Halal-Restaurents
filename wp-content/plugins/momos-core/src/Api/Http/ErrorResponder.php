@@ -153,7 +153,7 @@ final class ErrorResponder {
 				$reason = (string) $fields[ $field ];
 				$map    = self::FIELD_KEYS[ $field ] ?? null;
 				if ( null !== $map ) {
-					return $map[ $reason ] ?? $map['*'] ?? 'res.err.summary';
+					return $map[ $reason ] ?? $map['*'];
 				}
 			}
 			return 'res.err.summary';
@@ -168,6 +168,6 @@ final class ErrorResponder {
 
 	private static function status_label( string $status ): string {
 		$s = \Momos\Reservation\Domain\ReservationStatus::tryFrom( $status );
-		return $s ? $s->staffLabel() : $status;
+		return $s ? $s->staff_label() : $status;
 	}
 }

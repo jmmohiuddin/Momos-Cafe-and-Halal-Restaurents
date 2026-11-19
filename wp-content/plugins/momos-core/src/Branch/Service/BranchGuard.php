@@ -24,9 +24,6 @@ final class BranchGuard {
 	/** @var array<int, list<string>> blocking publish errors per post for this request */
 	private static array $blocking = [];
 
-	/** @var array<int, string> post_title before the update */
-	private static array $old_titles = [];
-
 	public static function register(): void {
 		add_filter( 'wp_insert_post_data', [ self::class, 'before_save' ], 5, 2 );
 		add_filter( 'wp_insert_post_data', [ self::class, 'after_validation' ], 100, 2 );
@@ -65,7 +62,6 @@ final class BranchGuard {
 		}
 		$old = $post_id ? get_post( $post_id ) : null;
 		if ( $old && 'auto-draft' !== $old->post_status ) {
-			self::$old_titles[ $post_id ] = (string) $old->post_title;
 			if ( is_user_logged_in() && ! current_user_can( 'momo_edit_branch_identity' ) ) {
 				$denied = [];
 				foreach ( [ 'post_title', 'post_name', 'post_status', 'menu_order' ] as $k ) {

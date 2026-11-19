@@ -23,6 +23,7 @@ final class TokenCommand {
 					$n = TokenService::reissue( $version );
 				} catch ( \RuntimeException $e ) {
 					\WP_CLI::error( $e->getMessage() );
+					return; // WP_CLI::error() exits; keeps $n defined on every path that reaches success().
 				}
 				\WP_CLI::success( sprintf( 'Re-issued %d status tokens with key version %d.', $n, $version ) );
 			}

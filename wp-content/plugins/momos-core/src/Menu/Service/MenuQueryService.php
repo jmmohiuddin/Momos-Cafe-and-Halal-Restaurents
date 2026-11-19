@@ -19,6 +19,28 @@ final class MenuQueryService {
 	public const FEATURED_DEFAULT = 6;
 	public const CATEGORY_LIMIT   = 200;
 
+	/**
+	 * Whether sample content (`momo_is_sample = 1`) is withheld from the public site: always in production
+	 * (BR-CORP-03, content-strings §10.1 D2). The filter `momos/menu/hide_samples` can only add the rule
+	 * outside production (tests, a staging rehearsal of the live site), never lift it in production.
+	 */
+	public static function hides_samples(): bool {
+		return Env::is_production() || (bool) apply_filters( 'momos/menu/hide_samples', false );
+	}
+
+	/** A menu category flagged as sample (term meta `momo_is_sample`, set by the demo seed). */
+	public static function is_sample_category( \WP_Term $term ): bool {
+		return '1' === (string) get_term_meta( $term->term_id, 'momo_is_sample', true );
+	}
+
+	/** Category may be shown in the language: approved there and not a withheld sample (term archive + lists). */
+	public static function is_category_public( \WP_Term $term, string $lang ): bool {
+		if ( self::hides_samples() && self::is_sample_category( $term ) ) {
+			return false;
+		}
+		return Translations::term_visible( $term, $lang );
+	}
+
 	/** displayable = published ∧ not retired ∧ ¬(production ∧ sample) ∧ approved in lang. */
 	public static function is_displayable( int|\WP_Post $dish, string $lang ): bool {
 		$post = get_post( $dish );
@@ -28,7 +50,7 @@ final class MenuQueryService {
 		if ( '1' === (string) get_post_meta( $post->ID, 'momo_retired', true ) ) {
 			return false;
 		}
-		if ( Env::is_production() && '1' === (string) get_post_meta( $post->ID, 'momo_is_sample', true ) ) {
+		if ( self::hides_samples() && '1' === (string) get_post_meta( $post->ID, 'momo_is_sample', true ) ) {
 			return false;
 		}
 		return Translations::post_visible( $post, $lang );
@@ -36,7 +58,8 @@ final class MenuQueryService {
 
 	/**
 	 * Visible categories ordered by `momo_cat_order`, then name in the language. A category is listed only
-	 * when approved in the language and it has ≥ 1 displayable dish (offered at the branch, with context).
+	 * when approved in the language, not a sample category in production (BR-CORP-03) and it has ≥ 1
+	 * displayable dish (offered at the branch, with context).
 	 *
 	 * @return list<\WP_Term>
 	 */
@@ -45,7 +68,7 @@ final class MenuQueryService {
 		if ( ! is_array( $terms ) ) {
 			return [];
 		}
-		$visible = array_values( array_filter( $terms, static fn( \WP_Term $t ): bool => Translations::term_visible( $t, $lang ) ) );
+		$visible = array_values( array_filter( $terms, static fn( \WP_Term $t ): bool => self::is_category_public( $t, $lang ) ) );
 		// One dish query for all categories instead of one per category (NFR-PERF-02).
 		$by_cat = self::dishes_by_category( array_map( static fn( \WP_Term $t ): int => (int) $t->term_id, $visible ), $lang, $branch_id );
 		$out    = array_values( array_filter( $visible, static fn( \WP_Term $t ): bool => ! empty( $by_cat[ (int) $t->term_id ] ) ) );

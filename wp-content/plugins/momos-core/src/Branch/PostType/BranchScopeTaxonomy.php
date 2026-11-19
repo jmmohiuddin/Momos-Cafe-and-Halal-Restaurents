@@ -110,13 +110,48 @@ final class BranchScopeTaxonomy {
 		return (int) get_term_meta( $term_id, 'momo_branch_id', true );
 	}
 
-	/** @return list<int> branch IDs the notice/offer is scoped to */
+	/**
+	 * Branch IDs the notice/offer is scoped to. Reads the object term cache (filled by prime_posts() or on
+	 * first use; wp_set_object_terms() invalidates it), in term-name order like wp_get_object_terms().
+	 *
+	 * @return list<int>
+	 */
 	public static function branch_ids_of_post( int $post_id ): array {
-		$terms = wp_get_object_terms( $post_id, self::TAX, [ 'fields' => 'ids' ] );
+		$terms = get_the_terms( $post_id, self::TAX );
 		if ( ! is_array( $terms ) ) {
 			return [];
 		}
-		return array_values( array_filter( array_map( static fn( $t ) => self::branch_of_term( (int) $t ), $terms ) ) );
+		return array_values( array_filter( array_map( static fn( $t ) => self::branch_of_term( (int) $t->term_id ), $terms ) ) );
+	}
+
+	/**
+	 * Load posts, post meta, scope terms, their term meta and the scoped branch posts of a list of
+	 * notices/offers with a fixed number of queries (NFR-PERF-02: no per-item queries in listings).
+	 *
+	 * @param list<int> $post_ids
+	 */
+	public static function prime_posts( array $post_ids ): void {
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $post_ids ) ) ) );
+		if ( ! $ids ) {
+			return;
+		}
+		_prime_post_caches( $ids, false, true );
+		update_object_term_cache( $ids, [ PostTypes::NOTICE, PostTypes::OFFER ] );
+		$term_ids = [];
+		foreach ( $ids as $id ) {
+			$cached = get_object_term_cache( $id, self::TAX );
+			foreach ( is_array( $cached ) ? $cached : [] as $t ) {
+				$term_ids[] = (int) $t->term_id;
+			}
+		}
+		if ( ! $term_ids ) {
+			return;
+		}
+		update_termmeta_cache( array_values( array_unique( $term_ids ) ) );
+		$branches = self::branch_ids_of_terms( array_values( array_unique( $term_ids ) ) );
+		if ( $branches ) {
+			_prime_post_caches( array_values( array_unique( $branches ) ), false, true );
+		}
 	}
 
 	/**

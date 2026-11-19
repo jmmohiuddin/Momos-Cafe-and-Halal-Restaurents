@@ -76,7 +76,7 @@ require __DIR__ . '/reservation-styles.php';
 			<select name="status">
 				<option value=""><?php esc_html_e( 'As in view', 'momos-core' ); ?></option>
 				<?php foreach ( ReservationStatus::cases() as $s ) : ?>
-					<option value="<?php echo esc_attr( $s->value ); ?>" <?php selected( $get( 'status' ), $s->value ); ?>><?php echo esc_html( $s->staffLabel() ); ?></option>
+					<option value="<?php echo esc_attr( $s->value ); ?>" <?php selected( $get( 'status' ), $s->value ); ?>><?php echo esc_html( $s->staff_label() ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</label>
@@ -152,7 +152,7 @@ require __DIR__ . '/reservation-styles.php';
 					if ( $r['flags']['test_branch'] ) :
 						?>
 						<span class="momos-flag momos-flag--warn">TEST</span><?php endif; ?></td>
-					<td data-label="<?php esc_attr_e( 'Status', 'momos-core' ); ?>"><span class="momos-badge momos-badge--<?php echo esc_attr( $status->value ); ?>"><?php echo esc_html( $status->staffLabel() ); ?></span>
+					<td data-label="<?php esc_attr_e( 'Status', 'momos-core' ); ?>"><span class="momos-badge momos-badge--<?php echo esc_attr( $status->value ); ?>"><?php echo esc_html( $status->staff_label() ); ?></span>
 						<?php
 						if ( 'overdue' === $r['sla_state'] ) :
 							?>
@@ -219,7 +219,7 @@ elseif ( 'due' === $r['sla_state'] ) :
 					</fieldset>
 					<fieldset><legend><?php esc_html_e( 'Statuses', 'momos-core' ); ?></legend>
 						<?php foreach ( ReservationStatus::cases() as $s ) : ?>
-							<label><input type="checkbox" name="status[]" value="<?php echo esc_attr( $s->value ); ?>" checked> <?php echo esc_html( $s->staffLabel() ); ?></label>
+							<label><input type="checkbox" name="status[]" value="<?php echo esc_attr( $s->value ); ?>" checked> <?php echo esc_html( $s->staff_label() ); ?></label>
 						<?php endforeach; ?>
 					</fieldset>
 					<label><?php esc_html_e( 'Requested date from', 'momos-core' ); ?> <input type="date" name="date_from" required></label>

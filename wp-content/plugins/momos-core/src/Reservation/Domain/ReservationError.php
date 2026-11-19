@@ -6,9 +6,9 @@ namespace Momos\Reservation\Domain;
 /**
  * A domain failure that maps 1:1 to the canonical error catalogue (Doc 04 §16.0.4, DEC-063, spec §5.1).
  * The REST layer (Api\Http\ErrorResponder) turns it into the error envelope; admin screens show the
- * staff message.
+ * staff message. `$fields` maps field => reason (required|invalid_format|too_long|out_of_range|not_allowed|…).
  *
- * @phpstan-type Fields array<string,string> field => reason (required|invalid_format|too_long|out_of_range|not_allowed|…)
+ * @phpstan-type Fields array<string,string>
  */
 final class ReservationError extends \RuntimeException {
 	/** Code → HTTP status (the only codes the module returns). */

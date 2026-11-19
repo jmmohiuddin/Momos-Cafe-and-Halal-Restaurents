@@ -18,6 +18,7 @@ $momos_ids  = [];
 if ( class_exists( \Momos\Branch\Query\OfferQuery::class ) ) {
 	try {
 		$momos_ids = \Momos\Branch\Query\OfferQuery::all_active( $momos_lang );
+		\Momos\Presentation\View\Cards::prime( $momos_ids, true );
 	} catch ( \Throwable $e ) {
 		$momos_ids = [];
 	}

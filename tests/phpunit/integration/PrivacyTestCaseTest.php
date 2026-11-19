@@ -71,7 +71,7 @@ abstract class PrivacyTestCaseTest extends ReservationTestCaseTest {
 				'lang'             => 'en',
 				'recipient_type'   => 'customer',
 				'recipient_email'  => $email,
-				'recipient_hash'   => Hash::hmac( strtolower( trim( $email ) ), 'MOMOS_HASH_PEPPER' ),
+				'recipient_hash'   => \Momos\Notification\Recipient\RecipientResolver::hash( $email ),
 				'recipient_masked' => Hash::mask_email( $email ),
 				'reservation_id'   => $reservation_id,
 				'status'           => $status,

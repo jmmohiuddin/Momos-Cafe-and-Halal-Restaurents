@@ -280,7 +280,7 @@ final class DemoSeeder {
 		}
 	}
 
-	/** @param array<string, array<string,string>> $fields */
+	/** @param array<string, array<string, string|list<array<string,string>>>> $fields per field: language => text (or FAQ rows) */
 	private function translate_post( int $id, array $fields ): void {
 		foreach ( Lang::targets() as $lang ) {
 			$values = [];
@@ -714,7 +714,7 @@ final class DemoSeeder {
 
 	private function faq( int $page_id ): void {
 		$rows = array_map( static fn( $r ) => [ 'id' => $r['id'], 'group' => $r['group'], 'question' => $r['question']['ja'], 'answer' => $r['answer']['ja'], 'order' => $r['order'] ], Content::faq() );
-		if ( class_exists( \Momos\Admin\Content\FaqEditor::class ) && method_exists( \Momos\Admin\Content\FaqEditor::class, 'save_items' ) ) {
+		if ( class_exists( \Momos\Admin\Content\FaqEditor::class ) ) {
 			$current = json_decode( (string) get_post_meta( $page_id, 'momo_faq_items', true ), true );
 			if ( $current !== $rows ) {
 				$errors = (array) \Momos\Admin\Content\FaqEditor::save_items( $page_id, $rows );

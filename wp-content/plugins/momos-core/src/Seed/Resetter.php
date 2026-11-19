@@ -182,7 +182,8 @@ final class Resetter {
 			if ( ! get_post( $id ) ) {
 				continue;
 			}
-			wp_update_post( wp_slash( [ 'ID' => $id, 'post_title' => $snap['post_title'], 'post_content' => $snap['post_content'], 'post_excerpt' => $snap['post_excerpt'], 'post_status' => $snap['post_status'] ] ) );
+			// Meta first: the sample flag must be gone before the page is republished, or the production
+			// publish block (SampleGuard, BR-CORP-03) keeps it a draft during `wp momos purge-samples`.
 			foreach ( (array) get_post_meta( $id ) as $k => $vals ) {
 				if ( str_starts_with( (string) $k, '_momos_i18n_' ) || in_array( $k, DemoSeeder::SNAPSHOT_META, true ) ) {
 					delete_post_meta( $id, (string) $k );
@@ -191,6 +192,7 @@ final class Resetter {
 			foreach ( (array) $snap['meta'] as $k => $v ) {
 				update_post_meta( $id, (string) $k, wp_slash( maybe_unserialize( $v ) ) );
 			}
+			wp_update_post( wp_slash( [ 'ID' => $id, 'post_title' => $snap['post_title'], 'post_content' => $snap['post_content'], 'post_excerpt' => $snap['post_excerpt'], 'post_status' => $snap['post_status'] ] ) );
 			// Revisions written while the page held sample text (and by this restore) are removed.
 			$revs = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'revision' AND post_parent = %d AND ID > %d", $id, (int) ( $snap['rev_max'] ?? 0 ) ) ); // phpcs:ignore
 			foreach ( $revs as $rev ) {

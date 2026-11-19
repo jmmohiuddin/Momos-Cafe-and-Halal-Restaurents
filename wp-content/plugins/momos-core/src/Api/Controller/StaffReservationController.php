@@ -156,7 +156,7 @@ final class StaffReservationController {
 	public static function filters( array $q, Scope $scope ): array {
 		$fields = [];
 		$f      = [ 'branch_ids' => null, 'per_page' => 20, 'page' => 1, 'sort' => 'requested_start', 'order' => 'asc' ];
-		$csv    = static fn( $v ): array => array_values( array_filter( array_map( 'trim', explode( ',', (string) $v ) ), 'strlen' ) );
+		$csv    = static fn( $v ): array => array_values( array_filter( array_map( 'trim', explode( ',', (string) $v ) ), static fn( string $t ): bool => '' !== $t ) );
 
 		if ( ! empty( $q['branch'] ) ) {
 			$ids = [];

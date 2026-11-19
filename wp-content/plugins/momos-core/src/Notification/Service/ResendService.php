@@ -43,17 +43,28 @@ final class ResendService {
 	}
 
 	/**
-	 * Object-level permission: SA/HO log access, or `momo_process_reservations` within the user's
-	 * branch scope (equivalent of meta cap `momo_process_reservation(id)`, TRD §2.7.3).
+	 * Object-level permission. Resending exposes and acts on the reservation, so the user always needs
+	 * `momo_view_reservations` and the reservation's branch in scope (meta cap `momo_view_reservation(id)`,
+	 * TRD §2.7.3 M8, CHG-010: vendor accounts lose it), plus either SA/HO log access
+	 * (`momo_view_notification_log`) or `momo_process_reservations`. The row must belong to the
+	 * reservation's branch.
 	 *
 	 * @param array<string,mixed> $row
 	 */
 	public static function user_can( array $row, int $user_id ): bool {
-		$branch = (int) ( $row['branch_id'] ?? 0 );
-		if ( user_can( $user_id, 'momo_view_notification_log' ) && momos_user_can_branch( $branch, $user_id ) ) {
-			return true;
+		$rid = (int) ( $row['reservation_id'] ?? 0 );
+		$res = $rid > 0 ? ReservationReader::find( $rid ) : null;
+		if ( null === $res ) {
+			return false;
 		}
-		return user_can( $user_id, 'momo_process_reservations' ) && $branch > 0 && momos_user_can_branch( $branch, $user_id );
+		$branch = (int) ( $res['branch_id'] ?? 0 );
+		if ( $branch <= 0 || ( ! empty( $row['branch_id'] ) && (int) $row['branch_id'] !== $branch ) ) {
+			return false;
+		}
+		if ( ! user_can( $user_id, 'momo_view_reservations' ) || ! momos_user_can_branch( $branch, $user_id ) || ! user_can( $user_id, 'momo_view_reservation', $rid ) ) {
+			return false;
+		}
+		return user_can( $user_id, 'momo_view_notification_log' ) || user_can( $user_id, 'momo_process_reservations' );
 	}
 
 	/** Template still matches the current status (spec §8.3). */

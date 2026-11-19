@@ -21,7 +21,7 @@ final class NotificationPanel {
 	}
 
 	private static function can_view( int $reservation_id, int $branch_id ): bool {
-		return current_user_can( 'momo_view_reservations' ) && momos_user_can_branch( $branch_id );
+		return current_user_can( 'momo_view_reservations' ) && momos_user_can_branch( $branch_id ) && current_user_can( 'momo_view_reservation', $reservation_id );
 	}
 
 	/**
@@ -58,15 +58,13 @@ final class NotificationPanel {
 	}
 
 	public static function render( int $reservation_id ): void {
-		$rows   = NotificationRepository::for_reservation( $reservation_id );
-		$branch = (int) ( $rows[0]['branch_id'] ?? 0 );
-		if ( ! $branch ) {
-			$res    = \Momos\Notification\Support\ReservationReader::find( $reservation_id );
-			$branch = (int) ( $res['branch_id'] ?? 0 );
-		}
-		if ( ! self::can_view( $reservation_id, $branch ) ) {
+		// Branch scope of the reservation itself (not of a notification row).
+		$res    = \Momos\Notification\Support\ReservationReader::find( $reservation_id );
+		$branch = (int) ( $res['branch_id'] ?? 0 );
+		if ( ! $branch || ! self::can_view( $reservation_id, $branch ) ) {
 			return;
 		}
+		$rows = NotificationRepository::for_reservation( $reservation_id );
 		$uid = get_current_user_id();
 		echo '<section class="momos-panel momos-notifications" aria-labelledby="momos-notif-h"><h2 id="momos-notif-h">' . esc_html__( 'Emails', 'momos-core' ) . '</h2>';
 		if ( ! $rows ) {
@@ -99,7 +97,7 @@ final class NotificationPanel {
 	public static function handle_resend(): void {
 		$id  = absint( $_POST['notification_id'] ?? 0 );
 		$rid = absint( $_POST['reservation_id'] ?? 0 );
-		if ( ! current_user_can( 'momo_process_reservations' ) && ! current_user_can( 'momo_view_notification_log' ) ) {
+		if ( ! current_user_can( 'momo_view_reservations' ) || ( ! current_user_can( 'momo_process_reservations' ) && ! current_user_can( 'momo_view_notification_log' ) ) ) {
 			momos_audit( 'access.denied', 'notification', $id ?: null, null, [ 'action' => 'notification.resend' ] );
 			wp_die( esc_html__( 'You do not have permission to do this.', 'momos-core' ), 403 );
 		}

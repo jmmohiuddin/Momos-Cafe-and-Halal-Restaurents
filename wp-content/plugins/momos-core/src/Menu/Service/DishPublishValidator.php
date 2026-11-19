@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Momos\Menu\Service;
 
-use Momos\Kernel\Env;
 use Momos\Kernel\Fields\FieldRegistry;
 use Momos\Menu\ContentTypes;
 use Momos\Menu\Fields\MenuFields;
@@ -88,7 +87,7 @@ final class DishPublishValidator {
 				$errors[] = __( 'Enter the advance-order time in hours (1–168).', 'momos-core' );
 			}
 		}
-		if ( Env::is_production() && '1' === (string) ( $v['momo_is_sample'] ?? '0' ) ) {
+		if ( MenuQueryService::hides_samples() && '1' === (string) ( $v['momo_is_sample'] ?? '0' ) ) {
 			$errors[] = __( 'Sample dishes cannot be published on the live site', 'momos-core' );
 		}
 		if ( $missing ) {

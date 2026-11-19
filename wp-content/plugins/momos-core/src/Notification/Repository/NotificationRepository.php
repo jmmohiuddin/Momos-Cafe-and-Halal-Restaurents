@@ -252,6 +252,16 @@ final class NotificationRepository {
 		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE reservation_id = %d ORDER BY created_at DESC, id DESC", $reservation_id ), ARRAY_A ); // phpcs:ignore
 	}
 
+	/**
+	 * Does the reservation already have a row whose dedupe key is `$base` or starts with `$base:`
+	 * (one row per recipient for multi-recipient templates, spec §4.2)? Resend rows (`resend:…`) never match.
+	 */
+	public static function has_dedupe_family( int $reservation_id, string $base ): bool {
+		global $wpdb;
+		$t = Tables::notifications();
+		return null !== $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$t} WHERE reservation_id = %d AND ( dedupe_key = %s OR dedupe_key LIKE %s ) LIMIT 1", $reservation_id, $base, $wpdb->esc_like( $base . ':' ) . '%' ) ); // phpcs:ignore
+	}
+
 	/** Number of resend rows created from an original row (`resend:{id}:{n}`). */
 	public static function resend_count( int $original_id ): int {
 		global $wpdb;

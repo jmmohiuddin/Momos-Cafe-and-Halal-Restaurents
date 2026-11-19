@@ -21,7 +21,7 @@ final class ReservationAccess {
 	/** @param array<string,mixed> $row */
 	public static function can_process( array $row, ?int $user_id = null ): bool {
 		$user_id = $user_id ?? get_current_user_id();
-		return $user_id > 0 && user_can( $user_id, 'momo_process_reservations' ) && momos_user_can_branch( (int) $row['branch_id'], $user_id );
+		return self::can_view( $row, $user_id ) && user_can( $user_id, 'momo_process_reservations' );
 	}
 
 	/** @param array<string,mixed> $row */
@@ -42,7 +42,9 @@ final class ReservationAccess {
 
 	/**
 	 * Map the reservation meta capabilities (rule M8) so current_user_can('momo_view_reservation', $id)
-	 * works for every module; equivalent to the Access module's MetaCapMapper rule.
+	 * works for every module; equivalent to the Access module's MetaCapMapper rule. Acting on a
+	 * reservation always exposes it, so processing requires the view primitive too (CHG-010,
+	 * TC-ACL-022, PRV-028).
 	 *
 	 * @param list<string> $caps
 	 * @param array<int,mixed> $args
@@ -56,6 +58,6 @@ final class ReservationAccess {
 		if ( null === $row || ! momos_user_can_branch( (int) $row['branch_id'], $user_id ) ) {
 			return [ 'do_not_allow' ];
 		}
-		return [ 'momo_view_reservation' === $cap ? 'momo_view_reservations' : 'momo_process_reservations' ];
+		return 'momo_view_reservation' === $cap ? [ 'momo_view_reservations' ] : [ 'momo_view_reservations', 'momo_process_reservations' ];
 	}
 }

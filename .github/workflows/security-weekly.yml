@@ -1,0 +1,141 @@
+# Weekly vulnerability scanning (FR-SEC-010; Doc 12 TC-SEC-012 WPScan, TC-SEC-013 OWASP ZAP baseline).
+#
+#   composer-audit  known advisories in composer.lock and wp-content/plugins/momos-core/composer.lock (blocking)
+#   npm-audit       known advisories (high and critical) in the Playwright tooling (tests/e2e, blocking)
+#   zap-baseline    OWASP ZAP baseline (passive) scan of a throw-away seeded site started in the job; the HTML/JSON/MD
+#                   report is uploaded as an artifact. continue-on-error until the first reports are triaged (then
+#                   add accepted rules to .github/zap/rules.tsv and make the job blocking).
+#   wpscan          optional: runs only when the repository secret WPSCAN_API_TOKEN exists (vulnerability data needs
+#                   an API token); scans the same kind of throw-away site, report as artifact, report-only.
+#
+# Only the CI-local site (127.0.0.1) is scanned; scanning staging or production needs the owner's written
+# authorisation and is not done here. Run on demand: Actions → Security (weekly) → Run workflow.
+name: Security (weekly)
+on:
+  schedule:
+    - cron: '23 18 * * 0' # Sunday 18:23 UTC = Monday 03:23 JST, outside the restaurant's opening hours
+  workflow_dispatch:
+
+concurrency:
+  group: security-weekly
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PHP_VERSION: '8.3'
+  PHP_EXTENSIONS: mysqli, intl, mbstring, gd, zip
+  # Composer refuses scripts/plugins as root without it (container runners); harmless on GitHub-hosted runners.
+  COMPOSER_ALLOW_SUPERUSER: '1'
+
+jobs:
+  composer-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+      - name: composer audit (root tooling and momos-core runtime dependencies)
+        run: |
+          status=0
+          composer audit --locked --no-interaction || status=1
+          composer audit --locked --no-interaction -d wp-content/plugins/momos-core || status=1
+          exit $status
+
+  npm-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: npm audit (tests/e2e)
+        working-directory: tests/e2e
+        run: npm audit --audit-level=high
+
+  zap-baseline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    continue-on-error: true # report-only until the first findings are triaged
+    env:
+      MOMOS_DB_NAME: momos_e2e
+      MOMOS_PORT: '8080'
+      MOMOS_URL: http://127.0.0.1:8080
+    steps:
+      - uses: actions/checkout@v4
+      - name: Seeded site
+        uses: ./.github/actions/seeded-site
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          php-extensions: ${{ env.PHP_EXTENSIONS }}
+      - name: OWASP ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: ${{ env.MOMOS_URL }}/
+          allow_issue_writing: false
+          fail_action: false
+          artifact_name: zap-baseline-report
+          cmd_options: '-a'
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-server-log
+          path: ${{ runner.temp }}/server.log
+          if-no-files-found: ignore
+
+  wpscan-token:
+    # Secrets cannot be read in a job-level `if`, so this job only reports whether the token exists.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    outputs:
+      present: ${{ steps.check.outputs.present }}
+    steps:
+      - id: check
+        env:
+          WPSCAN_API_TOKEN: ${{ secrets.WPSCAN_API_TOKEN }}
+        run: |
+          if [ -n "$WPSCAN_API_TOKEN" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "WPSCAN_API_TOKEN is not set: WPScan skipped."; fi
+
+  wpscan:
+    needs: wpscan-token
+    if: needs.wpscan-token.outputs.present == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    continue-on-error: true # report-only until the first findings are triaged
+    env:
+      MOMOS_DB_NAME: momos_e2e
+      MOMOS_PORT: '8080'
+      MOMOS_URL: http://127.0.0.1:8080
+    steps:
+      - uses: actions/checkout@v4
+      - name: Seeded site
+        uses: ./.github/actions/seeded-site
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          php-extensions: ${{ env.PHP_EXTENSIONS }}
+      - name: WPScan (vulnerable plugins/themes, config backups, DB exports, users)
+        env:
+          WPSCAN_API_TOKEN: ${{ secrets.WPSCAN_API_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/wpscan" && chmod 777 "$RUNNER_TEMP/wpscan"
+          docker run --rm --network host -v "$RUNNER_TEMP/wpscan:/out" wpscanteam/wpscan \
+            --url "$MOMOS_URL/" --api-token "$WPSCAN_API_TOKEN" --enumerate vp,vt,cb,dbe,u1-10 \
+            --format cli-no-colour --output /out/wpscan.txt
+      - name: WPScan summary
+        if: always()
+        run: cat "$RUNNER_TEMP/wpscan/wpscan.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "No WPScan output." >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload WPScan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wpscan-report
+          path: |
+            ${{ runner.temp }}/wpscan/wpscan.txt
+            ${{ runner.temp }}/server.log
+          if-no-files-found: ignore

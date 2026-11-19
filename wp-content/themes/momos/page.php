@@ -16,7 +16,7 @@ $momos_lead    = function_exists( 'momos_tr' ) ? momos_tr( $momos_id, 'excerpt' 
 get_template_part( 'template-parts/frame/page-banner', null, [ 'title' => $momos_title, 'lead' => $momos_lead ] );
 ?>
 <div class="momo-container momo-section">
-	<div class="momo-prose"><?php echo apply_filters( 'the_content', $momos_content ); // phpcs:ignore WordPress.Security.EscapeOutput -- core content filter (kses on save). ?></div>
+	<div class="momo-prose"><?php echo apply_filters( 'the_content', $momos_content ); // phpcs:ignore WordPress.Security.EscapeOutput, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook; core content filter (kses on save). ?></div>
 </div>
 <?php
 get_footer();

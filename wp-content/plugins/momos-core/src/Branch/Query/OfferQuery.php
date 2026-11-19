@@ -245,6 +245,7 @@ final class OfferQuery {
 			$args['post__in'] = $only ?: [ 0 ];
 		}
 		$ids = array_map( 'intval', get_posts( $args ) );
+		BranchScopeTaxonomy::prime_posts( $ids );
 		$ids = array_values(
 			array_filter(
 				$ids,

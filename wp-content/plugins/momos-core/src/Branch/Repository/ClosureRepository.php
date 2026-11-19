@@ -31,6 +31,28 @@ final class ClosureRepository {
 		return array_map( [ self::class, 'cast' ], (array) $rows );
 	}
 
+	/**
+	 * Closure rows of several branches (or every branch when $branch_ids is null) in a date range, in one
+	 * query (request cache of ScheduleService::prime(), NFR-PERF-02), ordered by branch, date and period.
+	 *
+	 * @param list<int>|null $branch_ids
+	 * @return list<array<string,mixed>>
+	 */
+	public static function rows_between_many( ?array $branch_ids, string $from_ymd, string $to_ymd ): array {
+		global $wpdb;
+		$t     = Tables::closures();
+		$where = $wpdb->prepare( 'closure_date BETWEEN %s AND %s', $from_ymd, $to_ymd );
+		if ( null !== $branch_ids ) {
+			$ids = array_values( array_unique( array_filter( array_map( 'intval', $branch_ids ) ) ) );
+			if ( ! $ids ) {
+				return [];
+			}
+			$where .= ' AND branch_id IN (' . implode( ',', $ids ) . ')';
+		}
+		$rows = $wpdb->get_results( "SELECT * FROM {$t} WHERE {$where} ORDER BY branch_id, closure_date, period_no", ARRAY_A ); // phpcs:ignore -- prepared fragment + integer list.
+		return array_map( [ self::class, 'cast' ], (array) $rows );
+	}
+
 	/** @return list<array<string,mixed>> */
 	public static function rows_on( int $branch_id, string $date_ymd ): array {
 		return self::rows_between( $branch_id, $date_ymd, $date_ymd );

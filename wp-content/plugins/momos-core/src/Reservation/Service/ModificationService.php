@@ -46,9 +46,9 @@ final class ModificationService {
 		if ( ! is_int( $version ) && ! ( is_string( $version ) && ctype_digit( $version ) ) ) {
 			$fields['version'] = 'required';
 		}
-		$date  = isset( $input['requested_date'] ) && null !== $input['requested_date'] ? (string) $input['requested_date'] : (string) $row['requested_date'];
-		$time  = isset( $input['requested_time'] ) && null !== $input['requested_time'] ? Digits::normalize( (string) $input['requested_time'] ) : substr( (string) $row['requested_time'], 0, 5 );
-		$party = isset( $input['party_size'] ) && null !== $input['party_size'] ? Digits::normalize( (string) $input['party_size'] ) : (string) $row['party_size'];
+		$date  = isset( $input['requested_date'] ) ? (string) $input['requested_date'] : (string) $row['requested_date'];
+		$time  = isset( $input['requested_time'] ) ? Digits::normalize( (string) $input['requested_time'] ) : substr( (string) $row['requested_time'], 0, 5 );
+		$party = isset( $input['party_size'] ) ? Digits::normalize( (string) $input['party_size'] ) : (string) $row['party_size'];
 		$dt    = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date );
 		if ( ! $dt || $dt->format( 'Y-m-d' ) !== $date ) {
 			$fields['requested_date'] = 'invalid_format';
@@ -138,8 +138,7 @@ final class ModificationService {
 					EventRepository::add( $id, EventType::Note, $actor, null, null, null, $note );
 				}
 				momos_audit( 'reservation.modified', 'reservation', $id, (int) $row['branch_id'], [ 'before' => $before, 'after' => $after, 'override' => $override, 'override_reason' => $o_reason ] );
-				$queued = in_array( $status, [ 'pending', 'confirmed' ], true ) ? [ 'E06' ] : [];
-				NotificationTrigger::modified( $id, (int) $row['branch_id'], $status, (int) $version + 1 ); // E06, same transaction.
+				$queued = NotificationTrigger::modified( $id, (int) $row['branch_id'], $status, (int) $version + 1 ); // E06, same transaction.
 				AfterCommit::dispatch( 'momos/reservation/modified', $id, $before, $after, $actor->to_array() );
 				return $queued;
 			}

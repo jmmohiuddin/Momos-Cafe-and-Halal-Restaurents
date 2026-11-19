@@ -24,7 +24,14 @@ final class Commands {
 		\WP_CLI::add_command(
 			'momos migrate',
 			static function ( $args, $assoc ): void {
-				$ran = Runner::run( isset( $assoc['force'] ) );
+				// Waits for a concurrent run in the same database; verifies the result instead of trusting it, so a
+				// skipped or failed run can never print "up to date" over an empty schema (Wave 3 fresh-install defect).
+				$ran     = Runner::run( isset( $assoc['force'] ), 120 );
+				$pending = Runner::pending();
+				$missing = Tables::missing();
+				if ( $pending || $missing ) {
+					\WP_CLI::error( 'Migrations incomplete' . ( $ran ? ' (applied: ' . implode( ', ', $ran ) . ')' : '' ) . '. Pending: ' . ( $pending ? implode( ', ', $pending ) : 'none' ) . '; missing tables: ' . ( $missing ? implode( ', ', $missing ) : 'none' ) . '. See the momos log (migration.locked / migration.failed).' );
+				}
 				\WP_CLI::success( $ran ? 'Applied: ' . implode( ', ', $ran ) : 'Database is up to date.' );
 			}
 		);
@@ -65,12 +72,22 @@ final class Commands {
 
 	/** Post-deploy smoke checks; exits non-zero on failure. */
 	public static function smoke(): void {
+		$fail = self::smoke_failures();
+		if ( $fail ) {
+			\WP_CLI::error( "Smoke failed:\n - " . implode( "\n - ", $fail ) );
+		}
+		\WP_CLI::success( 'Smoke checks passed.' );
+	}
+
+	/** @return list<string> smoke check failures (empty = pass); separate from WP-CLI output for tests. */
+	public static function smoke_failures(): array {
 		global $wpdb;
 		$fail = [];
-		foreach ( Tables::ALL as $short ) {
-			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Tables::name( $short ) ) ) !== Tables::name( $short ) ) {
-				$fail[] = 'missing table ' . $short;
-			}
+		foreach ( Tables::missing() as $short ) {
+			$fail[] = 'missing table ' . $short;
+		}
+		foreach ( Runner::pending() as $id ) {
+			$fail[] = 'pending migration ' . $id;
 		}
 		$names = $wpdb->get_col( $wpdb->prepare( 'SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = %s', DB_NAME ) );
 		foreach ( array_keys( M0002_Constraints::constraints() ) as $c ) {
@@ -88,6 +105,9 @@ final class Commands {
 		}
 		foreach ( \Momos\Kernel\Monitoring\StatusPanel::unregistered_plugins() as $p ) {
 			$fail[] = 'unregistered plugin ' . $p;
+		}
+		if ( \Momos\Kernel\Monitoring\StatusPanel::active_count() > \Momos\Kernel\Monitoring\StatusPanel::MAX_PLUGINS ) {
+			$fail[] = 'more than ' . \Momos\Kernel\Monitoring\StatusPanel::MAX_PLUGINS . ' active plugins (FR-FND-006)';
 		}
 		if ( Env::is_production() ) {
 			$samples = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = 'momo_is_sample' AND m.meta_value = '1' WHERE p.post_status = 'publish'" ); // phpcs:ignore
@@ -107,10 +127,7 @@ final class Commands {
 			}
 		}
 		do_action_ref_array( 'momos/smoke', [ &$fail ] );
-		if ( $fail ) {
-			\WP_CLI::error( "Smoke failed:\n - " . implode( "\n - ", $fail ) );
-		}
-		\WP_CLI::success( 'Smoke checks passed.' );
+		return array_values( array_map( 'strval', $fail ) );
 	}
 
 	/**

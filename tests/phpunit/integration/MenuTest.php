@@ -301,6 +301,101 @@ final class MenuTest extends TestCase {
 		$this->assertCount( 1, MenuQueryService::categories( 'hi' ) );
 	}
 
+	/**
+	 * BR-CORP-03 / content-strings §10.1 D2: sample categories (term meta `momo_is_sample`) and sample dishes are
+	 * never public in production — not listed by categories(), the term archive is a 404, a sample dish is not
+	 * displayable and cannot be published. Production is simulated with `momos/menu/hide_samples` (the test
+	 * bootstrap fixes MOMOS_ENV=development); outside production samples stay visible for demos.
+	 */
+	public function test_sample_categories_and_dishes_are_not_public_in_production(): void {
+		$real   = $this->category( 'mains' );
+		$sample = $this->category( 'sample-cat' );
+		update_term_meta( $sample, 'momo_is_sample', '1' );
+		$this->dish( 'D0710', $real );
+		$demo   = $this->dish( 'D0711', $sample, 1500, [ 'momo_is_sample' => '1' ] );
+		$listed = static fn(): array => array_map( static fn( $t ) => (int) $t->term_id, MenuQueryService::categories( 'ja' ) );
+
+		$this->assertFalse( MenuQueryService::hides_samples(), 'development: samples visible' );
+		$this->assertEqualsCanonicalizing( [ $real, $sample ], $listed() );
+		$this->assertTrue( MenuQueryService::is_displayable( $demo, 'ja' ) );
+		$this->assertFalse( $this->category_archive_is_404( 'sample-cat' ) );
+
+		add_filter( 'momos/menu/hide_samples', '__return_true' );
+		try {
+			$this->assertTrue( MenuQueryService::hides_samples() );
+			$this->assertSame( [ $real ], $listed(), 'the sample category is not listed' );
+			$this->assertFalse( MenuQueryService::is_category_public( get_term( $sample ), 'ja' ) );
+			$this->assertTrue( MenuQueryService::is_category_public( get_term( $real ), 'ja' ) );
+			$this->assertFalse( MenuQueryService::is_displayable( $demo, 'ja' ), 'sample dish hidden' );
+			$this->assertTrue( $this->category_archive_is_404( 'sample-cat' ), 'sample term archive → 404' );
+			$this->assertFalse( $this->category_archive_is_404( 'mains' ), 'real category archive still served' );
+
+			$draft = self::factory()->post->create( [ 'post_type' => ContentTypes::DISH, 'post_title' => '見本', 'post_status' => 'draft' ] );
+			wp_set_object_terms( $draft, [ $real ], ContentTypes::CATEGORY );
+			foreach ( [ 'momo_short_description' => '説明', 'momo_dish_sku' => 'D0712', 'momo_primary_category' => (string) $real, 'momo_reference_price_jpy' => '900', 'momo_spice_level' => '0', 'momo_is_sample' => '1' ] as $k => $v ) {
+				update_post_meta( $draft, $k, $v );
+			}
+			set_post_thumbnail( $draft, $this->image() );
+			$this->assertContains( 'Sample dishes cannot be published on the live site', DishPublishValidator::errors_for_post( $draft ) );
+			wp_update_post( [ 'ID' => $draft, 'post_status' => 'publish' ] );
+			$this->assertSame( 'draft', get_post_status( $draft ), 'publish refused for a sample dish' );
+		} finally {
+			remove_filter( 'momos/menu/hide_samples', '__return_true' );
+		}
+		add_filter( 'momos/menu/hide_samples', '__return_false' );
+		$this->assertSame( \Momos\Kernel\Env::is_production(), MenuQueryService::hides_samples(), 'the filter cannot lift the production rule' );
+		remove_filter( 'momos/menu/hide_samples', '__return_false' );
+	}
+
+	/** Runs the menu term-archive routing (MenuRewrite::template_redirect) for /menu/{slug}/ and reports a 404. */
+	private function category_archive_is_404( string $slug ): bool {
+		$this->go_to( add_query_arg( ContentTypes::CATEGORY, $slug, home_url( '/' ) ) );
+		MenuRewrite::template_redirect();
+		return is_404();
+	}
+
+	/**
+	 * FR-DIET-007 (Doc 04 §16.5): the dish page's "Key ingredients (not a complete list)" block lists the dish's
+	 * `momo_ingredient` terms — private taxonomy (no archive/REST), names in the page language with no
+	 * mixed-language fallback (DEC-027), an ingredient class per term, and the heading string in all six catalogs.
+	 */
+	public function test_key_ingredients_block_data(): void {
+		$tax = get_taxonomy( ContentTypes::INGREDIENT );
+		$this->assertFalse( $tax->public, 'ingredients have no public archive' );
+		$this->assertFalse( $tax->rewrite );
+		$this->assertFalse( $tax->show_in_rest );
+		$this->assertSame( 'Key ingredients', $tax->labels->name );
+
+		$cat     = $this->category( 'curry-ing' );
+		$dish    = $this->dish( 'D0720', $cat );
+		$chicken = (int) wp_insert_term( '鶏肉', ContentTypes::INGREDIENT )['term_id'];
+		$cashew  = (int) wp_insert_term( 'カシューナッツ', ContentTypes::INGREDIENT )['term_id'];
+		update_term_meta( $chicken, 'momo_ing_class', 'poultry' );
+		wp_set_object_terms( $dish, [ $chicken, $cashew ], ContentTypes::INGREDIENT );
+		$this->assertArrayHasKey( 'poultry', \Momos\Menu\Domain\IngredientClass::choices() );
+		$this->assertSame( 'poultry', (string) get_term_meta( $chicken, 'momo_ing_class', true ) );
+
+		$names = static fn( string $lang ): array => \Momos\Presentation\View\MenuView::dish( $dish, null, $lang )['ingredients'] ?? null;
+		$ja    = $names( 'ja' );
+		sort( $ja );
+		$expected = [ '鶏肉', 'カシューナッツ' ];
+		sort( $expected );
+		$this->assertSame( $expected, $ja, 'Japanese source names' );
+
+		Translations::save( 'post', $dish, 'en', [ 'title' => 'Chicken curry' ], 'approved' );
+		Translations::save( 'term', $chicken, 'en', [ 'name' => 'Chicken' ], 'approved' );
+		Translations::save( 'term', $cashew, 'en', [ 'name' => 'Cashew nuts' ], 'draft' );
+		$this->assertSame( [ 'Chicken' ], $names( 'en' ), 'only approved names; no Japanese fallback for the draft one' );
+
+		wp_set_object_terms( $dish, [], ContentTypes::INGREDIENT );
+		$this->assertSame( [], $names( 'ja' ), 'no terms → empty list → the template omits the block' );
+
+		$this->assertSame( 'Key ingredients (not a complete list)', momos_t( 'ingredients.heading', [], 'en' ) );
+		foreach ( [ 'ja', 'en', 'ar', 'ur', 'hi', 'bn' ] as $lang ) {
+			$this->assertArrayHasKey( 'ingredients.heading', \Momos\Kernel\I18n\Strings::catalog( $lang ), $lang );
+		}
+	}
+
 	/** FR-MENU-001: branch context lists only offered dishes; invalid/TEST/closed codes ignored (AC-MENU-01-05). */
 	public function test_branch_context_and_selector(): void {
 		$cat  = $this->category( 'ctx' );

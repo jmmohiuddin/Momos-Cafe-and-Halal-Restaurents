@@ -381,6 +381,8 @@ final class Translations {
 	private static function clean_scalar( array $def, mixed $raw ): string {
 		$v = is_scalar( $raw ) ? (string) $raw : '';
 		$v = 'html' === $def['type'] ? wp_kses_post( $v ) : ( 'textarea' === $def['type'] ? sanitize_textarea_field( $v ) : sanitize_text_field( $v ) );
+		// Digits are always Western (DEC-062, QA-050): "৩ মিনিট" is stored as "3 মিনিট" in every field type.
+		$v = Digits::western( $v );
 		if ( isset( $def['max'] ) ) {
 			$v = mb_substr( $v, 0, (int) $def['max'] );
 		}
@@ -527,7 +529,7 @@ final class Translations {
 		$def    = self::fields( 'post:' . $post->post_type )[ $field ] ?? null;
 		$source = $def['source'] ?? $field;
 		return match ( true ) {
-			'post_title' === $source || 'title' === $field && null === $def => (string) $post->post_title,
+			'post_title' === $source || ( 'title' === $field && null === $def ) => (string) $post->post_title,
 			'post_content' === $source => (string) $post->post_content,
 			'post_excerpt' === $source => (string) $post->post_excerpt,
 			str_starts_with( $source, 'meta:' ) => self::to_string( get_post_meta( $post->ID, substr( $source, 5 ), true ) ),

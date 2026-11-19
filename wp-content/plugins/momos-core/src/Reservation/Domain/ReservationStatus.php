@@ -16,12 +16,12 @@ enum ReservationStatus: string {
 	case Completed = 'completed';
 	case NoShow    = 'no_show';
 
-	public function isActive(): bool {
+	public function is_active(): bool {
 		return self::Pending === $this || self::Confirmed === $this;
 	}
 
-	public function isTerminal(): bool {
-		return ! $this->isActive();
+	public function is_terminal(): bool {
+		return ! $this->is_active();
 	}
 
 	/** @return list<string> */
@@ -34,7 +34,7 @@ enum ReservationStatus: string {
 	}
 
 	/** Staff label (admin ja/en, spec §8.3). */
-	public function staffLabel(): string {
+	public function staff_label(): string {
 		return match ( $this ) {
 			self::Pending   => __( 'Pending', 'momos-core' ),
 			self::Confirmed => __( 'Accepted', 'momos-core' ),

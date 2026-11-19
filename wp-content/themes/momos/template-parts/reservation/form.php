@@ -59,10 +59,11 @@ if ( $momos_extra ) {
 		<div class="momo-res-main momo-stack">
 			<?php
 			// TEST banner only for viewers who are offered the TEST branch at all (assigned staff, FR-RES-026 /
-			// reservation spec §3.14); anonymous pages carry no trace of it.
+			// reservation spec §3.14); anonymous pages and unassigned staff carry no trace of it. It is shown
+			// when the selected branch is TEST (prefill here, then reservation-form.js on every change).
 			if ( array_filter( (array) $momos_v['branches'], static fn( $b ) => ! empty( $b['is_test'] ) ) ) :
 				?>
-			<div class="momo-alert momo-alert--warning" data-res-test-banner hidden>
+			<div class="momo-alert momo-alert--warning" data-res-test-banner<?php echo empty( $momos_v['is_test'] ) ? ' hidden' : ''; ?>>
 				<?php momos_the_icon( 'alert-triangle' ); ?>
 				<div><p class="momo-strong"><?php echo esc_html( momos_s( 'res.test_banner' ) ); ?></p></div>
 			</div>

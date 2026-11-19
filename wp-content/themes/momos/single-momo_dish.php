@@ -129,7 +129,7 @@ $momos_price   = static function ( string $key, string $price_html, string $bran
 	<?php if ( '' !== trim( (string) $momos_d['content'] ) ) : ?>
 		<section class="momo-dish-sec" aria-labelledby="dish-about">
 			<h2 id="dish-about"><?php echo esc_html( momos_s( 'menu.dish.description' ) ); ?></h2>
-			<div class="momo-prose"><?php echo wp_kses_post( (string) apply_filters( 'the_content', (string) $momos_d['content'] ) ); ?></div>
+			<div class="momo-prose"><?php echo wp_kses_post( (string) apply_filters( 'the_content', (string) $momos_d['content'] ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook. ?></div>
 		</section>
 	<?php endif; ?>
 

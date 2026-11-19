@@ -239,7 +239,7 @@ final class TranslationEditor {
 			return [];
 		}
 		$values   = isset( $_POST['momos_tr'] ) && is_array( $_POST['momos_tr'] ) ? wp_unslash( $_POST['momos_tr'] ) : []; // phpcs:ignore -- sanitised in Translations::save().
-		$statuses = isset( $_POST['momos_tr_status'] ) && is_array( $_POST['momos_tr_status'] ) ? array_map( 'sanitize_key', wp_unslash( $_POST['momos_tr_status'] ) ) : [];
+		$statuses = isset( $_POST['momos_tr_status'] ) && is_array( $_POST['momos_tr_status'] ) ? array_map( 'sanitize_key', wp_unslash( $_POST['momos_tr_status'] ) ) : []; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by nonce_ok() at the top of persist().
 		$errors   = [];
 		$user     = get_current_user_id();
 		foreach ( self::user_langs() as $lang ) {

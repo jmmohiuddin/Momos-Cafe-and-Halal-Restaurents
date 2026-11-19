@@ -124,7 +124,7 @@ final class HoursFormHandler {
 		if ( null === $from || null === $to || $to < $from ) {
 			$errors['date'] = __( 'End must be after start.', 'momos-core' );
 		} else {
-			for ( $d = new \DateTimeImmutable( $from, Clock::tz() ); $d->format( 'Y-m-d' ) <= $to && count( $dates ) <= self::MAX_RANGE_DAYS; $d = $d->modify( '+1 day' ) ) {
+			for ( $d = new \DateTimeImmutable( $from, Clock::tz() ), $n = 0; $d->format( 'Y-m-d' ) <= $to && $n <= self::MAX_RANGE_DAYS; $d = $d->modify( '+1 day' ), $n++ ) {
 				$dates[] = $d->format( 'Y-m-d' );
 			}
 			if ( count( $dates ) > self::MAX_RANGE_DAYS ) {

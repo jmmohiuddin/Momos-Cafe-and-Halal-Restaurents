@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-11-19T01:08:48+00:00\n"
-"PO-Revision-Date: 2026-11-19T01:35:18+00:00\n"
+"PO-Revision-Date: 2026-11-19T10:28:51+00:00\n"
 "Language: ja\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: momos-core\n"
@@ -29,11 +29,11 @@ msgstr "Momo's Cafe & Halal Restaurant の業務ロジック — 店舗、メニ
 msgid "Nimikh for Momo's Cafe & Halal Restaurant"
 msgstr "Nimikh（Momo's Cafe & Halal Restaurant 向け）"
 
-#: src/Access/AccessModule.php:46
+#: src/Access/AccessModule.php:54
 msgid "MOMOS_2FA_KEY is not defined: two-factor secrets are encrypted with a key derived from the WordPress salts. Define a dedicated 32-byte key in the secrets file."
 msgstr "MOMOS_2FA_KEY が定義されていません。2段階認証のシークレットは WordPress のソルトから派生した鍵で暗号化されています。シークレットファイルに専用の 32 バイト鍵を定義してください。"
 
-#: src/Access/Admin/ProfileGuard.php:60
+#: src/Access/Admin/ProfileGuard.php:79
 msgid "You are not allowed to give users that role."
 msgstr "ユーザーにその権限グループを付与する権限がありません。"
 
@@ -57,13 +57,13 @@ msgstr "管理画面の言語は日本語または英語にしてください。
 msgid "Enter the phone number in international format, e.g. +81312345678."
 msgstr "電話番号は国際形式で入力してください（例：+81312345678）。"
 
-#: src/Access/Admin/UserAccessFields.php:268
-#: src/Access/Admin/UserAccessFields.php:281
+#: src/Access/Admin/UserAccessFields.php:271
+#: src/Access/Admin/UserAccessFields.php:286
 msgid "Enter a valid date and time."
 msgstr "正しい日時を入力してください。"
 
 #: src/Access/Admin/UsersList.php:35
-#: src/Branch/Admin/ListScreens.php:141
+#: src/Branch/Admin/ListScreens.php:144
 #: src/Branch/Fields/NoticeFields.php:44
 #: src/Branch/Fields/OfferFields.php:51
 #: src/Branch/PostType/PostTypes.php:23
@@ -71,7 +71,7 @@ msgstr "正しい日時を入力してください。"
 #: src/Menu/Admin/DishAdmin.php:109
 #: templates/admin/access-user-fields.php:55
 #: templates/admin/access-user-fields.php:59
-#: templates/admin/reservation-inbox.php:179
+#: templates/admin/reservation-inbox.php:215
 msgid "Branches"
 msgstr "店舗"
 
@@ -80,28 +80,28 @@ msgid "2FA"
 msgstr "2FA"
 
 #: src/Access/Admin/UsersList.php:37
-#: src/Access/Admin/UsersList.php:111
-#: src/Branch/Service/BranchGuard.php:321
+#: src/Access/Admin/UsersList.php:114
+#: src/Branch/Service/BranchGuard.php:317
 #: src/Dietary/Admin/CertificateEditor.php:34
 #: src/Dietary/Fields/DietaryFields.php:170
 #: src/Kernel/I18n/Admin/StringsPage.php:301
 #: src/Kernel/I18n/Admin/StringsPage.php:319
 #: src/Kernel/I18n/Admin/StringsPage.php:337
-#: src/Kernel/I18n/Admin/TranslationEditor.php:119
+#: src/Kernel/I18n/Admin/TranslationEditor.php:129
 #: src/Menu/Admin/DishAdmin.php:41
 #: src/Notification/Admin/NotificationLogScreen.php:127
 #: src/Notification/Admin/NotificationLogScreen.php:155
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 #: src/Notification/Service/Retention.php:75
 #: src/Privacy/Dsr/PersonalData.php:120
 #: templates/admin/branch-hours.php:74
 #: templates/admin/dietary-register.php:55
-#: templates/admin/dietary-statements.php:67
 #: templates/admin/dietary-statements.php:78
+#: templates/admin/dietary-statements.php:92
 #: templates/admin/privacy-dsr.php:77
-#: templates/admin/reservation-inbox.php:71
-#: templates/admin/reservation-inbox.php:131
-#: templates/admin/reservation-inbox.php:147
+#: templates/admin/reservation-inbox.php:75
+#: templates/admin/reservation-inbox.php:135
+#: templates/admin/reservation-inbox.php:155
 msgid "Status"
 msgstr "状態"
 
@@ -119,19 +119,19 @@ msgid "Not enrolled"
 msgstr "未登録"
 
 #: src/Access/Admin/UsersList.php:52
-#: src/Access/Admin/UsersList.php:112
+#: src/Access/Admin/UsersList.php:115
 #: templates/admin/access-user-fields.php:132
 msgid "Disabled"
 msgstr "無効"
 
 #. translators: %s: JST date/time
 #: src/Access/Admin/UsersList.php:57
-#: src/Branch/Admin/ListScreens.php:112
-#: src/Branch/Admin/ListScreens.php:156
+#: src/Branch/Admin/ListScreens.php:115
+#: src/Branch/Admin/ListScreens.php:159
 #: src/Dietary/Domain/ClaimStatus.php:22
 #: src/Notification/Template/TemplateRegistry.php:50
 #: src/Reservation/Domain/ReservationStatus.php:43
-#: templates/admin/dietary-register.php:72
+#: templates/admin/dietary-register.php:75
 msgid "Expired"
 msgstr "期限切れ"
 
@@ -142,9 +142,9 @@ msgid "Vendor until %s"
 msgstr "ベンダー（%s まで）"
 
 #: src/Access/Admin/UsersList.php:59
-#: src/Access/Admin/UsersList.php:112
-#: src/Branch/Admin/ListScreens.php:112
-#: src/Branch/Admin/ListScreens.php:155
+#: src/Access/Admin/UsersList.php:115
+#: src/Branch/Admin/ListScreens.php:115
+#: src/Branch/Admin/ListScreens.php:158
 #: src/Branch/Fields/BranchFields.php:145
 #: src/Dietary/Domain/ClaimStatus.php:21
 #: src/Notification/Admin/SettingsFields.php:32
@@ -161,15 +161,15 @@ msgstr "有効にする"
 msgid "Disable"
 msgstr "無効にする"
 
-#: src/Access/Admin/UsersList.php:87
+#: src/Access/Admin/UsersList.php:90
 msgid "Reset two-factor for this user? Confirm their identity first."
 msgstr "このユーザーの2段階認証をリセットしますか？先に本人確認を行ってください。"
 
-#: src/Access/Admin/UsersList.php:88
+#: src/Access/Admin/UsersList.php:91
 msgid "Reset two-factor"
 msgstr "2段階認証をリセット"
 
-#: src/Access/Admin/UsersList.php:107
+#: src/Access/Admin/UsersList.php:110
 #: src/Admin/Content/MediaFields.php:66
 #: src/Branch/PostType/PostTypes.php:23
 #: src/Kernel/I18n/Admin/TranslationGaps.php:71
@@ -182,31 +182,31 @@ msgstr "2段階認証をリセット"
 #: templates/admin/branch-hours.php:97
 #: templates/admin/menu-branch-grid.php:26
 #: templates/admin/privacy-dsr.php:75
-#: templates/admin/reservation-detail.php:84
-#: templates/admin/reservation-inbox.php:62
-#: templates/admin/reservation-inbox.php:130
-#: templates/admin/reservation-inbox.php:146
-#: templates/admin/reservation-report.php:71
-#: templates/admin/reservation-report.php:102
+#: templates/admin/reservation-detail.php:87
+#: templates/admin/reservation-inbox.php:66
+#: templates/admin/reservation-inbox.php:134
+#: templates/admin/reservation-inbox.php:150
+#: templates/admin/reservation-report.php:80
+#: templates/admin/reservation-report.php:117
 msgid "Branch"
 msgstr "店舗"
 
-#: src/Access/Admin/UsersList.php:107
-#: src/Branch/Admin/ListScreens.php:167
+#: src/Access/Admin/UsersList.php:110
+#: src/Branch/Admin/ListScreens.php:170
 #: src/Branch/Fields/OfferFields.php:33
 #: templates/admin/reservation-inbox.php:27
 msgid "All branches"
 msgstr "全店舗"
 
-#: src/Access/Admin/UsersList.php:111
+#: src/Access/Admin/UsersList.php:114
 msgid "Any status"
 msgstr "すべての状態"
 
-#: src/Access/Admin/UsersList.php:112
+#: src/Access/Admin/UsersList.php:115
 msgid "Vendor"
 msgstr "ベンダー"
 
-#: src/Access/Admin/UsersList.php:116
+#: src/Access/Admin/UsersList.php:119
 #: src/Kernel/I18n/Admin/GapsPage.php:113
 #: src/Kernel/I18n/Admin/StringsPage.php:306
 #: src/Notification/Admin/NotificationLogScreen.php:149
@@ -214,22 +214,22 @@ msgstr "ベンダー"
 msgid "Filter"
 msgstr "絞り込み"
 
-#: src/Access/Admin/UsersList.php:162
+#: src/Access/Admin/UsersList.php:165
 msgid "User disabled. All sessions have ended."
 msgstr "ユーザーを無効にしました。すべてのセッションが終了しました。"
 
-#: src/Access/Admin/UsersList.php:166
+#: src/Access/Admin/UsersList.php:169
 msgid "User enabled. Review the kept branch assignments."
 msgstr "ユーザーを有効にしました。保持されている店舗の割り当てを確認してください。"
 
-#: src/Access/Admin/UsersList.php:172
+#: src/Access/Admin/UsersList.php:175
 #: src/Admin/Settings/LanguageGate.php:53
 #: src/Dietary/Admin/CertificateEditor.php:132
-#: src/Reservation/Admin/InboxPage.php:338
+#: src/Reservation/Admin/InboxPage.php:367
 msgid "Unknown action."
 msgstr "不明な操作です。"
 
-#: src/Access/Admin/UsersList.php:180
+#: src/Access/Admin/UsersList.php:183
 msgid "Two-factor was reset. The user enrols again at the next login."
 msgstr "2段階認証をリセットしました。ユーザーは次回ログイン時に再登録します。"
 
@@ -255,11 +255,11 @@ msgstr "セキュリティ"
 msgid "DISALLOW_FILE_EDIT must be true everywhere and DISALLOW_FILE_MODS must be true in production; changes reach the site only through the deployment pipeline (SEC-040, DEC-065)."
 msgstr "DISALLOW_FILE_EDIT はすべての環境で true、DISALLOW_FILE_MODS は本番環境で true にする必要があります。変更はデプロイパイプラインを通じてのみサイトに反映します（SEC-040、DEC-065）。"
 
-#: src/Access/Roles/RoleInstaller.php:184
+#: src/Access/Roles/RoleInstaller.php:185
 msgid "Super Administrator"
 msgstr "スーパー管理者"
 
-#: src/Access/Session/SessionPolicy.php:162
+#: src/Access/Session/SessionPolicy.php:171
 msgid "Your session has ended. Please log in again."
 msgstr "セッションが終了しました。もう一度ログインしてください。"
 
@@ -312,9 +312,9 @@ msgstr "この権限をスーパー管理者に付与するには、オーナー
 msgid "This user's email address is still listed as a notification recipient (Head Office list or a branch). Update the recipient lists."
 msgstr "このユーザーのメールアドレスはまだ通知の受信者（本部リストまたは店舗）に登録されています。受信者リストを更新してください。"
 
-#: src/Admin/AdminModule.php:35
-#: src/Admin/AdminModule.php:36
-#: src/Admin/AdminModule.php:46
+#: src/Admin/AdminModule.php:38
+#: src/Admin/AdminModule.php:39
+#: src/Admin/AdminModule.php:49
 msgid "Momo's"
 msgstr "Momo's"
 
@@ -362,10 +362,10 @@ msgstr "質問／回答"
 
 #: src/Admin/Content/FaqEditor.php:97
 #: src/Admin/Content/FaqEditor.php:119
-#: src/Branch/Admin/ListScreens.php:144
+#: src/Branch/Admin/ListScreens.php:147
 #: src/Branch/Fields/OfferFields.php:61
-#: src/Branch/Service/BranchGuard.php:321
-#: templates/admin/reservation-inbox.php:109
+#: src/Branch/Service/BranchGuard.php:317
+#: templates/admin/reservation-inbox.php:113
 msgid "Order"
 msgstr "順序"
 
@@ -378,9 +378,9 @@ msgstr "アンカー ID"
 #: src/Kernel/Fields/Renderer.php:196
 #: src/Seo/Admin/SeoAdmin.php:250
 #: src/Seo/Admin/SeoAdmin.php:279
-#: templates/admin/branch-hours.php:213
-#: templates/admin/dietary-register.php:56
-#: templates/admin/reservation-detail.php:177
+#: templates/admin/branch-hours.php:216
+#: templates/admin/dietary-register.php:59
+#: templates/admin/reservation-detail.php:201
 msgid "Actions"
 msgstr "操作"
 
@@ -468,7 +468,7 @@ msgid "Standard page"
 msgstr "通常ページ"
 
 #: src/Admin/Content/LegalPageBox.php:47
-#: src/Kernel/Monitoring/StatusPanel.php:65
+#: src/Kernel/Monitoring/StatusPanel.php:68
 msgid "Version"
 msgstr "バージョン"
 
@@ -477,7 +477,7 @@ msgid "Same label as the consent registry, e.g. 1.0. Translations always show th
 msgstr "同意レジストリと同じ表記（例：1.0）。翻訳版にも常にこのバージョンが表示されます。"
 
 #: src/Admin/Content/LegalPageBox.php:58
-#: src/Branch/Admin/ListScreens.php:54
+#: src/Branch/Admin/ListScreens.php:57
 msgid "Last updated"
 msgstr "最終更新日"
 
@@ -548,106 +548,102 @@ msgstr "画像に設定できるのは担当店舗のみです。"
 msgid "Choose a menu category from the list."
 msgstr "リストからメニューカテゴリーを選択してください。"
 
-#: src/Admin/Dashboard/Widgets.php:31
+#: src/Admin/Dashboard/Widgets.php:34
 msgid "My pending requests"
 msgstr "担当の未対応リクエスト"
 
-#: src/Admin/Dashboard/Widgets.php:34
+#: src/Admin/Dashboard/Widgets.php:41
 #: src/Kernel/I18n/Admin/GapsPage.php:31
 #: src/Kernel/I18n/Admin/GapsPage.php:77
 #: src/Kernel/I18n/Admin/GapsPage.php:163
 msgid "Translation gaps"
 msgstr "翻訳の不足"
 
-#: src/Admin/Dashboard/Widgets.php:37
+#: src/Admin/Dashboard/Widgets.php:47
 msgid "Expiring certificates"
 msgstr "期限が近い認証書"
 
-#: src/Admin/Dashboard/Widgets.php:40
+#: src/Admin/Dashboard/Widgets.php:50
 msgid "Failed notifications"
 msgstr "送信に失敗した通知"
 
-#: src/Admin/Dashboard/Widgets.php:44
+#: src/Admin/Dashboard/Widgets.php:54
 msgid "Dishes awaiting review"
 msgstr "レビュー待ちの料理"
 
-#: src/Admin/Dashboard/Widgets.php:47
+#: src/Admin/Dashboard/Widgets.php:60
 msgid "Recent changes"
 msgstr "最近の変更"
 
-#: src/Admin/Dashboard/Widgets.php:63
+#: src/Admin/Dashboard/Widgets.php:111
 msgid "No pending requests."
 msgstr "未対応のリクエストはありません。"
 
-#: src/Admin/Dashboard/Widgets.php:63
+#: src/Admin/Dashboard/Widgets.php:111
 msgid "pending requests"
 msgstr "件の未対応リクエスト"
 
-#. translators: %d: count
-#: src/Admin/Dashboard/Widgets.php:70
-#, php-format
-msgid "%d need action"
-msgstr "%d 件が要対応"
-
-#: src/Admin/Dashboard/Widgets.php:92
+#: src/Admin/Dashboard/Widgets.php:201
 msgid "All published items are translated in every public language."
 msgstr "公開中のすべての項目が、すべての公開言語で翻訳済みです。"
 
-#: src/Admin/Dashboard/Widgets.php:95
+#: src/Admin/Dashboard/Widgets.php:204
 #: src/Branch/Fields/BranchFields.php:144
 #: src/Kernel/I18n/Admin/GapsPage.php:100
 #: src/Kernel/I18n/Admin/GapsPage.php:167
 #: src/Kernel/I18n/Admin/StringsPage.php:292
 #: src/Notification/Admin/NotificationLogScreen.php:142
 #: src/Notification/Admin/NotificationLogScreen.php:155
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 #: src/Notification/Admin/SettingsFields.php:31
 #: src/Notification/Service/Retention.php:74
 #: src/Seo/Admin/SeoAdmin.php:279
 #: templates/admin/dietary-claim-scan.php:24
-#: templates/admin/dietary-statements.php:67
-#: templates/admin/reservation-report.php:103
+#: templates/admin/dietary-statements.php:78
+#: templates/admin/reservation-report.php:118
 #: templates/admin/settings-languages.php:29
 msgid "Language"
 msgstr "言語"
 
-#: src/Admin/Dashboard/Widgets.php:95
+#: src/Admin/Dashboard/Widgets.php:204
 msgid "Items not yet approved"
 msgstr "未承認の項目"
 
-#: src/Admin/Dashboard/Widgets.php:118
+#: src/Admin/Dashboard/Widgets.php:227
 msgid "No certificate expires in the next 30 days."
 msgstr "今後 30 日以内に期限が切れる認証書はありません。"
 
-#: src/Admin/Dashboard/Widgets.php:124
+#: src/Admin/Dashboard/Widgets.php:233
 msgid "expired"
 msgstr "期限切れ"
 
-#: src/Admin/Dashboard/Widgets.php:124
+#: src/Admin/Dashboard/Widgets.php:233
 msgid "valid until"
 msgstr "有効期限"
 
-#: src/Admin/Dashboard/Widgets.php:132
+#: src/Admin/Dashboard/Widgets.php:241
 msgid "No failed notifications in the last 24 hours."
 msgstr "過去 24 時間に送信に失敗した通知はありません。"
 
-#: src/Admin/Dashboard/Widgets.php:132
+#: src/Admin/Dashboard/Widgets.php:241
 msgid "failed in the last 24 hours"
 msgstr "件が過去 24 時間に送信失敗"
 
-#: src/Admin/Dashboard/Widgets.php:137
+#: src/Admin/Dashboard/Widgets.php:247
+#: src/Admin/Dashboard/Widgets.php:251
 msgid "No dishes are waiting for review."
 msgstr "レビュー待ちの料理はありません。"
 
-#: src/Admin/Dashboard/Widgets.php:137
+#: src/Admin/Dashboard/Widgets.php:247
+#: src/Admin/Dashboard/Widgets.php:251
 msgid "dishes awaiting review"
 msgstr "件の料理がレビュー待ち"
 
-#: src/Admin/Dashboard/Widgets.php:144
+#: src/Admin/Dashboard/Widgets.php:361
 msgid "No changes in the last 7 days."
 msgstr "過去 7 日間に変更はありません。"
 
-#: src/Admin/Dashboard/Widgets.php:151
+#: src/Admin/Dashboard/Widgets.php:368
 msgid "Open the audit log"
 msgstr "監査ログを開く"
 
@@ -891,8 +887,8 @@ msgstr "バージョンを追加"
 
 #: src/Admin/Settings/ReservationOptions.php:52
 #: src/Kernel/I18n/Admin/StringsPage.php:319
-#: templates/admin/dietary-statements.php:53
-#: templates/admin/dietary-statements.php:98
+#: templates/admin/dietary-statements.php:60
+#: templates/admin/dietary-statements.php:116
 #: templates/admin/privacy-dsr.php:204
 msgid "Key"
 msgstr "キー"
@@ -1119,9 +1115,9 @@ msgid "Notifications"
 msgstr "通知"
 
 #: src/Admin/Settings/SettingsScreen.php:30
-#: src/Branch/Admin/ListScreens.php:51
-#: src/Branch/Admin/ListScreens.php:105
-#: src/Branch/Admin/ListScreens.php:145
+#: src/Branch/Admin/ListScreens.php:54
+#: src/Branch/Admin/ListScreens.php:108
+#: src/Branch/Admin/ListScreens.php:148
 msgid "Languages"
 msgstr "言語"
 
@@ -1138,8 +1134,8 @@ msgstr "プライバシー"
 #: src/Menu/Admin/BranchMenuGrid.php:52
 #: src/Menu/Admin/CategoryOrderPage.php:53
 #: src/Notification/Admin/NotificationLogScreen.php:69
-#: src/Reservation/Admin/InboxPage.php:118
-#: src/Reservation/Admin/ReportPage.php:30
+#: src/Reservation/Admin/InboxPage.php:147
+#: src/Reservation/Admin/ReportPage.php:40
 msgid "You do not have permission to view this page."
 msgstr "このページを表示する権限がありません。"
 
@@ -1152,23 +1148,23 @@ msgstr "設定のセクション"
 msgid "Settings saved."
 msgstr "設定を保存しました。"
 
-#: src/Api/CoreRestGuard.php:31
+#: src/Api/CoreRestGuard.php:33
 msgid "This resource is read-only."
 msgstr "このリソースは読み取り専用です。"
 
-#: src/Api/CoreRestGuard.php:35
+#: src/Api/CoreRestGuard.php:37
 #: src/Menu/Rest/BranchMenuController.php:55
 msgid "Please sign in."
 msgstr "ログインしてください。"
 
-#: src/Api/CoreRestGuard.php:40
+#: src/Api/CoreRestGuard.php:42
 #: src/Dietary/Admin/StatementsPage.php:55
 #: src/Menu/Admin/BranchMenuGrid.php:91
 #: src/Menu/Admin/CategoryOrderPage.php:64
 #: src/Menu/Rest/BranchMenuController.php:63
 #: src/Notification/Admin/NotificationLogScreen.php:225
 #: src/Notification/Admin/NotificationLogScreen.php:236
-#: src/Notification/Admin/NotificationPanel.php:104
+#: src/Notification/Admin/NotificationPanel.php:102
 msgid "You do not have permission to do this."
 msgstr "この操作を行う権限がありません。"
 
@@ -1181,20 +1177,20 @@ msgstr "監査ログ"
 msgid "The end date must be on or after the start date."
 msgstr "終了日は開始日以降の日付にしてください。"
 
-#: src/Audit/Admin/AuditLogScreen.php:83
+#: src/Audit/Admin/AuditLogScreen.php:103
 #: templates/admin/audit-log.php:48
 #: templates/admin/audit-log.php:119
-#: templates/admin/reservation-detail.php:140
+#: templates/admin/reservation-detail.php:158
 msgid "System"
 msgstr "システム"
 
 #. translators: %d: user id
-#: src/Audit/Admin/AuditLogScreen.php:88
+#: src/Audit/Admin/AuditLogScreen.php:108
 #, php-format
 msgid "User #%d"
 msgstr "ユーザー #%d"
 
-#: src/Audit/Admin/AuditLogScreen.php:91
+#: src/Audit/Admin/AuditLogScreen.php:111
 msgid "(disabled)"
 msgstr "（無効）"
 
@@ -1210,7 +1206,7 @@ msgstr "このページにアクセスする権限がありません。"
 
 #: src/Branch/Admin/HoursEditorPage.php:49
 #: src/Branch/Admin/HoursFormHandler.php:192
-#: src/Branch/Service/OfferScopeGuard.php:67
+#: src/Branch/Service/OfferScopeGuard.php:135
 msgid "Forbidden"
 msgstr "アクセス禁止"
 
@@ -1275,7 +1271,7 @@ msgstr "休業期間は最長 31 日です。それより長い期間には「�
 
 #: src/Branch/Admin/HoursFormHandler.php:133
 #: src/Branch/Admin/HoursFormHandler.php:174
-#: src/Branch/Repository/ClosureRepository.php:179
+#: src/Branch/Repository/ClosureRepository.php:201
 msgid "You cannot change past dates."
 msgstr "過去の日付は変更できません。"
 
@@ -1302,127 +1298,127 @@ msgstr "次の日付にはすでに登録があります：%s。上書きする�
 msgid "The link has expired. Reload the page and try again."
 msgstr "リンクの有効期限が切れました。ページを再読み込みしてもう一度お試しください。"
 
-#: src/Branch/Admin/ListScreens.php:48
+#: src/Branch/Admin/ListScreens.php:51
 #: src/Dietary/Fields/DietaryFields.php:137
 #: src/Menu/Admin/DishAdmin.php:39
 msgid "Code"
 msgstr "コード"
 
-#: src/Branch/Admin/ListScreens.php:49
+#: src/Branch/Admin/ListScreens.php:52
 #: src/Branch/Fields/BranchFields.php:50
 msgid "Operating status"
 msgstr "営業状況"
 
 #. translators: %d days
-#: src/Branch/Admin/ListScreens.php:50
-#: templates/admin/reservation-detail.php:289
+#: src/Branch/Admin/ListScreens.php:53
+#: templates/admin/reservation-detail.php:321
 msgid "Online requests"
 msgstr "オンラインリクエスト"
 
-#: src/Branch/Admin/ListScreens.php:64
+#: src/Branch/Admin/ListScreens.php:67
 msgid "TEST"
 msgstr "テスト"
 
 #. translators: %d days
-#: src/Branch/Admin/ListScreens.php:72
-#: templates/admin/reservation-detail.php:289
+#: src/Branch/Admin/ListScreens.php:75
+#: templates/admin/reservation-detail.php:321
 msgid "On"
 msgstr "オン"
 
 #. translators: %d days
-#: src/Branch/Admin/ListScreens.php:72
-#: templates/admin/reservation-detail.php:289
+#: src/Branch/Admin/ListScreens.php:75
+#: templates/admin/reservation-detail.php:321
 msgid "Off"
 msgstr "オフ"
 
-#: src/Branch/Admin/ListScreens.php:102
-#: src/Branch/Admin/ListScreens.php:140
+#: src/Branch/Admin/ListScreens.php:105
+#: src/Branch/Admin/ListScreens.php:143
 #: src/Dietary/Fields/DietaryFields.php:62
 #: src/Kernel/I18n/Admin/GapsPage.php:108
 #: src/Kernel/I18n/Admin/GapsPage.php:167
-#: src/Kernel/Monitoring/StatusPanel.php:56
+#: src/Kernel/Monitoring/StatusPanel.php:59
 #: templates/admin/privacy-dsr.php:207
 #: templates/admin/settings-languages.php:30
 msgid "State"
 msgstr "状態"
 
-#: src/Branch/Admin/ListScreens.php:103
+#: src/Branch/Admin/ListScreens.php:106
 #: src/Branch/Fields/NoticeFields.php:43
 msgid "Shown on"
 msgstr "表示先"
 
-#: src/Branch/Admin/ListScreens.php:104
-#: src/Branch/Admin/ListScreens.php:142
+#: src/Branch/Admin/ListScreens.php:107
+#: src/Branch/Admin/ListScreens.php:145
 msgid "Start – end (JST)"
 msgstr "開始〜終了（日本時間）"
 
-#: src/Branch/Admin/ListScreens.php:112
-#: src/Branch/Admin/ListScreens.php:152
+#: src/Branch/Admin/ListScreens.php:115
+#: src/Branch/Admin/ListScreens.php:155
 #: src/Kernel/I18n/Admin/StringsPage.php:244
-#: src/Kernel/I18n/Admin/TranslationEditor.php:186
+#: src/Kernel/I18n/Admin/TranslationEditor.php:196
 #: src/Kernel/I18n/Admin/TranslationGaps.php:89
 #: src/Menu/Admin/DishAdmin.php:94
 #: templates/admin/dietary-statements.php:18
 msgid "Draft"
 msgstr "下書き"
 
-#: src/Branch/Admin/ListScreens.php:112
-#: src/Branch/Admin/ListScreens.php:154
+#: src/Branch/Admin/ListScreens.php:115
+#: src/Branch/Admin/ListScreens.php:157
 msgid "Scheduled"
 msgstr "予約投稿"
 
-#: src/Branch/Admin/ListScreens.php:116
+#: src/Branch/Admin/ListScreens.php:119
 #: src/Branch/Fields/NoticeFields.php:42
 msgid "Warning"
 msgstr "注意"
 
-#: src/Branch/Admin/ListScreens.php:120
+#: src/Branch/Admin/ListScreens.php:123
 #: src/Branch/Fields/NoticeFields.php:29
 msgid "Site-wide"
 msgstr "サイト全体"
 
-#: src/Branch/Admin/ListScreens.php:143
+#: src/Branch/Admin/ListScreens.php:146
 msgid "Featured"
 msgstr "おすすめ"
 
-#: src/Branch/Admin/ListScreens.php:153
+#: src/Branch/Admin/ListScreens.php:156
 #: src/Menu/Admin/DishAdmin.php:93
 msgid "Pending review"
 msgstr "レビュー待ち"
 
-#: src/Branch/Admin/ListScreens.php:195
+#: src/Branch/Admin/ListScreens.php:198
 msgid "Duplicate as draft"
 msgstr "下書きとして複製"
 
-#: src/Branch/Admin/ListScreens.php:201
+#: src/Branch/Admin/ListScreens.php:204
 msgid "Published offers can only be changed by Head Office. Use \"Duplicate as draft\" to propose a change."
 msgstr "公開済みの特典は本部のみ変更できます。変更を提案するには「下書きとして複製」を使用してください。"
 
 #. translators: 1: name 2: date
-#: src/Branch/Admin/ListScreens.php:254
+#: src/Branch/Admin/ListScreens.php:298
 #, php-format
 msgid "Facts confirmed in writing by %1$s, %2$s"
 msgstr "%1$s が書面で確認（%2$s）"
 
-#: src/Branch/Admin/ListScreens.php:260
+#: src/Branch/Admin/ListScreens.php:304
 #: src/Branch/Service/BranchPublishValidator.php:98
 msgid "Record the owner's written confirmation before publishing (GATE-01)."
 msgstr "公開前に、オーナーによる書面での確認を記録してください（GATE-01）。"
 
-#: src/Branch/Admin/ListScreens.php:271
+#: src/Branch/Admin/ListScreens.php:315
 msgid "Assigned staff"
 msgstr "担当スタッフ"
 
-#: src/Branch/Admin/ListScreens.php:277
+#: src/Branch/Admin/ListScreens.php:321
 msgid "No staff assigned."
 msgstr "担当スタッフはいません。"
 
-#: src/Branch/Admin/ListScreens.php:302
+#: src/Branch/Admin/ListScreens.php:346
 msgid "Offers waiting for approval"
 msgstr "承認待ちの特典"
 
 #. translators: %d: number of offers
-#: src/Branch/Admin/ListScreens.php:306
+#: src/Branch/Admin/ListScreens.php:350
 #, php-format
 msgid "%d offer is waiting for approval."
 msgid_plural "%d offers are waiting for approval."
@@ -1794,12 +1790,12 @@ msgid "Business-controlled addresses only (no personal webmail)."
 msgstr "業務で管理しているアドレスのみ（個人向けウェブメールは不可）。"
 
 #: src/Branch/Fields/BranchFields.php:143
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 #: src/Notification/Admin/SettingsFields.php:30
 #: src/Privacy/Admin/DsrScreen.php:245
 #: src/Privacy/Dsr/PersonalData.php:124
 #: templates/admin/privacy-dsr.php:101
-#: templates/admin/reservation-detail.php:88
+#: templates/admin/reservation-detail.php:91
 msgid "Email"
 msgstr "メールアドレス"
 
@@ -1808,7 +1804,7 @@ msgid "Branch reservation policy page"
 msgstr "店舗の予約ポリシーページ"
 
 #: src/Branch/Fields/BranchFields.php:155
-#: src/Branch/Service/BranchGuard.php:321
+#: src/Branch/Service/BranchGuard.php:317
 msgid "Branch name"
 msgstr "店舗名"
 
@@ -2095,6 +2091,7 @@ msgid "This offer has already ended."
 msgstr "この特典はすでに終了しています。"
 
 #: src/Branch/Fields/OfferFields.php:180
+#: src/Seed/SampleGuard.php:51
 msgid "Sample content cannot be published on the live site."
 msgstr "サンプルコンテンツは本番サイトでは公開できません。"
 
@@ -2129,22 +2126,22 @@ msgid "No %s yet"
 msgstr "%sはまだありません"
 
 #. translators: %s: field names
-#: src/Branch/Service/BranchGuard.php:317
+#: src/Branch/Service/BranchGuard.php:313
 #, php-format
 msgid "You are not allowed to change: %s."
 msgstr "次の項目を変更する権限がありません：%s。"
 
-#: src/Branch/Service/BranchGuard.php:321
+#: src/Branch/Service/BranchGuard.php:317
 msgid "Slug"
 msgstr "スラッグ"
 
 #. translators: %d: number of reservations
-#: src/Branch/Service/BranchGuard.php:332
+#: src/Branch/Service/BranchGuard.php:328
 #, php-format
 msgid "This affects %d pending or confirmed requests. They are marked \"Needs action\" in the inbox."
 msgstr "これは未対応または承認済みのリクエスト %d 件に影響します。受信箱で「要対応」に設定されます。"
 
-#: src/Branch/Service/BranchGuard.php:385
+#: src/Branch/Service/BranchGuard.php:381
 msgid "This branch has reservations or menu data and cannot be deleted. Set it to \"Closed permanently\" instead."
 msgstr "この店舗には予約リクエストまたはメニューのデータがあるため削除できません。代わりに「閉店」に設定してください。"
 
@@ -2169,11 +2166,11 @@ msgstr "半角小文字・数字・ハイフンを使用してください。こ
 msgid "Demo images cannot be used here. Upload a real photo."
 msgstr "デモ画像はここでは使用できません。実際の写真をアップロードしてください。"
 
-#: src/Branch/Service/BranchVisibility.php:139
+#: src/Branch/Service/BranchVisibility.php:168
 msgid "Branches are read-only through this API."
 msgstr "この API では店舗は読み取り専用です。"
 
-#: src/Branch/Service/BranchVisibility.php:144
+#: src/Branch/Service/BranchVisibility.php:173
 msgid "Invalid post ID."
 msgstr "投稿 ID が正しくありません。"
 
@@ -2211,7 +2208,7 @@ msgid "Periods on the same day must not overlap."
 msgstr "同じ日の営業時間帯は重ならないようにしてください。"
 
 #: src/Branch/Service/HoursValidator.php:118
-#: templates/admin/branch-hours.php:256
+#: templates/admin/branch-hours.php:259
 msgid "Special hours"
 msgstr "特別営業時間"
 
@@ -2266,10 +2263,11 @@ msgstr "この特典を複製する権限がありません。"
 #: src/Branch/Service/OfferService.php:164
 #: src/Menu/Admin/BranchMenuGrid.php:39
 #: src/Menu/Admin/BranchMenuGrid.php:64
+#: src/Menu/Admin/BranchMenuGrid.php:96
 #: src/Menu/Rest/BranchMenuController.php:199
 #: src/Menu/Service/BranchMenuService.php:65
 #: src/Notification/Admin/NotificationLogScreen.php:103
-#: src/Notification/Rest/ResendController.php:51
+#: src/Notification/Rest/ResendController.php:53
 msgid "You do not have access to this branch."
 msgstr "この店舗へのアクセス権がありません。"
 
@@ -2338,13 +2336,13 @@ msgstr "最短受付時間"
 
 #. translators: %d minutes
 #: src/Branch/Service/SettingsValidator.php:194
-#: templates/admin/reservation-detail.php:288
+#: templates/admin/reservation-detail.php:320
 msgid "Booking window"
 msgstr "受付可能期間"
 
 #. translators: %d minutes
 #: src/Branch/Service/SettingsValidator.php:195
-#: templates/admin/reservation-detail.php:287
+#: templates/admin/reservation-detail.php:319
 msgid "Decision cutoff"
 msgstr "判断締切"
 
@@ -2667,7 +2665,7 @@ msgid "Alcohol used in cooking"
 msgstr "調理でのアルコール使用"
 
 #: src/Dietary/Fields/DietaryFields.php:121
-#: templates/admin/dietary-register.php:83
+#: templates/admin/dietary-register.php:86
 msgid "Evidence"
 msgstr "根拠"
 
@@ -2980,11 +2978,12 @@ msgid "\"%s\" is required to publish."
 msgstr "公開するには「%s」が必須です。"
 
 #: src/Kernel/Fields/FieldRegistry.php:255
-#: src/Menu/Service/DishPublishValidator.php:29
+#: src/Menu/Service/DishPublishValidator.php:28
 msgid "A title is required to publish."
 msgstr "公開するにはタイトルが必須です。"
 
 #: src/Kernel/Fields/FieldRegistry.php:270
+#: src/Kernel/I18n/SlugPolicy.php:79
 msgid "The item was saved as a draft and not published."
 msgstr "下書きとして保存し、公開はしませんでした。"
 
@@ -3001,7 +3000,7 @@ msgid "\"%s\" is required while published."
 msgstr "公開中は「%s」が必須です。"
 
 #: src/Kernel/Fields/Renderer.php:101
-#: templates/admin/menu-branch-grid.php:126
+#: templates/admin/menu-branch-grid.php:129
 msgid "— Select —"
 msgstr "— 選択 —"
 
@@ -3018,7 +3017,7 @@ msgid "Add row"
 msgstr "行を追加"
 
 #. translators: %d: number of rows
-#: src/Kernel/Fields/Renderer.php:257
+#: src/Kernel/Fields/Renderer.php:263
 #, php-format
 msgid "%d row"
 msgid_plural "%d rows"
@@ -3113,7 +3112,7 @@ msgid "Launch-critical only"
 msgstr "公開に必須（LCCS）のみ"
 
 #: src/Kernel/I18n/Admin/GapsPage.php:116
-#: templates/admin/reservation-inbox.php:194
+#: templates/admin/reservation-inbox.php:230
 msgid "Download CSV"
 msgstr "CSV をダウンロード"
 
@@ -3150,11 +3149,11 @@ msgstr "選択"
 #: src/Seo/Admin/SeoAdmin.php:226
 #: src/Seo/Admin/SeoAdmin.php:250
 #: templates/admin/branch-hours.php:29
-#: templates/admin/branch-hours.php:253
-#: templates/admin/branch-hours.php:254
+#: templates/admin/branch-hours.php:256
+#: templates/admin/branch-hours.php:257
 #: templates/admin/dietary-claim-scan.php:22
-#: templates/admin/dietary-statements.php:54
-#: templates/admin/dietary-statements.php:99
+#: templates/admin/dietary-statements.php:61
+#: templates/admin/dietary-statements.php:117
 msgid "Type"
 msgstr "種類"
 
@@ -3250,7 +3249,7 @@ msgid "You do not have permission to edit strings."
 msgstr "文字列を編集する権限がありません。"
 
 #: src/Kernel/I18n/Admin/StringsPage.php:245
-#: src/Kernel/I18n/Admin/TranslationEditor.php:187
+#: src/Kernel/I18n/Admin/TranslationEditor.php:197
 #: src/Kernel/I18n/Admin/TranslationGaps.php:90
 #: templates/admin/dietary-statements.php:18
 msgid "Needs review"
@@ -3258,7 +3257,7 @@ msgstr "要レビュー"
 
 #: src/Kernel/I18n/Admin/StringsPage.php:246
 #: templates/admin/dietary-statements.php:18
-#: templates/admin/dietary-statements.php:48
+#: templates/admin/dietary-statements.php:55
 msgid "Approved"
 msgstr "承認済み"
 
@@ -3294,12 +3293,12 @@ msgstr "すべてのグループ"
 #: src/Notification/Admin/NotificationLogScreen.php:132
 #: src/Notification/Admin/NotificationLogScreen.php:137
 #: src/Notification/Admin/NotificationLogScreen.php:142
-#: src/Reservation/Admin/InboxPage.php:138
+#: src/Reservation/Admin/InboxPage.php:167
 #: templates/admin/audit-log.php:47
 #: templates/admin/audit-log.php:56
 #: templates/admin/audit-log.php:70
 #: templates/admin/audit-log.php:79
-#: templates/admin/reservation-report.php:79
+#: templates/admin/reservation-report.php:91
 msgid "All"
 msgstr "すべて"
 
@@ -3339,10 +3338,10 @@ msgid "Reference text changed since approval."
 msgstr "承認後に参照テキストが変更されました。"
 
 #: src/Kernel/I18n/Admin/StringsPage.php:363
-#: templates/admin/dietary-statements.php:41
-#: templates/admin/dietary-statements.php:79
+#: templates/admin/dietary-statements.php:48
+#: templates/admin/dietary-statements.php:97
 #: templates/admin/menu-branch-grid.php:58
-#: templates/admin/menu-branch-grid.php:138
+#: templates/admin/menu-branch-grid.php:141
 msgid "Save"
 msgstr "保存"
 
@@ -3350,84 +3349,84 @@ msgstr "保存"
 msgid "Approve all strings on this page"
 msgstr "このページのすべての文字列を承認"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:80
+#: src/Kernel/I18n/Admin/TranslationEditor.php:85
 #: src/Menu/Admin/DishAdmin.php:43
 msgid "Translations"
 msgstr "翻訳"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:98
+#: src/Kernel/I18n/Admin/TranslationEditor.php:108
 msgid "source changed since approval"
 msgstr "承認後に原文が変更されました"
 
 #. translators: %d: number of fields
-#: src/Kernel/I18n/Admin/TranslationEditor.php:102
+#: src/Kernel/I18n/Admin/TranslationEditor.php:112
 #, php-format
 msgid "%d field empty"
 msgid_plural "%d fields empty"
 msgstr[0] "%d 件の項目が空欄"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:115
-#: src/Kernel/I18n/Admin/TranslationEditor.php:175
+#: src/Kernel/I18n/Admin/TranslationEditor.php:125
+#: src/Kernel/I18n/Admin/TranslationEditor.php:185
 msgid "Source (ja):"
 msgstr "原文（日本語）："
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:128
+#: src/Kernel/I18n/Admin/TranslationEditor.php:138
 msgid "A native-speaker reviewer approves translations before they are published."
 msgstr "翻訳は、公開前にネイティブスピーカーのレビュー担当者が承認します。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:130
+#: src/Kernel/I18n/Admin/TranslationEditor.php:140
 msgid "Review-class content: the reviewer must be a different person from the translator."
 msgstr "レビュー対象のコンテンツ：レビュー担当者は翻訳者とは別の人である必要があります。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:160
+#: src/Kernel/I18n/Admin/TranslationEditor.php:170
 msgid "No source items yet."
 msgstr "原文の項目はまだありません。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:188
+#: src/Kernel/I18n/Admin/TranslationEditor.php:198
 msgid "Approved (published)"
 msgstr "承認済み（公開）"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:189
+#: src/Kernel/I18n/Admin/TranslationEditor.php:199
 msgid "Not translated"
 msgstr "未翻訳"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:248
+#: src/Kernel/I18n/Admin/TranslationEditor.php:269
 msgid "You cannot approve your own translation of this content."
 msgstr "このコンテンツについて自分の翻訳は承認できません。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:275
+#: src/Kernel/I18n/Admin/TranslationEditor.php:296
 msgid "Edit translation"
 msgstr "翻訳を編集"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:302
-#: src/Kernel/I18n/Admin/TranslationEditor.php:330
+#: src/Kernel/I18n/Admin/TranslationEditor.php:323
+#: src/Kernel/I18n/Admin/TranslationEditor.php:351
 msgid "You do not have permission to translate this item."
 msgstr "この項目を翻訳する権限がありません。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:306
+#: src/Kernel/I18n/Admin/TranslationEditor.php:327
 #: src/Kernel/I18n/Admin/TranslationGaps.php:235
 msgid "Brand settings"
 msgstr "ブランド設定"
 
 #. translators: 1: item 2: language
-#: src/Kernel/I18n/Admin/TranslationEditor.php:309
+#: src/Kernel/I18n/Admin/TranslationEditor.php:330
 #, php-format
 msgid "Translate “%1$s” — %2$s"
 msgstr "「%1$s」を翻訳 — %2$s"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:311
+#: src/Kernel/I18n/Admin/TranslationEditor.php:332
 msgid "Source changed since approval."
 msgstr "承認後に原文が変更されました。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:314
+#: src/Kernel/I18n/Admin/TranslationEditor.php:335
 msgid "Translation saved."
 msgstr "翻訳を保存しました。"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:320
+#: src/Kernel/I18n/Admin/TranslationEditor.php:341
 msgid "Save translation"
 msgstr "翻訳を保存"
 
-#: src/Kernel/I18n/Admin/TranslationEditor.php:321
+#: src/Kernel/I18n/Admin/TranslationEditor.php:342
 msgid "Back to translation gaps"
 msgstr "翻訳の不足に戻る"
 
@@ -3491,66 +3490,96 @@ msgstr[0] "インターフェース文字列「%1$s」：%2$d 件のキーが未
 msgid "%1$s “%2$s”: %3$s"
 msgstr "%1$s「%2$s」：%3$s"
 
-#: src/Kernel/Migration/Runner.php:37
+#: src/Kernel/I18n/SlugPolicy.php:43
+msgid "Enter a URL slug with lowercase Latin letters a–z, digits and hyphens only, e.g. chicken-momo. The slug is shared by all languages, so Japanese or other non-Latin text cannot be used for it."
+msgstr "URLスラッグは半角小文字 a〜z、数字、ハイフンのみで入力してください（例：chicken-momo）。スラッグは全言語で共通のため、日本語などラテン文字以外の文字は使用できません。"
+
+#. translators: %s: the slug that was kept
+#: src/Kernel/I18n/SlugPolicy.php:67
+#, php-format
+msgid "The previous slug \"%s\" was kept."
+msgstr "以前のスラッグ「%s」をそのまま使用しました。"
+
+#. translators: %s: the generated slug
+#: src/Kernel/I18n/SlugPolicy.php:88
+#, php-format
+msgid "The slug was replaced by \"%s\"."
+msgstr "スラッグを「%s」に置き換えました。"
+
+#. translators: %s: the generated slug
+#: src/Kernel/I18n/SlugPolicy.php:91
+#, php-format
+msgid "No Latin URL slug can be formed from the title, so \"%s\" was used. Enter a descriptive slug with lowercase Latin letters a–z, digits and hyphens (shared by all languages)."
+msgstr "タイトルからラテン文字のURLスラッグを作成できないため、「%s」を使用しました。内容がわかるスラッグを半角小文字 a〜z、数字、ハイフンで入力してください（全言語で共通）。"
+
+#: src/Kernel/Media/UploadPolicy.php:69
+msgid "Images may be at most 5 MB."
+msgstr "画像は5 MB以下にしてください。"
+
+#: src/Kernel/Media/UploadPolicy.php:73
+msgid "Only JPEG, PNG and WebP images can be uploaded."
+msgstr "アップロードできる画像はJPEG、PNG、WebPのみです。"
+
+#: src/Kernel/Migration/Runner.php:64
 msgid "Database update required — run: wp momos migrate"
 msgstr "データベースの更新が必要です — 次を実行してください：wp momos migrate"
 
-#: src/Kernel/Monitoring/StatusPanel.php:48
+#: src/Kernel/Monitoring/StatusPanel.php:51
 msgid "Unapproved plugin active (not in the plugin register) or more than 15 plugins:"
 msgstr "未承認のプラグイン（プラグイン台帳にないもの）が有効になっているか、プラグインが 15 個を超えています："
 
-#: src/Kernel/Monitoring/StatusPanel.php:56
+#: src/Kernel/Monitoring/StatusPanel.php:59
 msgid "Monitoring — scheduled jobs"
 msgstr "監視 — 定期ジョブ"
 
-#: src/Kernel/Monitoring/StatusPanel.php:56
+#: src/Kernel/Monitoring/StatusPanel.php:59
 msgid "Job"
 msgstr "ジョブ"
 
-#: src/Kernel/Monitoring/StatusPanel.php:56
+#: src/Kernel/Monitoring/StatusPanel.php:59
 msgid "Interval"
 msgstr "間隔"
 
-#: src/Kernel/Monitoring/StatusPanel.php:56
+#: src/Kernel/Monitoring/StatusPanel.php:59
 msgid "Last success (JST)"
 msgstr "最終成功（日本時間）"
 
-#: src/Kernel/Monitoring/StatusPanel.php:59
+#: src/Kernel/Monitoring/StatusPanel.php:62
 msgid "OK"
 msgstr "正常"
 
-#: src/Kernel/Monitoring/StatusPanel.php:59
+#: src/Kernel/Monitoring/StatusPanel.php:62
 msgid "Late"
 msgstr "遅延"
 
-#: src/Kernel/Monitoring/StatusPanel.php:59
+#: src/Kernel/Monitoring/StatusPanel.php:62
 msgid "Not run yet"
 msgstr "未実行"
 
 #. translators: %d: number of active plugins
-#: src/Kernel/Monitoring/StatusPanel.php:64
+#: src/Kernel/Monitoring/StatusPanel.php:67
 msgid "Plugin register"
 msgstr "プラグイン台帳"
 
 #. translators: %d: number of active plugins
-#: src/Kernel/Monitoring/StatusPanel.php:64
+#: src/Kernel/Monitoring/StatusPanel.php:67
 #, php-format
 msgid "Active plugins: %d / 15"
 msgstr "有効なプラグイン：%d / 15"
 
-#: src/Kernel/Monitoring/StatusPanel.php:65
+#: src/Kernel/Monitoring/StatusPanel.php:68
 msgid "Component"
 msgstr "コンポーネント"
 
-#: src/Kernel/Monitoring/StatusPanel.php:65
+#: src/Kernel/Monitoring/StatusPanel.php:68
 msgid "Purpose"
 msgstr "目的"
 
-#: src/Kernel/Monitoring/StatusPanel.php:65
+#: src/Kernel/Monitoring/StatusPanel.php:68
 msgid "Data sent to third parties"
 msgstr "第三者に送信されるデータ"
 
-#: src/Kernel/Monitoring/StatusPanel.php:65
+#: src/Kernel/Monitoring/StatusPanel.php:68
 msgid "Last review"
 msgstr "最終確認"
 
@@ -3559,12 +3588,12 @@ msgstr "最終確認"
 msgid "Branch menus"
 msgstr "店舗別メニュー"
 
-#: src/Menu/Admin/BranchMenuGrid.php:128
+#: src/Menu/Admin/BranchMenuGrid.php:133
 msgid "Saved"
 msgstr "保存しました"
 
 #. translators: 1: user display name 2: time (JST)
-#: src/Menu/Admin/BranchMenuGrid.php:134
+#: src/Menu/Admin/BranchMenuGrid.php:139
 #, php-format
 msgid "Updated by %1$s at %2$s."
 msgstr "%1$s が %2$s に更新しました。"
@@ -3648,7 +3677,7 @@ msgstr "価格"
 
 #: src/Menu/Admin/DishAdmin.php:143
 #: templates/admin/menu-branch-grid.php:57
-#: templates/admin/menu-branch-grid.php:117
+#: templates/admin/menu-branch-grid.php:120
 msgid "Availability"
 msgstr "提供状況"
 
@@ -3727,7 +3756,7 @@ msgid "Unavailable"
 msgstr "提供不可"
 
 #: src/Menu/Domain/AvailabilityReason.php:21
-#: templates/admin/menu-branch-grid.php:141
+#: templates/admin/menu-branch-grid.php:144
 msgid "Sold out today"
 msgstr "本日売り切れ"
 
@@ -3771,19 +3800,19 @@ msgstr "植物性"
 msgid "Alcohol-derived"
 msgstr "アルコール由来"
 
-#: src/Menu/Domain/SpiceLevel.php:16
+#: src/Menu/Domain/SpiceLevel.php:21
 msgid "0 — Not spicy"
 msgstr "0 — 辛くない"
 
-#: src/Menu/Domain/SpiceLevel.php:17
+#: src/Menu/Domain/SpiceLevel.php:22
 msgid "1 — Mild"
 msgstr "1 — 辛さ控えめ"
 
-#: src/Menu/Domain/SpiceLevel.php:18
+#: src/Menu/Domain/SpiceLevel.php:23
 msgid "2 — Medium"
 msgstr "2 — 中辛"
 
-#: src/Menu/Domain/SpiceLevel.php:19
+#: src/Menu/Domain/SpiceLevel.php:24
 msgid "3 — Hot"
 msgstr "3 — 辛口"
 
@@ -3813,7 +3842,7 @@ msgstr "料理コード"
 
 #: src/Menu/Fields/MenuFields.php:54
 #: src/Menu/Fields/MenuFields.php:224
-#: src/Menu/Service/DishPublishValidator.php:68
+#: src/Menu/Service/DishPublishValidator.php:67
 msgid "Dish code must be D followed by 4 digits and unique."
 msgstr "料理コードは D に続けて 4 桁の数字で、重複しないものにしてください。"
 
@@ -3938,12 +3967,12 @@ msgid "A dish can have at most 6 images (featured image plus gallery)."
 msgstr "1 つの料理の画像は最大 6 枚です（アイキャッチ画像とギャラリーの合計）。"
 
 #: src/Menu/Fields/MenuFields.php:273
-#: src/Menu/Service/DishPublishValidator.php:88
+#: src/Menu/Service/DishPublishValidator.php:87
 msgid "Enter the advance-order time in hours (1–168)."
 msgstr "事前予約の締切を時間単位で入力してください（1〜168）。"
 
 #: src/Menu/Fields/MenuFields.php:282
-#: src/Menu/Service/DishPublishValidator.php:74
+#: src/Menu/Service/DishPublishValidator.php:73
 msgid "Price must be between 0 and 100,000 yen."
 msgstr "価格は 0〜100,000 円にしてください。"
 
@@ -4058,69 +4087,69 @@ msgstr "この料理は店舗で提供されています。先に店舗メニュ
 msgid "Dish code cannot be changed after publication."
 msgstr "公開後は料理コードを変更できません。"
 
-#: src/Menu/Service/DishPublishValidator.php:43
+#: src/Menu/Service/DishPublishValidator.php:42
 msgid "name"
 msgstr "名前"
 
-#: src/Menu/Service/DishPublishValidator.php:45
+#: src/Menu/Service/DishPublishValidator.php:44
 msgid "The dish name can have at most 100 characters."
 msgstr "料理名は 100 文字以内にしてください。"
 
-#: src/Menu/Service/DishPublishValidator.php:48
+#: src/Menu/Service/DishPublishValidator.php:47
 msgid "short description"
 msgstr "短い説明"
 
-#: src/Menu/Service/DishPublishValidator.php:52
+#: src/Menu/Service/DishPublishValidator.php:51
 msgid "category"
 msgstr "カテゴリー"
 
-#: src/Menu/Service/DishPublishValidator.php:55
+#: src/Menu/Service/DishPublishValidator.php:54
 msgid "primary category"
 msgstr "メインカテゴリー"
 
-#: src/Menu/Service/DishPublishValidator.php:57
+#: src/Menu/Service/DishPublishValidator.php:56
 msgid "The primary category must be one of the assigned categories."
 msgstr "メインカテゴリーは割り当てたカテゴリーのいずれかにしてください。"
 
-#: src/Menu/Service/DishPublishValidator.php:60
+#: src/Menu/Service/DishPublishValidator.php:59
 msgid "featured image"
 msgstr "アイキャッチ画像"
 
-#: src/Menu/Service/DishPublishValidator.php:62
+#: src/Menu/Service/DishPublishValidator.php:61
 msgid "Japanese alternative text of the featured image"
 msgstr "アイキャッチ画像の日本語の代替テキスト"
 
-#: src/Menu/Service/DishPublishValidator.php:66
+#: src/Menu/Service/DishPublishValidator.php:65
 msgid "dish code"
 msgstr "料理コード"
 
-#: src/Menu/Service/DishPublishValidator.php:72
+#: src/Menu/Service/DishPublishValidator.php:71
 msgid "reference price"
 msgstr "参考価格"
 
-#: src/Menu/Service/DishPublishValidator.php:78
+#: src/Menu/Service/DishPublishValidator.php:77
 msgid "spice level"
 msgstr "辛さ"
 
-#: src/Menu/Service/DishPublishValidator.php:80
+#: src/Menu/Service/DishPublishValidator.php:79
 msgid "Spice level must be 0–3."
 msgstr "辛さは 0〜3 にしてください。"
 
-#: src/Menu/Service/DishPublishValidator.php:83
+#: src/Menu/Service/DishPublishValidator.php:82
 msgid "halal basis"
 msgstr "ハラールの根拠"
 
-#: src/Menu/Service/DishPublishValidator.php:92
+#: src/Menu/Service/DishPublishValidator.php:91
 msgid "Sample dishes cannot be published on the live site"
 msgstr "サンプルの料理は本番サイトでは公開できません"
 
 #. translators: %s: comma-separated list of missing fields
-#: src/Menu/Service/DishPublishValidator.php:96
+#: src/Menu/Service/DishPublishValidator.php:95
 #, php-format
 msgid "Complete required fields before publishing: %s."
 msgstr "公開する前に必須項目を入力してください：%s。"
 
-#: src/Menu/Service/DishPublishValidator.php:105
+#: src/Menu/Service/DishPublishValidator.php:104
 msgid "Not a dish."
 msgstr "料理ではありません。"
 
@@ -4162,16 +4191,16 @@ msgstr "テンプレート"
 #: src/Notification/Admin/NotificationLogScreen.php:147
 #: src/Seo/Admin/SeoAdmin.php:250
 #: templates/admin/audit-log.php:40
-#: templates/admin/reservation-inbox.php:79
-#: templates/admin/reservation-report.php:63
+#: templates/admin/reservation-inbox.php:83
+#: templates/admin/reservation-report.php:72
 msgid "From"
 msgstr "開始日"
 
 #: src/Notification/Admin/NotificationLogScreen.php:148
 #: src/Seo/Admin/SeoAdmin.php:250
 #: templates/admin/audit-log.php:42
-#: templates/admin/reservation-inbox.php:80
-#: templates/admin/reservation-report.php:64
+#: templates/admin/reservation-inbox.php:84
+#: templates/admin/reservation-report.php:73
 msgid "To"
 msgstr "終了日"
 
@@ -4199,12 +4228,12 @@ msgid "Recipient type"
 msgstr "受信者の種類"
 
 #: src/Notification/Admin/NotificationLogScreen.php:155
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 msgid "Recipient"
 msgstr "受信者"
 
 #: src/Notification/Admin/NotificationLogScreen.php:155
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 msgid "Attempts"
 msgstr "試行回数"
 
@@ -4228,7 +4257,7 @@ msgid "No notifications match these filters."
 msgstr "この条件に該当する通知はありません。"
 
 #: src/Notification/Admin/NotificationLogScreen.php:186
-#: src/Notification/Admin/NotificationPanel.php:91
+#: src/Notification/Admin/NotificationPanel.php:89
 msgid "Resend"
 msgstr "再送"
 
@@ -4290,23 +4319,23 @@ msgstr "失敗"
 msgid "Cancelled"
 msgstr "キャンセル済み"
 
-#: src/Notification/Admin/NotificationPanel.php:71
+#: src/Notification/Admin/NotificationPanel.php:69
 msgid "Emails"
 msgstr "メール"
 
-#: src/Notification/Admin/NotificationPanel.php:73
+#: src/Notification/Admin/NotificationPanel.php:71
 msgid "No emails for this request yet."
 msgstr "このリクエストのメールはまだありません。"
 
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 msgid "Next attempt / sent (JST)"
 msgstr "次回の試行／送信日時（日本時間）"
 
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 msgid "Message ID"
 msgstr "メッセージ ID"
 
-#: src/Notification/Admin/NotificationPanel.php:76
+#: src/Notification/Admin/NotificationPanel.php:74
 msgid "Error"
 msgstr "エラー"
 
@@ -4394,21 +4423,21 @@ msgstr "過去 24 時間の失敗"
 msgid "Please log in."
 msgstr "ログインしてください。"
 
-#: src/Notification/Rest/ResendController.php:40
+#: src/Notification/Rest/ResendController.php:42
 #: src/Seo/Admin/SeoAdmin.php:42
 msgid "You are not allowed to do this."
 msgstr "この操作を行う権限がありません。"
 
-#: src/Notification/Rest/ResendController.php:52
+#: src/Notification/Rest/ResendController.php:54
 msgid "Not found."
 msgstr "見つかりません。"
 
-#: src/Notification/Rest/ResendController.php:53
-#: src/Notification/Rest/ResendController.php:56
+#: src/Notification/Rest/ResendController.php:55
+#: src/Notification/Rest/ResendController.php:58
 msgid "This email cannot be resent."
 msgstr "このメールは再送できません。"
 
-#: src/Notification/Rest/ResendController.php:54
+#: src/Notification/Rest/ResendController.php:56
 msgid "Too many requests. Please try again later."
 msgstr "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
 
@@ -4529,7 +4558,7 @@ msgstr "氏名"
 #: src/Privacy/Admin/DsrScreen.php:246
 #: src/Privacy/Dsr/PersonalData.php:125
 #: templates/admin/privacy-dsr.php:102
-#: templates/admin/reservation-detail.php:87
+#: templates/admin/reservation-detail.php:90
 msgid "Phone"
 msgstr "電話番号"
 
@@ -4541,10 +4570,10 @@ msgid "Email language"
 msgstr "メールの言語"
 
 #: src/Privacy/Admin/DsrScreen.php:248
-#: templates/admin/menu-branch-grid.php:124
+#: templates/admin/menu-branch-grid.php:127
 #: templates/admin/privacy-dsr.php:110
 #: templates/admin/privacy-dsr.php:150
-#: templates/admin/reservation-detail.php:106
+#: templates/admin/reservation-detail.php:109
 msgid "Reason"
 msgstr "理由"
 
@@ -4615,7 +4644,7 @@ msgstr "Momo's の予約リクエスト（匿名化）"
 #: src/Reservation/Admin/InboxPage.php:51
 #: src/Reservation/Admin/InboxPage.php:53
 #: templates/admin/reservation-inbox.php:26
-#: templates/admin/reservation-inbox.php:125
+#: templates/admin/reservation-inbox.php:129
 msgid "Reservation requests"
 msgstr "予約リクエスト"
 
@@ -4624,12 +4653,12 @@ msgid "Reservation requests sent through the website. Times are Japan time unles
 msgstr "ウェブサイトから送信された予約リクエスト。UTC と記載がない限り、時刻は日本時間です。"
 
 #: src/Privacy/Dsr/PersonalData.php:117
-#: templates/admin/reservation-report.php:68
+#: templates/admin/reservation-report.php:77
 msgid "Requested date"
 msgstr "希望日"
 
 #: src/Privacy/Dsr/PersonalData.php:118
-#: templates/admin/reservation-inbox.php:105
+#: templates/admin/reservation-inbox.php:109
 msgid "Requested time"
 msgstr "希望時刻"
 
@@ -4642,9 +4671,9 @@ msgid "Form language"
 msgstr "フォームの言語"
 
 #: src/Privacy/Dsr/PersonalData.php:126
-#: templates/admin/reservation-detail.php:91
-#: templates/admin/reservation-inbox.php:97
-#: templates/admin/reservation-inbox.php:156
+#: templates/admin/reservation-detail.php:94
+#: templates/admin/reservation-inbox.php:101
+#: templates/admin/reservation-inbox.php:183
 msgid "Special request"
 msgstr "ご要望"
 
@@ -4693,14 +4722,15 @@ msgid "You do not have permission to export reservations."
 msgstr "予約リクエストをエクスポートする権限がありません。"
 
 #. translators: %d: row limit
-#: src/Reservation/Admin/ExportHandler.php:95
-#: src/Reservation/Admin/ExportHandler.php:104
+#: src/Reservation/Admin/ExportHandler.php:100
+#: src/Reservation/Admin/ExportHandler.php:105
+#: src/Reservation/Admin/ExportHandler.php:114
 #: templates/admin/privacy-dsr.php:123
 msgid "Export"
 msgstr "エクスポート"
 
 #. translators: %d: row limit
-#: src/Reservation/Admin/ExportHandler.php:104
+#: src/Reservation/Admin/ExportHandler.php:114
 #, php-format
 msgid "Narrow the filters — more than %d rows."
 msgstr "絞り込み条件を狭めてください — %d 行を超えています。"
@@ -4725,97 +4755,97 @@ msgstr "オフラインです。接続が回復するとリストが更新され
 msgid "Claimed by %s. Take over?"
 msgstr "%s が対応中です。引き継ぎますか？"
 
-#: src/Reservation/Admin/InboxPage.php:133
+#: src/Reservation/Admin/InboxPage.php:162
 #: src/Reservation/Domain/ReservationStatus.php:39
 msgid "Pending"
 msgstr "未対応"
 
-#: src/Reservation/Admin/InboxPage.php:134
+#: src/Reservation/Admin/InboxPage.php:163
 msgid "Today"
 msgstr "本日"
 
-#: src/Reservation/Admin/InboxPage.php:135
-#: templates/admin/reservation-inbox.php:121
+#: src/Reservation/Admin/InboxPage.php:164
+#: templates/admin/reservation-inbox.php:125
 msgid "Upcoming confirmed"
 msgstr "今後の承認済み"
 
-#: src/Reservation/Admin/InboxPage.php:136
-#: templates/admin/reservation-inbox.php:121
+#: src/Reservation/Admin/InboxPage.php:165
+#: templates/admin/reservation-inbox.php:125
 msgid "Attendance due"
 msgstr "来店確認待ち"
 
-#: src/Reservation/Admin/InboxPage.php:137
-#: templates/admin/reservation-detail.php:122
-#: templates/admin/reservation-inbox.php:84
-#: templates/admin/reservation-inbox.php:153
+#: src/Reservation/Admin/InboxPage.php:166
+#: templates/admin/reservation-detail.php:131
+#: templates/admin/reservation-inbox.php:88
+#: templates/admin/reservation-inbox.php:171
 msgid "Needs action"
 msgstr "要対応"
 
-#: src/Reservation/Admin/InboxPage.php:156
+#: src/Reservation/Admin/InboxPage.php:185
 msgid "Check the filters."
 msgstr "絞り込み条件を確認してください。"
 
-#: src/Reservation/Admin/InboxPage.php:228
+#: src/Reservation/Admin/InboxPage.php:257
 msgid "Accepted — email queued to guest."
 msgstr "承認しました — お客様へのメールをキューに入れました。"
 
-#: src/Reservation/Admin/InboxPage.php:229
+#: src/Reservation/Admin/InboxPage.php:258
 msgid "Declined — email queued to guest."
 msgstr "お断りしました — お客様へのメールをキューに入れました。"
 
-#: src/Reservation/Admin/InboxPage.php:230
+#: src/Reservation/Admin/InboxPage.php:259
 msgid "Cancelled."
 msgstr "キャンセルしました。"
 
-#: src/Reservation/Admin/InboxPage.php:231
+#: src/Reservation/Admin/InboxPage.php:260
 msgid "Cancelled. No email was sent to the guest."
 msgstr "キャンセルしました。お客様にはメールを送信していません。"
 
-#: src/Reservation/Admin/InboxPage.php:232
+#: src/Reservation/Admin/InboxPage.php:261
 msgid "Marked as attended."
 msgstr "来店済みにしました。"
 
-#: src/Reservation/Admin/InboxPage.php:233
+#: src/Reservation/Admin/InboxPage.php:262
 msgid "Marked as no-show."
 msgstr "無断キャンセルにしました。"
 
-#: src/Reservation/Admin/InboxPage.php:234
+#: src/Reservation/Admin/InboxPage.php:263
 msgid "You are now handling this request."
 msgstr "このリクエストの担当になりました。"
 
-#: src/Reservation/Admin/InboxPage.php:235
+#: src/Reservation/Admin/InboxPage.php:264
 msgid "Released."
 msgstr "担当を外れました。"
 
-#: src/Reservation/Admin/InboxPage.php:236
+#: src/Reservation/Admin/InboxPage.php:265
 msgid "Internal note added."
 msgstr "社内メモを追加しました。"
 
-#: src/Reservation/Admin/InboxPage.php:237
+#: src/Reservation/Admin/InboxPage.php:266
 msgid "Marked as contacted."
 msgstr "連絡済みにしました。"
 
-#: src/Reservation/Admin/InboxPage.php:238
+#: src/Reservation/Admin/InboxPage.php:267
 msgid "Flag resolved."
 msgstr "フラグを解除しました。"
 
-#: src/Reservation/Admin/InboxPage.php:239
+#: src/Reservation/Admin/InboxPage.php:268
 msgid "Details changed — email queued to guest."
 msgstr "内容を変更しました — お客様へのメールをキューに入れました。"
 
-#: src/Reservation/Admin/InboxPage.php:241
+#: src/Reservation/Admin/InboxPage.php:270
 #: src/Seo/Admin/SeoAdmin.php:183
 #: templates/admin/branch-hours.php:50
-#: templates/admin/dietary-statements.php:30
+#: templates/admin/dietary-statements.php:34
 msgid "Saved."
 msgstr "保存しました。"
 
-#: src/Reservation/Admin/InboxPage.php:261
+#: src/Reservation/Admin/InboxPage.php:290
 msgid "Override rules"
 msgstr "ルールを無視して変更"
 
 #: src/Reservation/Admin/ReportPage.php:25
-#: templates/admin/reservation-report.php:59
+#: templates/admin/reservation-report.php:65
 msgid "Reservation report"
 msgstr "予約リクエストのレポート"
 
@@ -4828,12 +4858,12 @@ msgid "Accepted"
 msgstr "承認済み"
 
 #: src/Reservation/Domain/ReservationStatus.php:44
-#: templates/admin/reservation-detail.php:229
+#: templates/admin/reservation-detail.php:257
 msgid "Attended"
 msgstr "来店済み"
 
 #: src/Reservation/Domain/ReservationStatus.php:45
-#: templates/admin/reservation-detail.php:230
+#: templates/admin/reservation-detail.php:258
 msgid "No-show"
 msgstr "無断キャンセル"
 
@@ -4954,8 +4984,8 @@ msgstr "確認済み"
 
 #: src/Seo/Admin/SeoAdmin.php:261
 #: templates/admin/dietary-claim-scan.php:27
-#: templates/admin/dietary-claim-scan.php:37
-#: templates/admin/dietary-register.php:78
+#: templates/admin/dietary-claim-scan.php:41
+#: templates/admin/dietary-register.php:81
 msgid "Edit"
 msgstr "編集"
 
@@ -5379,15 +5409,15 @@ msgstr "IP（一部省略）"
 msgid "Request ID"
 msgstr "リクエスト ID"
 
-#: templates/admin/audit-log.php:138
+#: templates/admin/audit-log.php:144
 msgid "Audit pages"
 msgstr "監査ログのページ"
 
-#: templates/admin/audit-log.php:147
+#: templates/admin/audit-log.php:153
 msgid "« Previous"
 msgstr "« 前へ"
 
-#: templates/admin/audit-log.php:148
+#: templates/admin/audit-log.php:154
 msgid "Next »"
 msgstr "次へ »"
 
@@ -5442,19 +5472,19 @@ msgid "They will not be cancelled. They are marked \"Needs action\" so staff can
 msgstr "これらはキャンセルされません。スタッフがお客様に連絡できるよう「要対応」に設定されます。"
 
 #: templates/admin/branch-hours.php:73
-#: templates/admin/branch-hours.php:211
-#: templates/admin/reservation-detail.php:237
+#: templates/admin/branch-hours.php:214
+#: templates/admin/reservation-detail.php:265
 #: templates/admin/settings-languages.php:74
 msgid "Date"
 msgstr "日付"
 
 #. translators: 1: date, 2: times
 #: templates/admin/branch-hours.php:74
-#: templates/admin/reservation-detail.php:83
-#: templates/admin/reservation-detail.php:241
-#: templates/admin/reservation-detail.php:285
-#: templates/admin/reservation-inbox.php:128
-#: templates/admin/reservation-inbox.php:144
+#: templates/admin/reservation-detail.php:86
+#: templates/admin/reservation-detail.php:273
+#: templates/admin/reservation-detail.php:317
+#: templates/admin/reservation-inbox.php:132
+#: templates/admin/reservation-inbox.php:148
 msgid "Party"
 msgstr "人数"
 
@@ -5527,118 +5557,118 @@ msgstr "週間の営業時間帯"
 msgid "Closed all day (regular closing day)"
 msgstr "終日休業（定休日）"
 
-#: templates/admin/branch-hours.php:167
+#: templates/admin/branch-hours.php:170
 msgid "Currently closed"
 msgstr "現在休業中"
 
-#: templates/admin/branch-hours.php:180
-#: templates/admin/branch-hours.php:270
+#: templates/admin/branch-hours.php:183
+#: templates/admin/branch-hours.php:271
 msgid "Add period"
 msgstr "時間帯を追加"
 
-#: templates/admin/branch-hours.php:189
+#: templates/admin/branch-hours.php:192
 msgid "Copy Monday to all weekdays"
 msgstr "月曜日の設定を全曜日にコピー"
 
-#: templates/admin/branch-hours.php:190
+#: templates/admin/branch-hours.php:193
 msgid "Save weekly hours"
 msgstr "週間の営業時間を保存"
 
-#: templates/admin/branch-hours.php:195
+#: templates/admin/branch-hours.php:198
 msgid "Delete this dated schedule?"
 msgstr "この日付指定のスケジュールを削除しますか？"
 
-#: templates/admin/branch-hours.php:200
+#: templates/admin/branch-hours.php:203
 msgid "Delete this dated schedule"
 msgstr "この日付指定のスケジュールを削除"
 
-#: templates/admin/branch-hours.php:205
+#: templates/admin/branch-hours.php:208
 msgid "Upcoming closures and special hours"
 msgstr "今後の休業日と特別営業時間"
 
-#: templates/admin/branch-hours.php:207
+#: templates/admin/branch-hours.php:210
 msgid "No closures or special hours in the next 90 days."
 msgstr "今後 90 日間に休業日や特別営業時間はありません。"
 
-#: templates/admin/branch-hours.php:211
+#: templates/admin/branch-hours.php:214
 msgid "Hours"
 msgstr "営業時間"
 
-#: templates/admin/branch-hours.php:212
-#: templates/admin/branch-hours.php:271
+#: templates/admin/branch-hours.php:215
+#: templates/admin/branch-hours.php:272
 msgid "Public reason"
 msgstr "公開する理由"
 
-#: templates/admin/branch-hours.php:212
+#: templates/admin/branch-hours.php:215
 msgid "Internal note (staff only)"
 msgstr "社内メモ（スタッフのみ）"
 
-#: templates/admin/branch-hours.php:219
-#: templates/admin/branch-hours.php:255
+#: templates/admin/branch-hours.php:222
+#: templates/admin/branch-hours.php:258
 msgid "Closed all day"
 msgstr "終日休業"
 
-#: templates/admin/branch-hours.php:224
+#: templates/admin/branch-hours.php:227
 msgid "Past (read only)"
 msgstr "過去（読み取り専用）"
 
-#: templates/admin/branch-hours.php:226
+#: templates/admin/branch-hours.php:229
 msgid "Delete this entry? Reservations already marked \"Needs action\" stay marked."
 msgstr "この登録を削除しますか？すでに「要対応」になっている予約リクエストはそのままです。"
 
 #. translators: %s: date
-#: templates/admin/branch-hours.php:231
+#: templates/admin/branch-hours.php:234
 #, php-format
 msgid "Delete %s"
 msgstr "%sを削除"
 
-#: templates/admin/branch-hours.php:243
+#: templates/admin/branch-hours.php:246
 msgid "Add closure or special hours"
 msgstr "休業日または特別営業時間を追加"
 
-#: templates/admin/branch-hours.php:249
+#: templates/admin/branch-hours.php:252
 msgid "Date (from)"
 msgstr "日付（開始）"
 
-#: templates/admin/branch-hours.php:251
+#: templates/admin/branch-hours.php:254
 msgid "to (optional, max. 31 days)"
 msgstr "終了（任意、最長 31 日）"
 
-#: templates/admin/branch-hours.php:258
+#: templates/admin/branch-hours.php:261
 msgid "Special periods"
 msgstr "特別営業の時間帯"
 
-#: templates/admin/branch-hours.php:276
+#: templates/admin/branch-hours.php:277
 msgid "Shown to customers in their language."
 msgstr "お客様の言語で表示されます。"
 
-#: templates/admin/branch-hours.php:277
+#: templates/admin/branch-hours.php:278
 #: templates/admin/reservation-detail.php:45
-#: templates/admin/reservation-detail.php:274
+#: templates/admin/reservation-detail.php:306
 msgid "Internal note"
 msgstr "社内メモ"
 
-#: templates/admin/branch-hours.php:279
+#: templates/admin/branch-hours.php:280
 msgid "Staff only — never shown to customers or sent in emails."
 msgstr "スタッフのみ — お客様には表示されず、メールにも記載されません。"
 
-#: templates/admin/branch-hours.php:280
+#: templates/admin/branch-hours.php:281
 msgid "Existing entries"
 msgstr "既存の登録"
 
-#: templates/admin/branch-hours.php:281
+#: templates/admin/branch-hours.php:282
 msgid "Replace existing entries"
 msgstr "既存の登録を置き換える"
 
-#: templates/admin/branch-hours.php:283
+#: templates/admin/branch-hours.php:284
 msgid "Save closure"
 msgstr "休業日を保存"
 
-#: templates/admin/branch-hours.php:284
+#: templates/admin/branch-hours.php:285
 msgid "Post a notice for these dates"
 msgstr "この期間のお知らせを掲載する"
 
-#: templates/admin/branch-hours.php:291
+#: templates/admin/branch-hours.php:292
 msgid "Next 7 days (customer view, JST)"
 msgstr "今後 7 日間（お客様の表示、日本時間）"
 
@@ -5676,8 +5706,8 @@ msgid "Revoke “%s”"
 msgstr "「%s」を取り消し"
 
 #: templates/admin/dietary-register.php:39
-#: templates/admin/reservation-detail.php:193
-#: templates/admin/reservation-detail.php:214
+#: templates/admin/reservation-detail.php:217
+#: templates/admin/reservation-detail.php:238
 msgid "Reason (required)"
 msgstr "理由（必須）"
 
@@ -5701,54 +5731,54 @@ msgstr "店舗／料理"
 msgid "Valid until"
 msgstr "有効期限"
 
-#: templates/admin/dietary-register.php:60
+#: templates/admin/dietary-register.php:63
 msgid "No records."
 msgstr "記録はありません。"
 
 #. translators: %d: dishes
-#: templates/admin/dietary-register.php:68
+#: templates/admin/dietary-register.php:71
 #, php-format
 msgid "%d dish"
 msgid_plural "%d dishes"
 msgstr[0] "料理 %d 件"
 
 #. translators: %d: days
-#: templates/admin/dietary-register.php:72
+#: templates/admin/dietary-register.php:75
 #, php-format
 msgid "expires in %d day"
 msgid_plural "expires in %d days"
 msgstr[0] "あと %d 日で期限切れ"
 
 #. translators: %d: days
-#: templates/admin/dietary-register.php:72
+#: templates/admin/dietary-register.php:75
 msgid "Expires soon"
 msgstr "まもなく期限切れ"
 
-#: templates/admin/dietary-register.php:75
+#: templates/admin/dietary-register.php:78
 msgid "not displayed"
 msgstr "表示しない"
 
-#: templates/admin/dietary-register.php:80
+#: templates/admin/dietary-register.php:83
 msgid "Revoke"
 msgstr "取り消し"
 
-#: templates/admin/dietary-register.php:93
+#: templates/admin/dietary-register.php:96
 msgid "Re-verification"
 msgstr "再確認"
 
-#: templates/admin/dietary-register.php:96
+#: templates/admin/dietary-register.php:99
 msgid "Certificates expiring within 30 days"
 msgstr "30 日以内に期限が切れる認証書"
 
-#: templates/admin/dietary-register.php:97
+#: templates/admin/dietary-register.php:100
 msgid "Active records last verified more than 92 days ago"
 msgstr "最終確認から 92 日を超えた有効な記録"
 
-#: templates/admin/dietary-register.php:98
+#: templates/admin/dietary-register.php:101
 msgid "Dishes whose allergen data was verified more than 183 days ago"
 msgstr "アレルゲン情報の確認から 183 日を超えた料理"
 
-#: templates/admin/dietary-register.php:99
+#: templates/admin/dietary-register.php:102
 msgid "Dishes with unverified allergens or review required"
 msgstr "未確認のアレルゲンがある、またはレビューが必要な料理"
 
@@ -5756,53 +5786,53 @@ msgstr "未確認のアレルゲンがある、またはレビューが必要な
 msgid "Halal and alcohol statements are shown only from approved templates; factual values ({certifier}, {cert_no} …) come from the halal register. Translations must be human translations approved per language."
 msgstr "ハラールとアルコールの表示文は承認済みのテンプレートからのみ表示されます。事実に関する値（{certifier}、{cert_no} など）はハラール登録簿から取得されます。翻訳は人による翻訳で、言語ごとに承認されている必要があります。"
 
-#: templates/admin/dietary-statements.php:33
+#: templates/admin/dietary-statements.php:37
 msgid "Cross-contact statement"
 msgstr "交差接触に関する表示文"
 
-#: templates/admin/dietary-statements.php:37
+#: templates/admin/dietary-statements.php:41
 msgid "The food-safety owner confirmed the shared-kitchen practice (shows the cross-contact note on every dish)"
 msgstr "食品安全の責任者が厨房の共用状況を確認済み（すべての料理に交差接触の注記を表示）"
 
 #. translators: 1: user 2: date
-#: templates/admin/dietary-statements.php:39
+#: templates/admin/dietary-statements.php:43
 #, php-format
 msgid "Last changed by %1$s at %2$s (UTC)"
 msgstr "最終変更：%1$s（%2$s UTC）"
 
-#: templates/admin/dietary-statements.php:44
+#: templates/admin/dietary-statements.php:51
 msgid "Templates"
 msgstr "テンプレート"
 
-#: templates/admin/dietary-statements.php:48
+#: templates/admin/dietary-statements.php:55
 msgid "Not approved"
 msgstr "未承認"
 
-#: templates/admin/dietary-statements.php:55
-#: templates/admin/dietary-statements.php:100
+#: templates/admin/dietary-statements.php:66
+#: templates/admin/dietary-statements.php:122
 msgid "Japanese text (master)"
 msgstr "日本語の本文（原本）"
 
-#: templates/admin/dietary-statements.php:57
+#: templates/admin/dietary-statements.php:68
 msgid "Approved (counsel + certifier sign-off recorded)"
 msgstr "承認済み（弁護士と認証機関の確認を記録済み）"
 
-#: templates/admin/dietary-statements.php:58
+#: templates/admin/dietary-statements.php:69
 msgid "Save template"
 msgstr "テンプレートを保存"
 
 #. translators: 1: user 2: date
-#: templates/admin/dietary-statements.php:64
+#: templates/admin/dietary-statements.php:75
 #, php-format
 msgid "Approved by %1$s at %2$s (UTC)"
 msgstr "承認：%1$s（%2$s UTC）"
 
-#: templates/admin/dietary-statements.php:67
+#: templates/admin/dietary-statements.php:78
 msgid "Translation"
 msgstr "翻訳"
 
-#: templates/admin/dietary-statements.php:94
-#: templates/admin/dietary-statements.php:101
+#: templates/admin/dietary-statements.php:112
+#: templates/admin/dietary-statements.php:123
 msgid "Add template"
 msgstr "テンプレートを追加"
 
@@ -5832,8 +5862,8 @@ msgid "Dishes at this branch"
 msgstr "この店舗の料理"
 
 #: templates/admin/menu-branch-grid.php:53
-#: templates/admin/menu-branch-grid.php:92
-#: templates/admin/menu-branch-grid.php:97
+#: templates/admin/menu-branch-grid.php:95
+#: templates/admin/menu-branch-grid.php:100
 msgid "Offered"
 msgstr "提供中"
 
@@ -5849,39 +5879,39 @@ msgstr "価格の上書き"
 msgid "Displayed price"
 msgstr "表示価格"
 
-#: templates/admin/menu-branch-grid.php:87
+#: templates/admin/menu-branch-grid.php:90
 msgid "Variant"
 msgstr "バリエーション"
 
-#: templates/admin/menu-branch-grid.php:94
+#: templates/admin/menu-branch-grid.php:97
 msgid "Confirm: base dish/variant also offered here"
 msgstr "確認：元の料理／バリエーションもこの店舗で提供中"
 
-#: templates/admin/menu-branch-grid.php:97
+#: templates/admin/menu-branch-grid.php:100
 msgid "Not offered"
 msgstr "提供なし"
 
-#: templates/admin/menu-branch-grid.php:103
+#: templates/admin/menu-branch-grid.php:106
 msgid "Price override (yen)"
 msgstr "価格の上書き（円）"
 
-#: templates/admin/menu-branch-grid.php:106
+#: templates/admin/menu-branch-grid.php:109
 msgid "Confirm large price change"
 msgstr "大幅な価格変更を確認"
 
-#: templates/admin/menu-branch-grid.php:110
+#: templates/admin/menu-branch-grid.php:113
 msgid "Head Office only"
 msgstr "本部のみ"
 
-#: templates/admin/menu-branch-grid.php:122
+#: templates/admin/menu-branch-grid.php:125
 msgid "Sold out until (JST)"
 msgstr "売り切れ期限（日本時間）"
 
-#: templates/admin/menu-branch-grid.php:132
+#: templates/admin/menu-branch-grid.php:135
 msgid "Not configured"
 msgstr "未設定"
 
-#: templates/admin/menu-branch-grid.php:143
+#: templates/admin/menu-branch-grid.php:146
 msgid "Available again"
 msgstr "提供を再開"
 
@@ -6101,7 +6131,7 @@ msgid "Email to guest failed"
 msgstr "お客様へのメール送信に失敗"
 
 #: templates/admin/reservation-detail.php:48
-#: templates/admin/reservation-detail.php:252
+#: templates/admin/reservation-detail.php:284
 msgid "Guest contacted"
 msgstr "お客様に連絡済み"
 
@@ -6131,267 +6161,267 @@ msgstr "%1$s に %2$s でメールが送信されます。"
 msgid "Back to inbox"
 msgstr "受信箱に戻る"
 
-#: templates/admin/reservation-detail.php:80
+#: templates/admin/reservation-detail.php:83
 msgid "Request"
 msgstr "リクエスト"
 
-#: templates/admin/reservation-detail.php:82
-#: templates/admin/reservation-inbox.php:127
-#: templates/admin/reservation-inbox.php:140
+#: templates/admin/reservation-detail.php:85
+#: templates/admin/reservation-inbox.php:131
+#: templates/admin/reservation-inbox.php:144
 msgid "Date / time"
 msgstr "日付／時刻"
 
-#: templates/admin/reservation-detail.php:85
-#: templates/admin/reservation-detail.php:140
-#: templates/admin/reservation-inbox.php:129
-#: templates/admin/reservation-inbox.php:145
+#: templates/admin/reservation-detail.php:88
+#: templates/admin/reservation-detail.php:158
+#: templates/admin/reservation-inbox.php:133
+#: templates/admin/reservation-inbox.php:149
 msgid "Guest"
 msgstr "お客様"
 
-#: templates/admin/reservation-detail.php:87
+#: templates/admin/reservation-detail.php:90
 msgid "Not given"
 msgstr "未入力"
 
-#: templates/admin/reservation-detail.php:90
-#: templates/admin/reservation-report.php:77
+#: templates/admin/reservation-detail.php:93
+#: templates/admin/reservation-report.php:89
 msgid "Reply language"
 msgstr "返信の言語"
 
-#: templates/admin/reservation-detail.php:94
+#: templates/admin/reservation-detail.php:97
 msgid "Yes (hidden — no permission to view guest details)"
 msgstr "あり（非表示 — お客様の詳細を閲覧する権限がありません）"
 
-#: templates/admin/reservation-detail.php:94
-#: templates/admin/reservation-detail.php:96
+#: templates/admin/reservation-detail.php:97
+#: templates/admin/reservation-detail.php:99
 msgid "No special request"
 msgstr "ご要望なし"
 
-#: templates/admin/reservation-detail.php:101
-#: templates/admin/reservation-inbox.php:106
-#: templates/admin/reservation-inbox.php:132
-#: templates/admin/reservation-inbox.php:150
+#: templates/admin/reservation-detail.php:104
+#: templates/admin/reservation-inbox.php:110
+#: templates/admin/reservation-inbox.php:136
+#: templates/admin/reservation-inbox.php:165
 msgid "Received"
 msgstr "受付日時"
 
-#: templates/admin/reservation-detail.php:103
+#: templates/admin/reservation-detail.php:106
 msgid "Expires if undecided at"
 msgstr "未対応の場合の期限切れ日時"
 
-#: templates/admin/reservation-detail.php:109
+#: templates/admin/reservation-detail.php:112
 msgid "Message to guest"
 msgstr "お客様へのメッセージ"
 
-#: templates/admin/reservation-detail.php:112
+#: templates/admin/reservation-detail.php:115
 msgid "Suggested times"
 msgstr "代わりの候補時刻"
 
-#: templates/admin/reservation-detail.php:119
+#: templates/admin/reservation-detail.php:122
 msgid "Needs attention"
 msgstr "要確認"
 
-#: templates/admin/reservation-detail.php:121
-#: templates/admin/reservation-inbox.php:85
+#: templates/admin/reservation-detail.php:127
+#: templates/admin/reservation-inbox.php:89
 msgid "Guest not notified"
 msgstr "お客様に未通知"
 
-#: templates/admin/reservation-detail.php:123
-#: templates/admin/reservation-inbox.php:157
+#: templates/admin/reservation-detail.php:135
+#: templates/admin/reservation-inbox.php:187
 msgid "Spam check unavailable"
 msgstr "スパムチェックを利用できません"
 
-#: templates/admin/reservation-detail.php:129
+#: templates/admin/reservation-detail.php:141
 msgid "Timeline"
 msgstr "タイムライン"
 
 #. translators: 1: template, 2: status
-#: templates/admin/reservation-detail.php:132
+#: templates/admin/reservation-detail.php:144
 #, php-format
 msgid "Email %1$s: %2$s"
 msgstr "メール %1$s：%2$s"
 
 #. translators: %d: attempts
-#: templates/admin/reservation-detail.php:133
+#: templates/admin/reservation-detail.php:145
 #, php-format
 msgid "attempts %d/5"
 msgstr "試行 %d/5 回"
 
-#: templates/admin/reservation-detail.php:149
+#: templates/admin/reservation-detail.php:170
 msgid "Rules overridden:"
 msgstr "無視したルール："
 
-#: templates/admin/reservation-detail.php:164
-#: templates/admin/reservation-inbox.php:90
-#: templates/admin/reservation-inbox.php:133
-#: templates/admin/reservation-inbox.php:151
+#: templates/admin/reservation-detail.php:188
+#: templates/admin/reservation-inbox.php:94
+#: templates/admin/reservation-inbox.php:137
+#: templates/admin/reservation-inbox.php:166
 msgid "Handled by"
 msgstr "担当者"
 
 #. translators: %s: staff name
-#: templates/admin/reservation-detail.php:165
-#: templates/admin/reservation-inbox.php:87
-#: templates/admin/reservation-inbox.php:94
-#: templates/admin/reservation-inbox.php:151
+#: templates/admin/reservation-detail.php:189
+#: templates/admin/reservation-inbox.php:91
+#: templates/admin/reservation-inbox.php:98
+#: templates/admin/reservation-inbox.php:166
 msgid "Unclaimed"
 msgstr "担当者なし"
 
-#: templates/admin/reservation-detail.php:168
+#: templates/admin/reservation-detail.php:192
 msgid "Claim"
 msgstr "担当する"
 
-#: templates/admin/reservation-detail.php:172
+#: templates/admin/reservation-detail.php:196
 msgid "Release"
 msgstr "担当を外れる"
 
-#: templates/admin/reservation-detail.php:179
+#: templates/admin/reservation-detail.php:203
 msgid "Accept"
 msgstr "承認する"
 
-#: templates/admin/reservation-detail.php:182
-#: templates/admin/reservation-detail.php:198
-#: templates/admin/reservation-detail.php:220
+#: templates/admin/reservation-detail.php:206
+#: templates/admin/reservation-detail.php:222
+#: templates/admin/reservation-detail.php:248
 msgid "Message to guest (optional)"
 msgstr "お客様へのメッセージ（任意）"
 
-#: templates/admin/reservation-detail.php:184
+#: templates/admin/reservation-detail.php:208
 msgid "Write in simple English or Japanese; it is sent as written."
 msgstr "やさしい英語または日本語で書いてください。入力したとおりに送信されます。"
 
-#: templates/admin/reservation-detail.php:185
+#: templates/admin/reservation-detail.php:209
 msgid "Accept and email guest"
 msgstr "承認してお客様にメールを送信"
 
-#: templates/admin/reservation-detail.php:190
+#: templates/admin/reservation-detail.php:214
 msgid "Decline"
 msgstr "お断りする"
 
-#: templates/admin/reservation-detail.php:200
+#: templates/admin/reservation-detail.php:224
 msgid "Suggest up to two other times (optional)"
 msgstr "ほかの候補時刻を 2 つまで提案（任意）"
 
 #. translators: %d: 1 or 2
-#: templates/admin/reservation-detail.php:202
+#: templates/admin/reservation-detail.php:226
 #, php-format
 msgid "Time %d"
 msgstr "時刻 %d"
 
-#: templates/admin/reservation-detail.php:205
+#: templates/admin/reservation-detail.php:229
 msgid "Times are not held for the guest. Check they are within opening hours."
 msgstr "候補時刻はお客様のために確保されません。営業時間内であることを確認してください。"
 
-#: templates/admin/reservation-detail.php:207
+#: templates/admin/reservation-detail.php:231
 msgid "Decline and email guest"
 msgstr "お断りしてお客様にメールを送信"
 
-#: templates/admin/reservation-detail.php:212
-#: templates/admin/reservation-detail.php:222
+#: templates/admin/reservation-detail.php:236
+#: templates/admin/reservation-detail.php:250
 msgid "Cancel request"
 msgstr "キャンセルする"
 
-#: templates/admin/reservation-detail.php:216
+#: templates/admin/reservation-detail.php:244
 msgid "No email will be sent to the guest."
 msgstr "お客様にはメールは送信されません。"
 
-#: templates/admin/reservation-detail.php:227
+#: templates/admin/reservation-detail.php:255
 msgid "Attended / No-show"
 msgstr "来店済み／無断キャンセル"
 
-#: templates/admin/reservation-detail.php:228
+#: templates/admin/reservation-detail.php:256
 msgid "No email is sent to the guest."
 msgstr "お客様にはメールは送信されません。"
 
-#: templates/admin/reservation-detail.php:234
+#: templates/admin/reservation-detail.php:262
 msgid "Change details"
 msgstr "内容を変更"
 
-#: templates/admin/reservation-detail.php:236
+#: templates/admin/reservation-detail.php:264
 msgid "Reason: Agreed with guest."
 msgstr "理由：お客様と合意済み。"
 
-#: templates/admin/reservation-detail.php:238
+#: templates/admin/reservation-detail.php:266
 msgid "Time"
 msgstr "時刻"
 
 #. translators: 1: date, 2: times
-#: templates/admin/reservation-detail.php:240
+#: templates/admin/reservation-detail.php:272
 #, php-format
 msgid "Times on %1$s: %2$s"
 msgstr "%1$s の時刻：%2$s"
 
-#: templates/admin/reservation-detail.php:242
+#: templates/admin/reservation-detail.php:274
 msgid "Internal note (optional)"
 msgstr "社内メモ（任意）"
 
-#: templates/admin/reservation-detail.php:244
+#: templates/admin/reservation-detail.php:276
 msgid "Override rules (lead time, booking window, party size)"
 msgstr "ルールを無視する（最短受付時間、受付可能期間、人数）"
 
-#: templates/admin/reservation-detail.php:245
+#: templates/admin/reservation-detail.php:277
 msgid "Override reason"
 msgstr "ルールを無視する理由"
 
-#: templates/admin/reservation-detail.php:247
+#: templates/admin/reservation-detail.php:279
 msgid "Save and email guest"
 msgstr "保存してお客様にメールを送信"
 
-#: templates/admin/reservation-detail.php:254
+#: templates/admin/reservation-detail.php:286
 msgid "Note (optional)"
 msgstr "メモ（任意）"
 
-#: templates/admin/reservation-detail.php:255
+#: templates/admin/reservation-detail.php:287
 msgid "Mark as contacted"
 msgstr "連絡済みにする"
 
-#: templates/admin/reservation-detail.php:259
+#: templates/admin/reservation-detail.php:291
 msgid "Resolve flag"
 msgstr "フラグを解除"
 
-#: templates/admin/reservation-detail.php:261
+#: templates/admin/reservation-detail.php:293
 msgid "What was done (required)"
 msgstr "実施した対応（必須）"
 
-#: templates/admin/reservation-detail.php:262
+#: templates/admin/reservation-detail.php:294
 msgid "Resolve"
 msgstr "解除"
 
-#: templates/admin/reservation-detail.php:266
+#: templates/admin/reservation-detail.php:298
 msgid "No status action is possible for this request."
 msgstr "このリクエストに対して実行できる状態の操作はありません。"
 
-#: templates/admin/reservation-detail.php:272
+#: templates/admin/reservation-detail.php:304
 msgid "Add internal note"
 msgstr "社内メモを追加"
 
-#: templates/admin/reservation-detail.php:276
+#: templates/admin/reservation-detail.php:308
 msgid "Never sent to the guest."
 msgstr "お客様には送信されません。"
 
-#: templates/admin/reservation-detail.php:277
+#: templates/admin/reservation-detail.php:309
 msgid "Add note"
 msgstr "メモを追加"
 
-#: templates/admin/reservation-detail.php:283
+#: templates/admin/reservation-detail.php:315
 msgid "Branch rules"
 msgstr "店舗のルール"
 
-#: templates/admin/reservation-detail.php:286
+#: templates/admin/reservation-detail.php:318
 msgid "Lead time"
 msgstr "最短受付時間"
 
 #. translators: %d minutes
-#: templates/admin/reservation-detail.php:286
+#: templates/admin/reservation-detail.php:318
 #: templates/admin/reservation-report.php:18
 #, php-format
 msgid "%d min"
 msgstr "%d 分"
 
 #. translators: %d minutes
-#: templates/admin/reservation-detail.php:287
+#: templates/admin/reservation-detail.php:319
 #, php-format
 msgid "%d min before start"
 msgstr "開始の %d 分前"
 
 #. translators: %d days
-#: templates/admin/reservation-detail.php:288
+#: templates/admin/reservation-detail.php:320
 #, php-format
 msgid "%d days"
 msgstr "%d 日"
@@ -6407,137 +6437,136 @@ msgstr[0] "期限超過 %d 件"
 msgid "Views"
 msgstr "表示"
 
-#: templates/admin/reservation-inbox.php:58
+#: templates/admin/reservation-inbox.php:62
 msgid "Search (reference or name)"
 msgstr "検索（受付番号または氏名）"
 
-#: templates/admin/reservation-inbox.php:64
-#: templates/admin/reservation-report.php:73
+#: templates/admin/reservation-inbox.php:68
+#: templates/admin/reservation-report.php:82
 msgid "All in my scope"
 msgstr "担当範囲のすべて"
 
-#: templates/admin/reservation-inbox.php:73
+#: templates/admin/reservation-inbox.php:77
 msgid "As in view"
 msgstr "表示に準じる"
 
-#: templates/admin/reservation-inbox.php:81
+#: templates/admin/reservation-inbox.php:85
 msgid "Flag"
 msgstr "フラグ"
 
-#: templates/admin/reservation-inbox.php:83
-#: templates/admin/reservation-inbox.php:99
+#: templates/admin/reservation-inbox.php:87
+#: templates/admin/reservation-inbox.php:103
 msgid "Any"
 msgstr "すべて"
 
-#: templates/admin/reservation-inbox.php:86
-#: templates/admin/reservation-inbox.php:148
+#: templates/admin/reservation-inbox.php:90
+#: templates/admin/reservation-inbox.php:159
 msgid "Overdue"
 msgstr "期限超過"
 
-#: templates/admin/reservation-inbox.php:92
+#: templates/admin/reservation-inbox.php:96
 msgid "Anyone"
 msgstr "すべての担当者"
 
-#: templates/admin/reservation-inbox.php:93
+#: templates/admin/reservation-inbox.php:97
 msgid "Me"
 msgstr "自分"
 
-#: templates/admin/reservation-inbox.php:100
+#: templates/admin/reservation-inbox.php:104
 msgid "Has special request"
 msgstr "ご要望あり"
 
-#: templates/admin/reservation-inbox.php:103
+#: templates/admin/reservation-inbox.php:107
 msgid "Sort"
 msgstr "並べ替え"
 
-#: templates/admin/reservation-inbox.php:111
+#: templates/admin/reservation-inbox.php:115
 msgid "Ascending"
 msgstr "昇順"
 
-#: templates/admin/reservation-inbox.php:112
+#: templates/admin/reservation-inbox.php:116
 msgid "Descending"
 msgstr "降順"
 
-#: templates/admin/reservation-inbox.php:115
-#: templates/admin/reservation-report.php:83
+#: templates/admin/reservation-inbox.php:119
+#: templates/admin/reservation-report.php:98
 msgid "Apply"
 msgstr "適用"
 
-#: templates/admin/reservation-inbox.php:120
+#: templates/admin/reservation-inbox.php:124
 msgid "No requests waiting."
 msgstr "対応待ちのリクエストはありません。"
 
 #. translators: %s: staff name
-#: templates/admin/reservation-inbox.php:134
-#: templates/admin/reservation-inbox.php:152
+#: templates/admin/reservation-inbox.php:138
+#: templates/admin/reservation-inbox.php:167
 msgid "Flags"
 msgstr "フラグ"
 
-#: templates/admin/reservation-inbox.php:148
+#: templates/admin/reservation-inbox.php:163
 msgid "Reply soon"
 msgstr "早めに返信"
 
 #. translators: %s: staff name
-#: templates/admin/reservation-inbox.php:151
+#: templates/admin/reservation-inbox.php:166
 #, php-format
 msgid "Claimed by %s"
 msgstr "%s が対応中"
 
-#: templates/admin/reservation-inbox.php:154
+#: templates/admin/reservation-inbox.php:175
 msgid "Guest not notified — call"
 msgstr "お客様に未通知 — 電話してください"
 
-#: templates/admin/reservation-inbox.php:155
+#: templates/admin/reservation-inbox.php:179
 msgid "Carrier email"
 msgstr "キャリアメール"
 
-#: templates/admin/reservation-inbox.php:164
+#: templates/admin/reservation-inbox.php:194
 msgid "Pages"
 msgstr "ページ"
 
-#: templates/admin/reservation-inbox.php:165
+#: templates/admin/reservation-inbox.php:198
 msgid "Previous"
 msgstr "前へ"
 
 #. translators: 1: page, 2: pages, 3: total
-#: templates/admin/reservation-inbox.php:166
+#: templates/admin/reservation-inbox.php:199
 #, php-format
 msgid "Page %1$d of %2$d (%3$d requests)"
 msgstr "%1$d / %2$d ページ（%3$d 件）"
 
-#. translators: 1: page, 2: pages, 3: total
-#: templates/admin/reservation-inbox.php:167
+#: templates/admin/reservation-inbox.php:203
 msgid "Next"
 msgstr "次へ"
 
-#: templates/admin/reservation-inbox.php:174
+#: templates/admin/reservation-inbox.php:210
 msgid "Export CSV"
 msgstr "CSV をエクスポート"
 
-#: templates/admin/reservation-inbox.php:184
+#: templates/admin/reservation-inbox.php:220
 msgid "Statuses"
 msgstr "状態"
 
-#: templates/admin/reservation-inbox.php:189
+#: templates/admin/reservation-inbox.php:225
 msgid "Requested date from"
 msgstr "希望日（開始）"
 
-#: templates/admin/reservation-inbox.php:190
+#: templates/admin/reservation-inbox.php:226
 msgid "Requested date to"
 msgstr "希望日（終了）"
 
 #. translators: %d: months
-#: templates/admin/reservation-inbox.php:191
+#: templates/admin/reservation-inbox.php:227
 #, php-format
 msgid "At most %d months per export."
 msgstr "エクスポート 1 回につき最長 %d か月です。"
 
 #. translators: %d: months
-#: templates/admin/reservation-inbox.php:192
+#: templates/admin/reservation-inbox.php:228
 msgid "Reason for export (required)"
 msgstr "エクスポートの理由（必須）"
 
-#: templates/admin/reservation-inbox.php:193
+#: templates/admin/reservation-inbox.php:229
 msgid "Include special requests"
 msgstr "ご要望を含める"
 
@@ -6547,96 +6576,96 @@ msgid "Not enough data for this period"
 msgstr "この期間のデータが不足しています"
 
 #: templates/admin/reservation-report.php:25
-#: templates/admin/reservation-report.php:89
+#: templates/admin/reservation-report.php:104
 msgid "Requests"
 msgstr "リクエスト数"
 
-#: templates/admin/reservation-report.php:27
-#: templates/admin/reservation-report.php:90
+#: templates/admin/reservation-report.php:30
+#: templates/admin/reservation-report.php:105
 msgid "Acceptance rate"
 msgstr "承認率"
 
-#: templates/admin/reservation-report.php:28
-#: templates/admin/reservation-report.php:91
+#: templates/admin/reservation-report.php:31
+#: templates/admin/reservation-report.php:106
 msgid "Expiry rate"
 msgstr "期限切れ率"
 
-#: templates/admin/reservation-report.php:29
-#: templates/admin/reservation-report.php:92
+#: templates/admin/reservation-report.php:32
+#: templates/admin/reservation-report.php:107
 msgid "No-show rate"
 msgstr "無断キャンセル率"
 
-#: templates/admin/reservation-report.php:30
-#: templates/admin/reservation-report.php:93
+#: templates/admin/reservation-report.php:33
+#: templates/admin/reservation-report.php:108
 msgid "Response median"
 msgstr "回答時間の中央値"
 
-#: templates/admin/reservation-report.php:31
+#: templates/admin/reservation-report.php:34
 msgid "Response p90"
 msgstr "回答時間の 90 パーセンタイル"
 
-#: templates/admin/reservation-report.php:32
-#: templates/admin/reservation-report.php:94
+#: templates/admin/reservation-report.php:35
+#: templates/admin/reservation-report.php:109
 msgid "Within SLA"
 msgstr "目標時間内"
 
-#: templates/admin/reservation-report.php:36
+#: templates/admin/reservation-report.php:39
 msgid "No requests in this period."
 msgstr "この期間のリクエストはありません。"
 
-#: templates/admin/reservation-report.php:65
+#: templates/admin/reservation-report.php:74
 msgid "Date basis"
 msgstr "日付の基準"
 
-#: templates/admin/reservation-report.php:67
+#: templates/admin/reservation-report.php:76
 msgid "Received date"
 msgstr "受付日"
 
-#: templates/admin/reservation-report.php:100
+#: templates/admin/reservation-report.php:115
 msgid "Details"
 msgstr "詳細"
 
-#: templates/admin/reservation-report.php:102
+#: templates/admin/reservation-report.php:117
 msgid "By branch"
 msgstr "店舗別"
 
-#: templates/admin/reservation-report.php:103
+#: templates/admin/reservation-report.php:118
 msgid "By reply language"
 msgstr "返信の言語別"
 
-#: templates/admin/reservation-report.php:104
+#: templates/admin/reservation-report.php:119
 msgid "By ISO week (JST)"
 msgstr "ISO 週別（日本時間）"
 
-#: templates/admin/reservation-report.php:104
+#: templates/admin/reservation-report.php:119
 msgid "Week"
 msgstr "週"
 
-#: templates/admin/reservation-report.php:106
+#: templates/admin/reservation-report.php:121
 msgid "Definitions"
 msgstr "定義"
 
-#: templates/admin/reservation-report.php:108
+#: templates/admin/reservation-report.php:123
 msgid "Acceptance rate = accepted ÷ (accepted + declined + expired). Accepted counts every request the branch accepted, including those later attended, no-show or cancelled."
 msgstr "承認率 = 承認 ÷（承認 + お断り + 期限切れ）。承認には、店舗が承認したすべてのリクエスト（その後来店済み、無断キャンセル、キャンセルになったものを含む）を数えます。"
 
-#: templates/admin/reservation-report.php:109
+#: templates/admin/reservation-report.php:124
 msgid "Expiry rate = expired ÷ (accepted + declined + expired)."
 msgstr "期限切れ率 = 期限切れ ÷（承認 + お断り + 期限切れ）。"
 
-#: templates/admin/reservation-report.php:110
+#: templates/admin/reservation-report.php:125
 msgid "No-show rate = no-show ÷ (attended + no-show)."
 msgstr "無断キャンセル率 = 無断キャンセル ÷（来店済み + 無断キャンセル）。"
 
-#: templates/admin/reservation-report.php:111
+#: templates/admin/reservation-report.php:126
 msgid "Response time = minutes from receipt to the first accept or decline (median and 90th percentile)."
 msgstr "回答時間 = 受付から最初の承認またはお断りまでの分数（中央値と 90 パーセンタイル）。"
 
-#: templates/admin/reservation-report.php:112
+#: templates/admin/reservation-report.php:127
 msgid "Within SLA = share of accept/decline decisions made within the branch response target (branches without a target are excluded)."
 msgstr "目標時間内 = 店舗の回答時間目標内に行われた承認／お断りの割合（目標のない店舗は除外）。"
 
-#: templates/admin/reservation-report.php:113
+#: templates/admin/reservation-report.php:128
 msgid "The TEST branch is excluded. The report contains no personal data."
 msgstr "テスト店舗は除外しています。レポートに個人情報は含まれません。"
 

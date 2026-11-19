@@ -36,7 +36,9 @@ final class ResendController {
 		if ( ! is_user_logged_in() ) {
 			return new \WP_Error( 'rest_forbidden', __( 'Please log in.', 'momos-core' ), [ 'status' => 401 ] );
 		}
-		if ( ! current_user_can( 'momo_process_reservations' ) && ! current_user_can( 'momo_view_notification_log' ) ) {
+		// CHG-010: resending always exposes the reservation → view primitive + (process | log access).
+		// Branch scope of the reservation is checked per object in ResendService::user_can().
+		if ( ! current_user_can( 'momo_view_reservations' ) || ( ! current_user_can( 'momo_process_reservations' ) && ! current_user_can( 'momo_view_notification_log' ) ) ) {
 			return new \WP_Error( 'rest_forbidden', __( 'You are not allowed to do this.', 'momos-core' ), [ 'status' => 403 ] );
 		}
 		return true;

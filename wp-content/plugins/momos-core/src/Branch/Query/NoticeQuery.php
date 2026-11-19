@@ -67,8 +67,10 @@ final class NoticeQuery {
 				'meta_query'       => $meta, // phpcs:ignore
 			]
 		);
+		$ids = array_map( 'intval', $ids );
+		BranchScopeTaxonomy::prime_posts( $ids );
 		$out = [];
-		foreach ( array_map( 'intval', $ids ) as $id ) {
+		foreach ( $ids as $id ) {
 			$n = self::item( $id, $lang, $now );
 			if ( null !== $n ) {
 				$out[] = $n;

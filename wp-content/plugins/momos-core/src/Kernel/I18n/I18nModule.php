@@ -17,6 +17,7 @@ final class I18nModule implements ModuleInterface {
 		OptionsPage::boot();
 		Router::register();
 		Admin\TranslationEditor::register();
+		SlugPolicy::register();
 		\Momos\Kernel\Cache\CacheInvalidator::register();
 		\Momos\Kernel\Monitoring\StatusPanel::register();
 		\Momos\Kernel\Monitoring\AlertMailer::register();

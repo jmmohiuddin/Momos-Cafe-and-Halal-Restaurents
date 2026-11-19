@@ -189,7 +189,7 @@ final class DsrScreen {
 				'ref'        => \Momos\Kernel\Support\Crockford::display( (string) $r['public_ref'] ),
 				'branch'     => $branch['code'],
 				'when'       => $r['requested_date'] . ' ' . substr( (string) $r['requested_time'], 0, 5 ),
-				'status'     => $status ? $status->staffLabel() : (string) $r['status'],
+				'status'     => $status ? $status->staff_label() : (string) $r['status'],
 				'lang'       => (string) $r['preferred_lang'],
 				'created'    => wp_date( 'Y-m-d H:i', (int) Clock::from_mysql_utc( (string) $r['created_at'] )?->getTimestamp(), Clock::tz() ),
 				'blocked'    => DsrService::is_active_future( $r, $now ),

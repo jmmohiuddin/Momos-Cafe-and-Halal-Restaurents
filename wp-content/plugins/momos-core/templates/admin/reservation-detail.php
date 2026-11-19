@@ -51,7 +51,7 @@ $event_labels = [
 	'closure_conflict'    => __( 'Conflicts with closure or changed hours', 'momos-core' ),
 	'pii_purged'          => __( 'Personal data removed', 'momos-core' ),
 ];
-$st_label     = static fn( ?string $s ): string => $s && ReservationStatus::tryFrom( $s ) ? ReservationStatus::from( $s )->staffLabel() : (string) $s;
+$st_label     = static fn( ?string $s ): string => $s && ReservationStatus::tryFrom( $s ) ? ReservationStatus::from( $s )->staff_label() : (string) $s;
 $form_open    = static function ( string $op ) use ( $d ): void {
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	echo '<input type="hidden" name="action" value="' . esc_attr( InboxPage::ACTION ) . '">';
@@ -66,7 +66,7 @@ require __DIR__ . '/reservation-styles.php';
 <div class="wrap momos-admin momos-res" id="momos-detail">
 	<p><a href="<?php echo esc_url( $back ); ?>">← <?php esc_html_e( 'Back to inbox', 'momos-core' ); ?></a></p>
 	<h1>
-		<span class="momos-badge momos-badge--<?php echo esc_attr( $status->value ); ?>"><?php echo esc_html( $status->staffLabel() ); ?></span>
+		<span class="momos-badge momos-badge--<?php echo esc_attr( $status->value ); ?>"><?php echo esc_html( $status->staff_label() ); ?></span>
 		<bdi dir="ltr"><?php echo esc_html( (string) $d['reference_display'] ); ?></bdi>
 		<?php
 		if ( $d['flags']['test_branch'] ) :

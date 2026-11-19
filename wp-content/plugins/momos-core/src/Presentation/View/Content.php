@@ -29,7 +29,7 @@ final class Content {
 	/** Body HTML through the core content filters (blocks, kses applied on save). */
 	public static function body( int $id, ?string $lang = null ): string {
 		$raw = Translations::post( $id, 'content', $lang ?? Locale::current() );
-		return '' === trim( $raw ) ? '' : (string) apply_filters( 'the_content', $raw );
+		return '' === trim( $raw ) ? '' : (string) apply_filters( 'the_content', $raw ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook.
 	}
 
 	/**

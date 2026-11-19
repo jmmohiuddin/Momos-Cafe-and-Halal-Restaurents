@@ -61,7 +61,12 @@ final class BranchRepository {
 		if ( ! $include_test ) {
 			$args['meta_query'] = [ self::not_test_clause() ]; // phpcs:ignore
 		}
-		return array_map( 'intval', get_posts( $args ) );
+		$ids = array_map( 'intval', get_posts( $args ) );
+		// get()/is_public() read the post and its meta per branch: load them all at once (NFR-PERF-02).
+		if ( $ids ) {
+			_prime_post_caches( $ids, false, true );
+		}
+		return $ids;
 	}
 
 	/**
@@ -129,7 +134,7 @@ final class BranchRepository {
 		return (bool) $wpdb->get_var( $wpdb->prepare( "SELECT 1 FROM {$t} WHERE branch_id = %d LIMIT 1", $branch_id ) ); // phpcs:ignore
 	}
 
-	/** @return array<string,mixed> */
+	/** @return array<int|string,mixed> */
 	private static function not_test_clause(): array {
 		return [
 			'relation' => 'OR',

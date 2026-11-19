@@ -161,7 +161,7 @@ final class BranchVisibility {
 	 */
 	public static function rest_pre_dispatch( $result, \WP_REST_Server $server, \WP_REST_Request $request ) {
 		$route = (string) $request->get_route();
-		if ( ! preg_match( '#^/wp/v2/momo_branch(?:/(\d+))?#', $route, $m ) ) {
+		if ( ! preg_match( '#^/wp/v2/momo_branch(?:/(\d+))?#i', $route, $m ) ) {
 			return $result;
 		}
 		if ( ! in_array( $request->get_method(), [ 'GET', 'HEAD', 'OPTIONS' ], true ) ) {
