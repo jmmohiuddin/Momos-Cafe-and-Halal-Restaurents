@@ -24,8 +24,8 @@ here is claimed without a recorded run. Final summary: `docs/FINAL_REPORT.md`.
 | `php -l` (607 files) | pass |
 | PHPStan level 5 | `[OK] No errors`, no unmatched baseline entries |
 | PHPCS (WordPress-Extra, whole tree, errors) | 0 errors |
-| PHPUnit | 1445 tests, 14509 assertions, 0 failures (1 skipped: production-only guard, 1 risky: output buffer in a perf test) |
-| Playwright (one run, one worker, 543 tests) | 539 passed; 3 failures = one keyboard-focus defect at 390 px (fix applied in frame.js; verification run pending), 1 TBT flake under CPU load (passes alone) |
+| PHPUnit | 1445 tests, 14513 assertions, 0 failures after the last fixes (1 skipped: production-only guard, 1 risky: output buffer in a perf test) |
+| Playwright (one run, one worker, 543 tests) | 539 passed; 3 failures = one keyboard-focus defect at 390 px (fixed; affected specs re-run: 48 passed), 1 TBT flake under CPU load (passes alone) |
 | `wp momos smoke` | pass |
 | Backup → restore round trip | pass |
 

@@ -26,7 +26,7 @@ A WordPress 7.1 site (PHP 8.3, MariaDB 10.11) with **no paid plugins** (IMPL-001
 
 | Check | Result (fresh database) |
 |---|---|
-| PHPUnit (78 test classes) | see §6 — final run after the last fixes |
+| PHPUnit (78 test classes) | 1445 tests, 0 failures (§6) |
 | Playwright (28 specs, 543 tests, one worker, one run) | 539 passed before the last fixes; the 3 keyboard-focus failures were fixed and the affected specs re-run: 48 passed; the remaining 1 is a TBT measurement that passes when run alone (CPU contention) |
 | PHPStan level 5 / PHPCS WordPress-Extra | no errors / 0 errors |
 | `wp momos smoke` | pass |
@@ -81,4 +81,17 @@ Firefox/WebKit projects (defined in CI, not run locally), GitHub Actions itself 
 
 ## 6. Final verification run (after the last fixes)
 
-Filled in from the last run — see the commit that adds this file.
+Run on 2026-11-19 after the last code change (fresh seeded database `momos_qa_verify`, fresh PHPUnit database):
+
+| Check | Command | Result |
+|---|---|---|
+| PHPUnit, full suite | `vendor/bin/phpunit` | `OK, but incomplete, skipped, or risky tests!` — Tests: 1445, Assertions: 14513, Skipped: 1, Risky: 1 (0 failures, 0 errors) |
+| Keyboard focus + mouse chip selection | `npx playwright test specs/qa-a11y-i18n-keyboard.spec.ts specs/theme-pointer-focus.spec.ts` | 48 passed (incl. the three 390 px Tab-walk cases that failed in the release-candidate run) |
+| CSS / JS / font-CSS budgets | `npx playwright test specs/qa-performance-budgets.spec.ts -g "JS|U1"` | 3 passed |
+| PHPStan level 5 | `vendor/bin/phpstan analyse` | `[OK] No errors` |
+| PHPCS (project ruleset, whole tree) | `vendor/bin/phpcs -n` | exit 0, 0 errors |
+
+The skipped test is the production-only sample guard (the test install's environment is a constant); the risky test is
+the template query-budget test, which passes but leaves an output buffer open from the core template loader.
+The full Playwright suite was last run as one pass in the release-candidate run (539/543; the failing cases are
+covered by the re-runs above).
