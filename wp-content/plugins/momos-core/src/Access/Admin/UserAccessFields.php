@@ -95,6 +95,7 @@ final class UserAccessFields {
 		$own        = $uid && get_current_user_id() === $uid;
 		$optin      = $uid && '1' === (string) get_user_meta( $uid, TwoFactor::META_OPTIN, true );
 		$scoped     = $role && AccountStatus::is_scoped_role( $role );
+		$translator_langs = $uid ? array_map( 'strval', (array) get_user_meta( $uid, 'momo_translator_langs', true ) ) : [];
 		include MOMOS_CORE_DIR . '/templates/admin/access-user-fields.php';
 	}
 
@@ -228,6 +229,15 @@ final class UserAccessFields {
 		$phone = isset( $post['momos_phone'] ) ? self::normalize_phone( sanitize_text_field( (string) $post['momos_phone'] ) ) : null;
 		if ( isset( $post['momos_phone'] ) ) {
 			'' === trim( (string) $post['momos_phone'] ) ? delete_user_meta( $user_id, 'momo_phone' ) : ( null !== $phone ? update_user_meta( $user_id, 'momo_phone', $phone ) : null );
+		}
+
+		if ( isset( $post['momos_translator_langs_present'] ) ) {
+			$langs = array_values( array_intersect( \Momos\Kernel\I18n\Lang::targets(), array_map( 'strval', (array) ( $post['momos_translator_langs'] ?? [] ) ) ) );
+			$old   = array_map( 'strval', (array) get_user_meta( $user_id, 'momo_translator_langs', true ) );
+			if ( $langs !== $old ) {
+				$langs ? update_user_meta( $user_id, 'momo_translator_langs', $langs ) : delete_user_meta( $user_id, 'momo_translator_langs' );
+				momos_audit( 'user.translator_langs_changed', 'user', $user_id, null, [ 'from' => $old, 'to' => $langs ] );
+			}
 		}
 
 		if ( current_user_can( 'manage_options' ) && isset( $post['momos_vendor_present'] ) ) {

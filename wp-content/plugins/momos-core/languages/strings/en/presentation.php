@@ -76,12 +76,6 @@ return [
 	'maintenance.title' => 'Under maintenance',
 	'maintenance.body' => 'We are updating the website. Please try again shortly.',
 	'maintenance.phone' => 'Phone: {phone}',
-	'status.pending' => 'Request received — not yet confirmed',
-	'status.confirmed' => 'Confirmed by the branch',
-	'status.rejected' => 'Declined',
-	'status.cancelled' => 'Cancelled',
-	'status.expired' => 'Expired — not confirmed in time',
-	'status.past' => 'The date of this reservation has passed.',
 	// ---- TASK 2 screens (screens.md §8, content-strings.md §4.6/§8) ----
 	'home.hero.eyebrow' => 'Osaka · Halal information by branch',
 	'home.categories.label' => 'Menu categories',

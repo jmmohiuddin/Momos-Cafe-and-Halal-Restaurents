@@ -28,6 +28,7 @@ final class Plugin {
 		\Momos\Seo\SeoModule::class,
 		\Momos\Presentation\PresentationModule::class,
 		\Momos\Admin\AdminModule::class,
+		\Momos\Admin\Content\ContentModule::class,
 	];
 
 	private static ?Plugin $instance = null;

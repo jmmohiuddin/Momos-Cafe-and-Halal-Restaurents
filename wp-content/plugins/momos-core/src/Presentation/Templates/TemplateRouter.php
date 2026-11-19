@@ -52,7 +52,7 @@ final class TemplateRouter {
 	public const REWRITE_OPTION = 'momos_presentation_rewrite';
 
 	/** Query parameters that make a URL a non-canonical variant (i18n-seo-analytics.md §8.1 rule 4). */
-	public const VARIANT_PARAMS = [ 'branch', 'diet', 'spice', 'max_spice', 'exclude', 'notice', 'momo_notice', 'sent', 'contact_error' ];
+	public const VARIANT_PARAMS = [ 'branch', 'diet', 'spice', 'max_spice', 'exclude', 'notice', 'momo_notice', 'sent', 'contact_error', 'date', 'time' ];
 
 	public static function register(): void {
 		add_filter( 'template_include', [ self::class, 'template_include' ], 20 );
@@ -154,7 +154,7 @@ final class TemplateRouter {
 		return $id > 0 && ! Translations::post_visible( $id, Locale::current() );
 	}
 
-	/** C10/C11: never indexed, no referrer, C11 never stored in any cache (DEC-066, i18n-seo-analytics.md §9.3). */
+	/** C10/C11: never indexed, no referrer, never stored in any cache (DEC-066, i18n-seo-analytics.md §9.3). */
 	public static function private_headers(): void {
 		if ( headers_sent() || ! is_page() ) {
 			return;
@@ -163,12 +163,12 @@ final class TemplateRouter {
 		if ( ! in_array( $role, SystemPages::NOINDEX, true ) ) {
 			return;
 		}
-		header( 'X-Robots-Tag: noindex' );
+		header( 'X-Robots-Tag: noindex, nofollow' );
 		header( 'Referrer-Policy: no-referrer' );
-		if ( 'status' === $role ) {
-			nocache_headers();
-			header( 'Cache-Control: no-store, private' );
-		}
+		// C10 is rendered from the tab's sessionStorage and C11 from the token header: neither may be
+		// stored by a browser, proxy or CDN cache (FR-RES-006, DEC-058/066).
+		nocache_headers();
+		header( 'Cache-Control: no-store, private' );
 	}
 
 	/** Is the request a query-string variant of a canonical URL (`?branch=`, filters, notices)? */

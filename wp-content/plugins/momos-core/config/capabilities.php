@@ -10,6 +10,7 @@
  *  - momos_translate / momo_approve_translations / momo_preview_languages replace the WPML
  *    translator designation (IMPL-002). Translators are the native-speaker reviewers (DEC-027).
  *  - momos_view_notification_log: notification log view (F-NOT-03).
+ *  - momo_manage_redirects / momo_edit_seo_meta: SEO module (no TRD row; role sets match SEO spec).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -97,6 +98,8 @@ $caps['momo_manage_dsr']               = [ $sa, $ho ];
 $caps['momo_manage_languages']         = [ $sa, $ho ];
 $caps['momo_access_all_branches']      = [ $sa, $ho, $mm, $ce ];
 $caps['momo_view_notification_log']    = [ $sa, $ho ];
+$caps['momo_manage_redirects']         = [ $sa, $ho ];            // SEO redirects + 404 log (i18n-seo-analytics §7).
+$caps['momo_edit_seo_meta']            = [ $sa, $ho, $mm, $ce ];  // Per-item SEO title/description.
 
 // Translation (replaces WPML designations, IMPL-002). TRD name `momo_translate` kept as alias.
 $caps['momo_translate']             = [ $sa, $ho, $mm, $ce, $tr ];

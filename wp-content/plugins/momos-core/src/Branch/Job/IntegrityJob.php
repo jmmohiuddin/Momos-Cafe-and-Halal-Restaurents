@@ -49,6 +49,8 @@ final class IntegrityJob {
 			if ( $orphans || $bad ) {
 				Logger::warning( 'branch.integrity', [ 'orphan_rows' => $orphans, 'misconfigured_branches' => $bad ] );
 			}
+			/** Other modules' read-only nightly integrity checks (e.g. Reservation pending-past-start). */
+			do_action( 'momos/branch/integrity_check' );
 			return [ 'purged' => $purged, 'orphans' => $orphans, 'misconfigured' => $bad ];
 		} finally {
 			NamedLock::release( self::HOOK );

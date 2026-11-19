@@ -78,12 +78,6 @@ return [
 	'maintenance.title' => 'রক্ষণাবেক্ষণ চলছে',
 	'maintenance.body' => 'আমরা ওয়েবসাইট হালনাগাদ করছি। অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।',
 	'maintenance.phone' => 'ফোন: {phone}',
-	'status.pending' => 'অনুরোধ গৃহীত — এখনও নিশ্চিত নয়',
-	'status.confirmed' => 'শাখা নিশ্চিত করেছে',
-	'status.rejected' => 'গ্রহণ করা যায়নি',
-	'status.cancelled' => 'বাতিল',
-	'status.expired' => 'মেয়াদ শেষ — সময়মতো নিশ্চিত হয়নি',
-	'status.past' => 'এই রিজার্ভেশনের তারিখ পেরিয়ে গেছে।',
 	// ---- TASK 2 screens (screens.md §8, content-strings.md §4.6/§8) ----
 	'home.hero.eyebrow' => 'ওসাকা · প্রতিটি শাখার হালাল তথ্য',
 	'home.categories.label' => 'মেনুর বিভাগ',

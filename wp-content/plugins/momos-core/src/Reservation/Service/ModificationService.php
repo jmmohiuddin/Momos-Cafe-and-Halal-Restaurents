@@ -88,8 +88,10 @@ final class ModificationService {
 		if ( ! in_array( $row['status'], [ 'pending', 'confirmed' ], true ) || $now >= $start ) {
 			throw TransitionService::invalid_transition( $row, $expired_now );
 		}
-		$before = [ 'date' => (string) $row['requested_date'], 'time' => substr( (string) $row['requested_time'], 0, 5 ), 'party' => (int) $row['party_size'] ];
-		$after  = [ 'date' => $date, 'time' => $time, 'party' => (int) $party ];
+		// E06 / event payload shape (notifications.md E06, CONTRACTS `momos/reservation/modified`):
+		// {before:{requested_date,requested_time,party_size}, after:{…}} — no personal data.
+		$before = [ 'requested_date' => (string) $row['requested_date'], 'requested_time' => substr( (string) $row['requested_time'], 0, 5 ), 'party_size' => (int) $row['party_size'] ];
+		$after  = [ 'requested_date' => $date, 'requested_time' => $time, 'party_size' => (int) $party ];
 		if ( $before === $after ) {
 			throw ReservationError::invalid( [ 'requested_date' => 'not_allowed' ] );
 		}

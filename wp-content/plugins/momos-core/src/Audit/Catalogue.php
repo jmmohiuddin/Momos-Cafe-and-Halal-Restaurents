@@ -14,10 +14,10 @@ final class Catalogue {
 	/** SDD §2.4.7 (+ Doc 05 variants mapped to these names). */
 	public const DOMAIN = [
 		'access.denied', 'auth.disabled_login',
-		'user.created', 'user.role_changed', 'user.branch_assigned', 'user.branch_unassigned', 'user.disabled', 'user.enabled',
+		'user.created', 'user.role_changed', 'user.translator_langs_changed', 'user.branch_assigned', 'user.branch_unassigned', 'user.disabled', 'user.enabled',
 		'user.access_window_set', 'user.cap_dca_granted', 'user.cap_dca_revoked', 'user.2fa_reset',
 		'vendor.breakglass_granted', 'vendor.breakglass_revoked',
-		'language.enabled', 'language.disabled',
+		'language.enabled', 'language.disabled', 'media.illustrative_changed',
 		'branch.identity_updated', 'branch.settings_updated', 'branch.hours_updated', 'branch.closure_created', 'branch.closure_updated',
 		'branch.closure_deleted', 'branch.status_changed', 'branch.content_updated',
 		'notice.published', 'notice.updated', 'notice.trashed',

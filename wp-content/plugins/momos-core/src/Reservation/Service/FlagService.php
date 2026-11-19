@@ -21,6 +21,8 @@ use Momos\Reservation\Repository\ReservationRepository;
  *    preview through filter `momos/branch/slot_valid`.
  *  - final notification failures (BR-RES-12): `momos/notification/failed` → customer_notified_flag = 0
  *    + event `notification_failed` for customer templates E01–E06.
+ *  - a resent customer email was accepted (notifications.md §8.3): `momos/notification/resend_sent`
+ *    → customer_notified_flag = 1 + event `customer_contacted` {via: email_resend} (actor system).
  */
 final class FlagService {
 	public static function register(): void {
@@ -28,6 +30,30 @@ final class FlagService {
 		add_action( 'momos/branch/accepting_changed', [ self::class, 'on_accepting_changed' ], 10, 3 );
 		add_filter( 'momos/branch/slot_valid', [ self::class, 'slot_valid' ], 10, 3 );
 		add_action( 'momos/notification/failed', [ self::class, 'on_notification_failed' ], 10, 2 );
+		add_action( 'momos/notification/resend_sent', [ self::class, 'on_resend_sent' ], 10, 2 );
+	}
+
+	/** Resent customer email accepted by the transport → the guest is reachable again. */
+	public static function on_resend_sent( int $notification_id, int $reservation_id = 0 ): void {
+		if ( $reservation_id <= 0 ) {
+			return;
+		}
+		try {
+			Transaction::run(
+				static function () use ( $reservation_id, $notification_id ): void {
+					$row = ReservationRepository::find( $reservation_id );
+					if ( null === $row || ! empty( $row['pii_purged_at'] ) ) {
+						return;
+					}
+					if ( '1' !== (string) $row['customer_notified_flag'] ) {
+						ReservationRepository::update_conditional( $reservation_id, null, null, [ 'customer_notified_flag' => 1 ] );
+					}
+					EventRepository::add( $reservation_id, EventType::CustomerContacted, Actor::system(), null, null, null, null, [ 'via' => 'email_resend', 'notification_id' => $notification_id ] );
+				}
+			);
+		} catch ( \Throwable $e ) {
+			Logger::error( 'reservation.flag_failed', [ 'reservation_id' => $reservation_id, 'error' => $e->getMessage() ] );
+		}
 	}
 
 	/** @param list<string> $dates */

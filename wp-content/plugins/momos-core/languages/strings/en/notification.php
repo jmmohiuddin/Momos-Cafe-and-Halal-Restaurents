@@ -21,30 +21,10 @@ return [
 	'email.subject.e06.confirmed' => '{brand}: your reservation details were updated [{ref}]',
 
 	// Status labels (DEC-011).
-	'status.pending'              => 'Request received — not yet confirmed',
-	'status.confirmed'            => 'Confirmed by the branch',
-	'status.rejected'             => 'Declined',
-	'status.cancelled'            => 'Cancelled',
-	'status.expired'              => 'Expired — not confirmed in time',
 
-	'res.submitted.reference'     => 'Your reference: {ref}',
-	'res.submitted.next'          => 'The branch will review your request and reply by email. A table is not set aside for you until the branch accepts your request.',
-	'res.submitted.expiry'        => 'If the branch has not replied by {time}, your request expires and we will email you.',
-	'res.submitted.promise'       => 'The branch usually replies within {duration} during opening hours.',
-	'res.submitted.dont_travel'   => 'Please don\'t travel to the branch based on this request alone.',
-	'res.submitted.status_link'   => 'View request status',
-	'res.carrier_tip'             => 'Not receiving our emails? If you use a Japanese mobile carrier address, allow mail from @{domain}.',
 
 	'email.confirmed.allergy'     => 'If anyone in your group has a food allergy, please tell our staff when you arrive.',
-	'decline.reason.fully_booked' => 'The branch is fully booked at that time.',
-	'decline.reason.closed_or_private_event' => 'The branch is closed or reserved for a private event at that time.',
-	'decline.reason.party_size_not_supported' => 'The branch can\'t seat a group of this size at that time.',
-	'decline.reason.incomplete_information' => 'We needed more information to accept this request.',
-	'decline.reason.other'        => 'The branch couldn\'t accept this request.',
-	'decline.suggested'           => 'The branch suggested these times. They are not held for you — send a new request if one suits you.',
 	'cta.request_other_time'      => 'Request another time',
-	'cta.directions'              => 'Directions',
-	'ftr.privacy'                 => 'Privacy Policy',
 
 	'email.details.branch'        => 'Branch',
 	'email.details.date'          => 'Date',

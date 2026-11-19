@@ -32,6 +32,10 @@ final class AccessModule implements ModuleInterface {
 		Http\SecurityHeaders::register();
 		Activity\ActivityLogger::register();
 
+		add_filter( 'momos/privacy/retention_steps', static function ( array $steps ): array {
+			$steps['csp_reports'] = static fn( bool $dry_run ): int => Http\CspReport::prune( $dry_run );
+			return $steps;
+		} );
 		add_action( 'set_user_role', [ Users\AssignmentService::class, 'on_role_change' ], 20, 3 );
 		add_action( 'admin_notices', [ self::class, 'key_notice' ] );
 	}

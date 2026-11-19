@@ -86,6 +86,22 @@ $now_local  = Clock::jst()->format( 'Y-m-d\TH:i' );
 		</td>
 	</tr>
 
+	<?php if ( 'momo_translator' === $role ) : ?>
+	<tr>
+		<th scope="row"><?php esc_html_e( 'Translation languages', 'momos-core' ); ?></th>
+		<td>
+			<fieldset>
+				<legend class="screen-reader-text"><?php esc_html_e( 'Translation languages', 'momos-core' ); ?></legend>
+				<input type="hidden" name="momos_translator_langs_present" value="1">
+				<?php foreach ( \Momos\Kernel\I18n\Lang::targets() as $tl ) : ?>
+					<label class="momos-inline-choice"><input type="checkbox" name="momos_translator_langs[]" value="<?php echo esc_attr( $tl ); ?>" <?php checked( in_array( $tl, $translator_langs, true ) ); ?> <?php disabled( ! $editable ); ?>> <?php echo esc_html( \Momos\Kernel\I18n\Lang::ALL[ $tl ]['native'] ?? $tl ); ?></label>
+				<?php endforeach; ?>
+				<p class="description"><?php esc_html_e( 'Languages this translator may edit and approve. None selected = all languages.', 'momos-core' ); ?></p>
+			</fieldset>
+		</td>
+	</tr>
+	<?php endif; ?>
+
 	<?php if ( $uid ) : ?>
 	<tr>
 		<th scope="row"><?php esc_html_e( 'Dietary Claims Approver', 'momos-core' ); ?></th>

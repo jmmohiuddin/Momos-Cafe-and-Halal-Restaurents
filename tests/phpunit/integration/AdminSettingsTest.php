@@ -79,6 +79,8 @@ final class AdminSettingsTest extends AccessTestCaseTest {
 		$ho = $this->user_with_role( 'momo_head_office' );
 		wp_set_current_user( $ho );
 		update_option( 'momos_languages_enabled', [ 'ja', 'en' ] );
+		// Isolate the gate from the real translation-gaps provider (covered by I18nLanguageGateTest).
+		remove_filter( 'momos/i18n/language_gate_errors', [ \Momos\Kernel\I18n\Admin\TranslationGaps::class, 'gate_errors' ], 10 );
 		$gap = static fn( $errors, $lang ) => 'ar' === $lang ? array_merge( (array) $errors, [ 'Page "About" (ar) missing' ] ) : $errors;
 		add_filter( 'momos/i18n/language_gate_errors', $gap, 10, 2 );
 		$err = LanguageGate::enable( 'ar', [ 'by' => 'Reviewer', 'at' => '2026-11-17', 'ref' => 'R-1' ], $ho );

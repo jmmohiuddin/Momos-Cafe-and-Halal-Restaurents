@@ -14,13 +14,17 @@ use Momos\Kernel\ModuleInterface;
  * Domain hooks fired after commit (docs/CONTRACTS.md): momos/reservation/created,
  * momos/reservation/status_changed, momos/reservation/modified, momos/reservation/sla_reminder,
  * momos/reservation/sla_escalated, momos/reservation/closure_conflict (+ momos/reservation/token_reissued).
- * Consumes: momos/branch/schedule_changed, momos/branch/accepting_changed, momos/notification/failed.
+ * Consumes: momos/branch/schedule_changed, momos/branch/accepting_changed, momos/notification/failed,
+ * momos/notification/resend_sent. Customer screens C09–C11: Front\CustomerPages (theme templates).
+ * Fires `momos/admin/reservation_detail (int $id)` on SCR-A09 (Notification panel).
  */
 final class ReservationModule implements ModuleInterface {
 	public function register(): void {
 		Job\ExpiryJob::register();
 		Job\SlaJob::register();
+		Job\IntegrityJob::register();
 		Service\FlagService::register();
+		Front\CustomerPages::register();
 		add_filter( 'map_meta_cap', [ self::class, 'map_meta_cap' ], 10, 4 );
 		add_action( 'momos/branch/schedule_changed', [ self::class, 'purge_rules_cache' ], 20, 1 );
 		add_action( 'momos/branch/settings_changed', [ self::class, 'purge_rules_cache' ], 20, 1 );

@@ -139,7 +139,13 @@ include __DIR__ . '/reservation-styles.php';
 							<?php if ( $e['reason'] ) : ?> · <?php echo esc_html( $reasons[ $e['reason'] ] ?? $e['reason'] ); ?><?php endif; ?>
 							<br><span class="momos-muted"><?php echo esc_html( (string) $e['at'] . ' · ' . ( 'system' === $e['actor_type'] ? __( 'System', 'momos-core' ) : ( 'customer' === $e['actor_type'] ? __( 'Guest', 'momos-core' ) : (string) $e['actor_display'] ) ) ); ?></span>
 							<?php if ( 'modified' === $e['type'] && ! empty( $e['payload']['before'] ) ) : ?>
-								<br><?php echo esc_html( sprintf( '%s %s (%d) → %s %s (%d)', $e['payload']['before']['date'], $e['payload']['before']['time'], $e['payload']['before']['party'], $e['payload']['after']['date'], $e['payload']['after']['time'], $e['payload']['after']['party'] ) ); ?>
+								<?php
+								// Payload {before:{requested_date,requested_time,party_size},after:{…}}; older rows used date/time/party.
+								$momos_mv = static fn( array $side, string $k1, string $k2 ): string => (string) ( $side[ $k1 ] ?? $side[ $k2 ] ?? '' );
+								$momos_b  = (array) $e['payload']['before'];
+								$momos_a  = (array) ( $e['payload']['after'] ?? [] );
+								?>
+								<br><?php echo esc_html( sprintf( '%s %s (%d) → %s %s (%d)', $momos_mv( $momos_b, 'requested_date', 'date' ), $momos_mv( $momos_b, 'requested_time', 'time' ), (int) $momos_mv( $momos_b, 'party_size', 'party' ), $momos_mv( $momos_a, 'requested_date', 'date' ), $momos_mv( $momos_a, 'requested_time', 'time' ), (int) $momos_mv( $momos_a, 'party_size', 'party' ) ) ); ?>
 								<?php if ( ! empty( $e['payload']['override_reason'] ) ) : ?><br><?php echo esc_html( __( 'Rules overridden:', 'momos-core' ) . ' ' . $e['payload']['override_reason'] ); ?><?php endif; ?>
 							<?php endif; ?>
 							<?php if ( null !== $e['note'] && '' !== $e['note'] ) : ?><div dir="auto" style="white-space:pre-wrap"><?php echo esc_html( (string) $e['note'] ); ?></div><?php endif; ?>
@@ -147,6 +153,10 @@ include __DIR__ . '/reservation-styles.php';
 					<?php endforeach; ?>
 				</ol>
 			</section>
+			<?php
+			/** Extension point for other modules' panels (Notification: emails + Resend, TK-10-07). */
+			do_action( 'momos/admin/reservation_detail', (int) $d['id'] );
+			?>
 		</div>
 
 		<div>

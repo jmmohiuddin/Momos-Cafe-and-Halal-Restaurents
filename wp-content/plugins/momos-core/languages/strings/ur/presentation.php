@@ -78,12 +78,6 @@ return [
 	'maintenance.title' => 'دیکھ بھال جاری ہے',
 	'maintenance.body' => 'ہم ویب سائٹ کو اپ ڈیٹ کر رہے ہیں۔ براہ کرم کچھ دیر بعد دوبارہ کوشش کریں۔',
 	'maintenance.phone' => 'فون: {phone}',
-	'status.pending' => 'درخواست موصول — ابھی تصدیق نہیں ہوئی',
-	'status.confirmed' => 'برانچ نے تصدیق کر دی',
-	'status.rejected' => 'معذرت، قبول نہیں ہوئی',
-	'status.cancelled' => 'منسوخ',
-	'status.expired' => 'میعاد ختم — وقت پر تصدیق نہیں ہوئی',
-	'status.past' => 'اس ریزرویشن کی تاریخ گزر چکی ہے۔',
 	// ---- TASK 2 screens (screens.md §8, content-strings.md §4.6/§8) ----
 	'home.hero.eyebrow' => 'اوساکا · ہر برانچ کی حلال معلومات',
 	'home.categories.label' => 'مینو کی اقسام',

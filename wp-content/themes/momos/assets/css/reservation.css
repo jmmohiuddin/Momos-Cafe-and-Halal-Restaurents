@@ -1,0 +1,68 @@
+/*
+ * Reservation screens C09–C11 (reservation.md §6, screens.md §3.9–3.11). Logical properties only
+ * (RTL: the sticky summary sits at the inline end of the form and flips with `dir`). Tap targets
+ * ≥ 44 px for chips and primary actions (Ruling C-12). Loaded only on these three templates.
+ */
+
+/* ---- C09 form ---- */
+.momo-res-form{display:grid;gap:var(--momo-space-6)}
+.momo-res-form[hidden]{display:none}
+.momo-res-layout{display:grid;gap:var(--momo-space-6)}
+.momo-res-main,.momo-res-submit{min-inline-size:0}
+@media (min-width:1024px){
+	.momo-res-layout{grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:var(--momo-space-8);align-items:start}
+	.momo-res-main{grid-column:1;grid-row:1}
+	.momo-res-submit{grid-column:1;grid-row:2}
+	.momo-res-summary{grid-column:2;grid-row:1 / span 2;position:sticky;inset-block-start:calc(var(--momo-space-8) + 64px)}
+}
+.momo-res-form .momo-fieldset{border:0;margin:0;padding:0;min-inline-size:0}
+.momo-res-form .momo-fieldset > legend{padding:0;margin-block-end:var(--momo-space-2)}
+.momo-res-form .momo-chips{flex-wrap:wrap}
+.momo-res-form .momo-chip--choice{min-block-size:44px;min-inline-size:44px;justify-content:center}
+.momo-res-form select.momo-input{max-inline-size:100%}
+.momo-res-form [data-res-date-chips]{margin-block-end:var(--momo-space-3)}
+.momo-res-times{display:grid;gap:var(--momo-space-4)}
+.momo-res-period__label{margin:0 0 var(--momo-space-2);font-size:var(--momo-fs-body-sm);font-weight:700;color:var(--momo-color-text-muted)}
+.momo-res-skel{display:grid;gap:var(--momo-space-2)}
+.momo-res-more{display:flex;inline-size:fit-content;margin-block-start:var(--momo-space-2);margin-inline-end:auto}
+.momo-res-form .momo-stepper{max-inline-size:220px}
+.momo-res-contact .momo-field:last-child{grid-column:1 / -1}
+@media (min-width:768px){.momo-res-contact .momo-field:last-child{grid-column:auto}}
+.momo-res-promise{margin-block-end:var(--momo-space-6)}
+.momo-res-captcha:empty{display:none}
+.momo-res-submit .momo-btn--lg{justify-self:start;min-block-size:48px}
+.momo-res-submit [aria-disabled="true"]{opacity:.55;cursor:not-allowed}
+.momo-res-form .momo-errsum[hidden],.momo-res-form .momo-field__error[hidden]{display:none}
+
+/* Live summary (FR-RES-027) */
+.momo-res-dl{display:grid;gap:var(--momo-space-3);margin:0}
+.momo-res-dl > div{display:grid;grid-template-columns:minmax(7em,auto) minmax(0,1fr);gap:var(--momo-space-3);align-items:baseline}
+.momo-res-dl dt{font-size:var(--momo-fs-body-sm);color:var(--momo-color-text-muted);margin:0}
+.momo-res-dl dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.momo-res-replyto{margin-block:var(--momo-space-4) 0;overflow-wrap:anywhere}
+.momo-res-replyto__email{display:inline-block;font-size:var(--momo-fs-body-lg, 1.25rem);font-weight:700}
+.momo-res-summary h2{margin-block-end:var(--momo-space-4)}
+
+/* ---- C10 / C11 result ---- */
+.momo-res-result__head .momo-status--block{align-items:center}
+.momo-res-result__head .momo-title{margin:0;font-size:var(--momo-type-h2, 1.75rem)}
+.momo-res-result h1.momo-status{display:flex;margin:0}
+.momo-res-refbox{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--momo-space-3)}
+.momo-res-ref{margin:0;font-size:var(--momo-fs-body-lg, 1.125rem)}
+.momo-res-ref__code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.25em;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.momo-res-next{margin:0;padding-inline-start:1.25em;display:grid;gap:var(--momo-space-2)}
+.momo-res-message{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.momo-res-suggest{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--momo-space-3);padding-block:var(--momo-space-2);border-block-end:var(--momo-border-w, 1px) solid var(--momo-color-border)}
+.momo-res-timeline{margin:0;padding:0;list-style:none;display:grid;gap:var(--momo-space-3);border-inline-start:2px solid var(--momo-color-border);padding-inline-start:var(--momo-space-4)}
+.momo-res-timeline li{display:grid;gap:2px;position:relative}
+.momo-res-timeline li::before{content:"";position:absolute;inset-inline-start:calc(-1 * var(--momo-space-4) - 6px);inset-block-start:.45em;inline-size:10px;block-size:10px;border-radius:50%;background:var(--momo-color-brand)}
+.momo-res-cancel{border-inline-start:4px solid var(--momo-color-error)}
+.momo-res-skel-card{display:grid;gap:var(--momo-space-3)}
+.momo-res-skel-card[hidden],[data-res-result][hidden],[data-res-invalid][hidden]{display:none}
+.momo-res-phones .momo-stack{margin-block-start:var(--momo-space-3)}
+.momo-res .momo-cluster{display:flex;flex-wrap:wrap;gap:var(--momo-space-3)}
+.momo-res .momo-btn{min-block-size:44px}
+.momo-res-result .momo-status--block{flex-wrap:nowrap;align-items:center}
+.momo-res-result .momo-status--block .momo-icon{flex:none}
+.momo-res [data-res-heading]:focus{outline:none}
+.momo-res-result .momo-stack > .momo-btn,.momo-res-result section > .momo-btn{align-self:flex-start;justify-self:start}

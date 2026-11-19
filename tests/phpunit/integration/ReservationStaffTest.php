@@ -258,7 +258,7 @@ final class ReservationStaffTest extends ReservationTestCaseTest {
 		$row = $this->row( $id );
 		$this->assertSame( [ 'confirmed', '19:30:00', '5', '0', '2026-12-04 10:30:00' ], [ $row['status'], $row['requested_time'], (string) $row['party_size'], (string) $row['needs_action_flag'], $row['token_expires_utc'] ] );
 		$mod = array_values( array_filter( $this->events( $id ), static fn( $e ) => 'modified' === $e['event_type'] ) )[0];
-		$this->assertSame( [ 'before' => [ 'date' => '2026-12-03', 'time' => '19:00', 'party' => 4 ], 'after' => [ 'date' => '2026-12-03', 'time' => '19:30', 'party' => 5 ] ], json_decode( $mod['payload'], true ) );
+		$this->assertSame( [ 'before' => [ 'requested_date' => '2026-12-03', 'requested_time' => '19:00', 'party_size' => 4 ], 'after' => [ 'requested_date' => '2026-12-03', 'requested_time' => '19:30', 'party_size' => 5 ] ], json_decode( $mod['payload'], true ) );
 		$this->assertCount( 1, $this->hooks_of( 'modified' ) );
 		// Lead-time breach: RS → 422; RS override → 403 forbidden_field; HO with override → OK.
 		$soon = $patch( [ 'version' => 2, 'requested_date' => '2026-12-01', 'requested_time' => '11:30', 'reason' => 'agreed_with_guest' ] );

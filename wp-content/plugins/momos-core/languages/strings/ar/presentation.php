@@ -78,12 +78,6 @@ return [
 	'maintenance.title' => 'الموقع قيد الصيانة',
 	'maintenance.body' => 'نقوم بتحديث الموقع. يرجى المحاولة مرة أخرى بعد قليل.',
 	'maintenance.phone' => 'الهاتف: {phone}',
-	'status.pending' => 'تم استلام الطلب — لم يتم التأكيد بعد',
-	'status.confirmed' => 'أكّده الفرع',
-	'status.rejected' => 'تم الاعتذار',
-	'status.cancelled' => 'تم الإلغاء',
-	'status.expired' => 'انتهت المهلة — لم يُؤكَّد في الوقت المحدد',
-	'status.past' => 'لقد مضى موعد هذا الحجز.',
 	// ---- TASK 2 screens (screens.md §8, content-strings.md §4.6/§8) ----
 	'home.hero.eyebrow' => 'أوساكا · معلومات الحلال لكل فرع',
 	'home.categories.label' => 'فئات القائمة',

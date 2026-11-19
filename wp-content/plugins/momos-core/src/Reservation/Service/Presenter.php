@@ -276,7 +276,7 @@ final class Presenter {
 			],
 			array_reverse( EventRepository::for_reservation( (int) $row['id'] ) )
 		);
-		$out['notifications']           = self::notifications( (int) $row['id'] );
+		$out['notifications']           = self::notifications( (int) $row['id'], $user_id );
 		$out['allowed_actions']         = ActionPolicy::allowed( $row, $user_id );
 		$out['branch_settings_summary'] = [
 			'party_min'               => (int) $s['party_min'],
@@ -291,29 +291,39 @@ final class Presenter {
 	}
 
 	/**
-	 * Notification rows of a reservation (masked recipients only).
+	 * API-11 `notifications` (masked recipients only). Built on the Notification module's
+	 * NotificationPanel::api_rows() (resend eligibility, `last_error` text only for SA/HO) plus the
+	 * documented API-11 keys (`template`, `variant`, `language`, `last_error` = error code for others)
+	 * and ISO JST instants. Newest first.
 	 *
 	 * @return list<array<string,mixed>>
 	 */
-	public static function notifications( int $reservation_id ): array {
+	public static function notifications( int $reservation_id, ?int $user_id = null ): array {
+		if ( ! class_exists( \Momos\Notification\Admin\NotificationPanel::class ) ) {
+			return [];
+		}
 		global $wpdb;
-		$t    = Tables::notifications();
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT template_key, template_variant, lang, status, attempts, sent_at, failed_at, created_at, recipient_masked, recipient_type, last_error_code FROM {$t} WHERE reservation_id = %d ORDER BY created_at DESC, id DESC LIMIT 50", $reservation_id ), ARRAY_A ); // phpcs:ignore
-		return array_map(
-			static fn( $n ) => [
-				'template'         => (string) $n['template_key'],
-				'variant'          => $n['template_variant'],
-				'language'         => (string) $n['lang'],
-				'status'           => (string) $n['status'],
-				'attempts'         => (int) $n['attempts'],
-				'recipient_type'   => (string) $n['recipient_type'],
-				'recipient_masked' => (string) $n['recipient_masked'],
-				'sent_at'          => self::iso_jst( $n['sent_at'] ),
-				'failed_at'        => self::iso_jst( $n['failed_at'] ),
-				'created_at'       => self::iso_jst( $n['created_at'] ),
-				'last_error'       => $n['last_error_code'],
-			],
-			$rows
-		);
+		$t       = Tables::notifications();
+		$created = [];
+		foreach ( (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, created_at FROM {$t} WHERE reservation_id = %d", $reservation_id ), ARRAY_A ) as $c ) { // phpcs:ignore
+			$created[ (int) $c['id'] ] = (string) $c['created_at'];
+		}
+		$rows = \Momos\Notification\Admin\NotificationPanel::api_rows( $reservation_id, $user_id ?? get_current_user_id() );
+		$out  = [];
+		foreach ( $rows as $n ) {
+			$id    = (int) $n['id'];
+			$item  = $n;
+			$item['template']        = (string) $n['template_key'];
+			$item['variant']         = $n['template_variant'];
+			$item['language']        = (string) $n['lang'];
+			$item['last_error']      = array_key_exists( 'last_error', $n ) && null !== $n['last_error'] ? $n['last_error'] : $n['last_error_code'];
+			$item['sent_at']         = self::iso_jst( $n['sent_at'] ?? null );
+			$item['failed_at']       = self::iso_jst( $n['failed_at'] ?? null );
+			$item['next_attempt_at'] = self::iso_jst( $n['next_attempt_at'] ?? null );
+			$item['created_at']      = self::iso_jst( $created[ $id ] ?? null );
+			$out[]                   = $item;
+		}
+		usort( $out, static fn( $a, $b ) => [ (string) $b['created_at'], $b['id'] ] <=> [ (string) $a['created_at'], $a['id'] ] );
+		return array_slice( $out, 0, 50 );
 	}
 }

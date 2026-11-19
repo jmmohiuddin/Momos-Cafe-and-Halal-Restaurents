@@ -18,6 +18,18 @@ final class CspReport {
 	public const MAX_BYTES = 8192;
 	public const PER_HOUR  = 30;
 
+	/** Retention: drop counters older than 30 days even when no new report arrives (Privacy retention step). */
+	public static function prune( bool $dry_run = false ): int {
+		$all = get_option( self::OPTION, [] );
+		$all = is_array( $all ) ? $all : [];
+		$cut = Clock::utc()->modify( '-30 days' )->format( 'Y-m-d' );
+		$old = array_filter( array_keys( $all ), static fn( $k ) => substr( (string) $k, 0, 10 ) < $cut );
+		if ( $old && ! $dry_run ) {
+			update_option( self::OPTION, array_diff_key( $all, array_flip( $old ) ), false );
+		}
+		return count( $old );
+	}
+
 	public static function register_route(): void {
 		register_rest_route(
 			'momos/v1',

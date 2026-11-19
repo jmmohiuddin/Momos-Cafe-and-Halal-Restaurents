@@ -77,12 +77,6 @@ return [
 	'maintenance.title' => 'メンテナンス中',
 	'maintenance.body' => 'ウェブサイトを更新しています。しばらくしてから再度お試しください。',
 	'maintenance.phone' => 'お電話：{phone}',
-	'status.pending' => 'リクエスト受付・未確定',
-	'status.confirmed' => '店舗にて確定済み',
-	'status.rejected' => 'お受けできませんでした',
-	'status.cancelled' => 'キャンセル済み',
-	'status.expired' => '期限切れ（時間内に確定できませんでした）',
-	'status.past' => 'このご予約の日時は過ぎています。',
 	// ---- TASK 2 screens (screens.md §8, content-strings.md §4.6/§8) ----
 	'home.hero.eyebrow' => '大阪・店舗ごとのハラール情報',
 	'home.categories.label' => 'メニューのカテゴリー',

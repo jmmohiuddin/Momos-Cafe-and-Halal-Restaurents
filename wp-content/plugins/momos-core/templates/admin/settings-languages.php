@@ -56,6 +56,11 @@ defined( 'ABSPATH' ) || exit;
 					<?php else : ?>
 						<?php esc_html_e( 'None reported', 'momos-core' ); ?>
 					<?php endif; ?>
+					<?php if ( class_exists( \Momos\Kernel\I18n\Admin\TranslationGaps::class ) ) : ?>
+						<br><a href="<?php echo esc_url( admin_url( 'admin.php?page=momos-translation-gaps&lang=' . $code . '&lccs=1' ) ); ?>">
+							<?php echo esc_html( sprintf( /* translators: %d: percent */ __( 'Launch-critical content: %d%% approved', 'momos-core' ), \Momos\Kernel\I18n\Admin\TranslationGaps::lccs_percent( $code ) ) ); ?>
+						</a>
+					<?php endif; ?>
 				</td>
 				<td>
 					<form id="<?php echo esc_attr( $fid ); ?>" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">

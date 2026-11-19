@@ -114,7 +114,7 @@ final class LanguageGate {
 			NamedLock::release( self::STATE );
 		}
 		do_action( 'momos/cache/purge', [ 'momo-global' ] );
-		momos_audit( $enable ? 'language.enabled' : 'language.disabled', 'language', null, null, array_merge( [ 'lang' => $lang ], $enable ? [ 'lccs_gaps' => 0, 'signoff_by' => $sign['lccs_signoff_by'], 'signoff_at' => $sign['lccs_signoff_at'], 'signoff_ref' => $sign['lccs_signoff_ref'] ] : [] ) );
+		momos_audit( $enable ? 'language.enabled' : 'language.disabled', 'language', null, null, array_merge( [ 'lang' => $lang ], $enable ? [ 'lccs_gaps' => 0, 'lccs_percent' => class_exists( \Momos\Kernel\I18n\Admin\TranslationGaps::class ) ? \Momos\Kernel\I18n\Admin\TranslationGaps::lccs_percent( $lang ) : null, 'signoff_by' => $sign['lccs_signoff_by'], 'signoff_at' => $sign['lccs_signoff_at'], 'signoff_ref' => $sign['lccs_signoff_ref'] ] : [] ) );
 		do_action( 'momos/i18n/language_state_changed', $lang, $enable );
 		return [];
 	}

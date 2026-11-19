@@ -78,12 +78,6 @@ return [
 	'maintenance.title' => 'रखरखाव जारी है',
 	'maintenance.body' => 'हम वेबसाइट अपडेट कर रहे हैं। कृपया थोड़ी देर बाद फिर से प्रयास करें।',
 	'maintenance.phone' => 'फ़ोन: {phone}',
-	'status.pending' => 'अनुरोध प्राप्त — अभी पुष्टि नहीं हुई',
-	'status.confirmed' => 'शाखा द्वारा पुष्टि की गई',
-	'status.rejected' => 'स्वीकार नहीं हुआ',
-	'status.cancelled' => 'रद्द',
-	'status.expired' => 'समय समाप्त — समय पर पुष्टि नहीं हुई',
-	'status.past' => 'इस आरक्षण की तारीख बीत चुकी है।',
 	// ---- TASK 2 screens (screens.md §8, content-strings.md §4.6/§8) ----
 	'home.hero.eyebrow' => 'ओसाका · हर शाखा की हलाल जानकारी',
 	'home.categories.label' => 'मेनू श्रेणियाँ',
